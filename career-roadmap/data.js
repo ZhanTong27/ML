@@ -1,6 +1,7 @@
 const KEY='jett-career-os-v2';
 const OLD_KEY='jett-growth-static-v1';
-const todayISO=()=>new Date().toISOString().slice(0,10);
+const dateISO=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const todayISO=()=>dateISO(new Date());
 const DEFAULT_ABILITIES=[
 {id:'spec',name:'Spec理解',status:'初步理解',level:2,signal:'能够开始从触发、状态、异常和恢复拆解功能。',next:'在真实任务中独立形成结构化问题清单。'},
 {id:'strategy',name:'验证计划与策略',status:'初步理解',level:2,signal:'具备功能列表和基本验证闭环意识。',next:'能够将功能、风险、检查和Coverage完整映射。'},
