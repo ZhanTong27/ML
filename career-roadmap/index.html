@@ -4,8 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="dark">
+  <base href="https://cdn.jsdelivr.net/gh/ZhanTong27/ML@dfe50342a12d15482cbccf5ca1456d40933d1e1e/career-roadmap/">
   <title>Jett · Career OS V2.3</title>
-  <link rel="stylesheet" href="style.css?v=2302">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="shell">
@@ -33,92 +34,28 @@
 
     <section id="today" class="view active">
       <div class="career-strip">
-        <div>
-          <div class="eyebrow">CAREER NORTH STAR</div>
-          <h1>SoC系统型验证工程师 <span>→ 芯片项目负责人</span></h1>
-          <p>当前阶段：可靠的IP Owner　·　当前课程：16周SoC验证第一阶段　·　关键差距：系统推理、验证闭环与独立判断</p>
-        </div>
+        <div><div class="eyebrow">CAREER NORTH STAR</div><h1>SoC系统型验证工程师 <span>→ 芯片项目负责人</span></h1><p>当前阶段：可靠的IP Owner　·　当前课程：16周SoC验证第一阶段　·　关键差距：系统推理、验证闭环与独立判断</p></div>
         <button class="secondary" data-view-jump="career">查看长期路线 →</button>
       </div>
-
-      <div class="page-head">
-        <div><div class="eyebrow">TODAY COMMAND CENTER</div><h2>今天先处理什么</h2><p>每日记录和当天行动集中在这里，详细分析进入“成长”。</p></div>
-        <input id="todayDate" type="date" class="date-input">
-      </div>
+      <div class="page-head"><div><div class="eyebrow">TODAY COMMAND CENTER</div><h2>今天先处理什么</h2><p>每日记录和当天行动集中在这里，详细分析进入“成长”。</p></div><input id="todayDate" type="date" class="date-input"></div>
       <div class="status-row" id="todayStatusRow"></div>
-
       <div class="today-layout">
-        <article class="card focus-card">
-          <div class="card-head"><div><div class="eyebrow">TODAY ACTIONS</div><h3 id="todayTitle">今日行动</h3></div><span class="status-pill" id="todayRecordStatus">未记录</span></div>
-          <div class="action-list" id="todayActionList"></div>
-          <div class="actions prominent-actions">
-            <button class="primary" data-quick="daily">记录今天</button>
-            <button class="secondary" data-quick="problem">记录一个问题</button>
-            <button class="secondary" data-quick="schedule">添加安排</button>
-            <button class="secondary" data-copy-prompt="oral">开始AI口试</button>
-          </div>
-        </article>
-        <article class="card">
-          <div class="card-head"><div><div class="eyebrow">TODAY TIMELINE</div><h3>时间与生活安排</h3></div></div>
-          <div class="timeline" id="todayTimeline"></div>
-          <div class="subsection"><h4>未来三天</h4><div class="compact-list" id="nextThreeDays"></div></div>
-        </article>
+        <article class="card focus-card"><div class="card-head"><div><div class="eyebrow">TODAY ACTIONS</div><h3 id="todayTitle">今日行动</h3></div><span class="status-pill" id="todayRecordStatus">未记录</span></div><div class="action-list" id="todayActionList"></div><div class="actions prominent-actions"><button class="primary" data-quick="daily">记录今天</button><button class="secondary" data-quick="problem">记录一个问题</button><button class="secondary" data-quick="schedule">添加安排</button><button class="secondary" data-copy-prompt="oral">开始AI口试</button></div></article>
+        <article class="card"><div class="card-head"><div><div class="eyebrow">TODAY TIMELINE</div><h3>时间与生活安排</h3></div></div><div class="timeline" id="todayTimeline"></div><div class="subsection"><h4>未来三天</h4><div class="compact-list" id="nextThreeDays"></div></div></article>
       </div>
-
-      <div class="section-title"><div class="eyebrow">THIS WEEK</div><h2>本周概览</h2><p>完整课程与评估在“成长”页面。</p></div>
-      <div class="week-overview" id="weekOverview"></div>
-      <div id="weeklyReminder"></div>
-
-      <div class="section-title split-title"><div><div class="eyebrow">RECENT RECORDS</div><h2>最近记录</h2></div><button class="secondary small-btn" data-view-jump="growth" data-anchor="problem-journal">查看成长分析</button></div>
-      <div class="recent-grid" id="recentRecords"></div>
-
-      <details class="card disclosure" id="calendarDisclosure">
-        <summary><span><b>完整日历</b><small>查看工作、学习、问题和生活安排</small></span><span>展开</span></summary>
-        <div class="calendar-wrap">
-          <div class="calendar-toolbar"><button class="secondary small-btn" id="prevMonth">← 上月</button><h3 id="monthTitle">—</h3><button class="secondary small-btn" id="nextMonth">下月 →</button></div>
-          <div class="calendar-week"><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div></div>
-          <div class="calendar-grid" id="calendarGrid"></div>
-          <div class="calendar-detail card-inner" id="calendarDayDetail"></div>
-        </div>
-      </details>
+      <div class="section-title"><div class="eyebrow">THIS WEEK</div><h2>本周概览</h2><p>完整课程与评估在“成长”页面。</p></div><div class="week-overview" id="weekOverview"></div><div id="weeklyReminder"></div>
+      <div class="section-title split-title"><div><div class="eyebrow">RECENT RECORDS</div><h2>最近记录</h2></div><button class="secondary small-btn" data-view-jump="growth" data-anchor="problem-journal">查看成长分析</button></div><div class="recent-grid" id="recentRecords"></div>
+      <details class="card disclosure" id="calendarDisclosure"><summary><span><b>完整日历</b><small>查看工作、学习、问题和生活安排</small></span><span>展开</span></summary><div class="calendar-wrap"><div class="calendar-toolbar"><button class="secondary small-btn" id="prevMonth">← 上月</button><h3 id="monthTitle">—</h3><button class="secondary small-btn" id="nextMonth">下月 →</button></div><div class="calendar-week"><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div></div><div class="calendar-grid" id="calendarGrid"></div><div class="calendar-detail card-inner" id="calendarDayDetail"></div></div></details>
     </section>
 
     <section id="growth" class="view">
       <div class="page-head"><div><div class="eyebrow">LEARNING & ABILITY CENTER</div><h1>成长</h1><p>16周课程、问题日志、复盘、能力和历史档案集中在一页。</p></div></div>
-      <nav class="page-index" aria-label="成长页面目录">
-        <button data-scroll="current-execution" class="active">当前执行</button><button data-scroll="problem-journal">问题日志</button><button data-scroll="weekly-review">周度复盘</button><button data-scroll="ability-map">能力地图</button><button data-scroll="cycle-archive">周期档案</button>
-      </nav>
-
-      <section class="content-section" id="current-execution">
-        <div class="section-title"><div class="eyebrow">CURRENT EXECUTION</div><h2>本周学习与16周专业课程</h2><p>四个Cycle连续推进；工作观察与工作之外训练明确分开。</p></div>
-        <div class="metrics" id="learningMetrics"></div>
-        <div id="dynamicWeekTasks"></div>
-        <div class="week-tabs" id="weekTabs"></div>
-        <div id="weekContent"></div>
-      </section>
-
-      <section class="content-section" id="problem-journal">
-        <div class="section-title split-title"><div><div class="eyebrow">PROBLEM LEARNING JOURNAL</div><h2>学习问题日志</h2><p>保留错误判断、证据变化、根因与可迁移方法。</p></div><button class="primary" data-quick="problem">＋ 记录问题</button></div>
-        <div class="filter-row"><input id="problemSearch" placeholder="搜索问题、根因或能力标签"><select id="problemFilter"><option value="">全部问题</option><option value="important">重要成长经历</option><option value="repeat">重复问题</option></select></div>
-        <div class="stack" id="problemFeed"></div>
-      </section>
-
-      <section class="content-section" id="weekly-review">
-        <div class="section-title split-title"><div><div class="eyebrow">WEEKLY REVIEW</div><h2>周度复盘</h2><p>AI读取本周事实生成分析，你负责确认和调整。</p></div><button class="primary" data-quick="weekly">导入周复盘</button></div>
-        <article class="card workflow-card"><div class="workflow-step"><span>1</span><b>网站汇总事实</b><small>记录、问题、课程和安排</small></div><div class="workflow-arrow">→</div><div class="workflow-step"><span>2</span><b>AI生成分析</b><small>诊断、能力信号和下周建议</small></div><div class="workflow-arrow">→</div><div class="workflow-step"><span>3</span><b>导入一次</b><small>更新周报和动态任务</small></div></article>
-        <div class="stack" id="weeklyFeed"></div>
-      </section>
-
-      <section class="content-section" id="ability-map">
-        <div class="section-title split-title"><div><div class="eyebrow">ABILITY GROWTH MAP</div><h2>能力成长地图</h2><p>真实应用、独立程度和反馈才是升级依据。</p></div><button class="secondary" data-quick="ability">导入AI能力更新</button></div>
-        <div class="ability-grid" id="abilityGrid"></div>
-      </section>
-
-      <section class="content-section" id="cycle-archive">
-        <div class="section-title"><div class="eyebrow">HISTORY & ARCHIVE</div><h2>周期与历史档案</h2><p>当前内容优先，历史完整保留。</p></div>
-        <details class="card disclosure" open><summary><span><b>周期档案</b><small>计划、调整、问题、能力变化与下一周期</small></span><span>展开</span></summary><div class="stack disclosure-body" id="archiveFeed"></div></details>
-        <details class="card disclosure"><summary><span><b>历史周报</b><small>按照日期查看周度复盘</small></span><span>展开</span></summary><div class="stack disclosure-body" id="historicalWeeklyFeed"></div></details>
-      </section>
+      <nav class="page-index"><button data-scroll="current-execution" class="active">当前执行</button><button data-scroll="problem-journal">问题日志</button><button data-scroll="weekly-review">周度复盘</button><button data-scroll="ability-map">能力地图</button><button data-scroll="cycle-archive">周期档案</button></nav>
+      <section class="content-section" id="current-execution"><div class="section-title"><div class="eyebrow">CURRENT EXECUTION</div><h2>本周学习与16周专业课程</h2><p>四个Cycle连续推进；工作观察与工作之外训练明确分开。</p></div><div class="metrics" id="learningMetrics"></div><div id="dynamicWeekTasks"></div><div class="week-tabs" id="weekTabs"></div><div id="weekContent"></div></section>
+      <section class="content-section" id="problem-journal"><div class="section-title split-title"><div><div class="eyebrow">PROBLEM LEARNING JOURNAL</div><h2>学习问题日志</h2><p>保留错误判断、证据变化、根因与可迁移方法。</p></div><button class="primary" data-quick="problem">＋ 记录问题</button></div><div class="filter-row"><input id="problemSearch" placeholder="搜索问题、根因或能力标签"><select id="problemFilter"><option value="">全部问题</option><option value="important">重要成长经历</option><option value="repeat">重复问题</option></select></div><div class="stack" id="problemFeed"></div></section>
+      <section class="content-section" id="weekly-review"><div class="section-title split-title"><div><div class="eyebrow">WEEKLY REVIEW</div><h2>周度复盘</h2><p>AI读取本周事实生成分析，你负责确认和调整。</p></div><button class="primary" data-quick="weekly">导入周复盘</button></div><article class="card workflow-card"><div class="workflow-step"><span>1</span><b>网站汇总事实</b><small>记录、问题、课程和安排</small></div><div class="workflow-arrow">→</div><div class="workflow-step"><span>2</span><b>AI生成分析</b><small>诊断、能力信号和下周建议</small></div><div class="workflow-arrow">→</div><div class="workflow-step"><span>3</span><b>导入一次</b><small>更新周报和动态任务</small></div></article><div class="stack" id="weeklyFeed"></div></section>
+      <section class="content-section" id="ability-map"><div class="section-title split-title"><div><div class="eyebrow">ABILITY GROWTH MAP</div><h2>能力成长地图</h2><p>真实应用、独立程度和反馈才是升级依据。</p></div><button class="secondary" data-quick="ability">导入AI能力更新</button></div><div class="ability-grid" id="abilityGrid"></div></section>
+      <section class="content-section" id="cycle-archive"><div class="section-title"><div class="eyebrow">HISTORY & ARCHIVE</div><h2>周期与历史档案</h2><p>当前内容优先，历史完整保留。</p></div><details class="card disclosure" open><summary><span><b>周期档案</b><small>计划、调整、问题、能力变化与下一周期</small></span><span>展开</span></summary><div class="stack disclosure-body" id="archiveFeed"></div></details><details class="card disclosure"><summary><span><b>历史周报</b><small>按照日期查看周度复盘</small></span><span>展开</span></summary><div class="stack disclosure-body" id="historicalWeeklyFeed"></div></details></section>
     </section>
 
     <section id="resume" class="view">
@@ -146,17 +83,16 @@
 
 <div class="modal" id="quickModal" aria-hidden="true"><div class="modal-backdrop" data-close-modal></div><section class="modal-panel wide"><button class="modal-close" data-close-modal>×</button><div class="eyebrow">QUICK RECORD</div><h2 id="quickTitle">快速记录</h2><p class="muted" id="quickDescription"></p><div class="quick-tabs" id="quickTabs"><button data-mode="daily" class="active">记录今天</button><button data-mode="problem">记录问题</button><button data-mode="schedule">添加安排</button><button data-mode="weekly">周复盘</button><button data-mode="ability">能力更新</button><button data-mode="resume">简历档案</button></div><div id="quickContent"></div></section></div>
 <div class="modal" id="toolsModal" aria-hidden="true"><div class="modal-backdrop" data-close-modal></div><section class="modal-panel wide"><button class="modal-close" data-close-modal>×</button><div class="eyebrow">AI TOOLBOX & DATA</div><h2>AI工具箱</h2><p class="muted">Prompt统一维护，各页面调用同一份内容。</p><div class="tool-tabs"><button data-tool="prompts" class="active">Prompt</button><button data-tool="data">数据管理</button></div><div id="toolContent"></div></section></div>
-<div class="toast" id="toast"></div>
-<div class="privacy">PUBLIC CODE · PERSONAL ENTRIES STAY IN THIS BROWSER</div>
+<div class="toast" id="toast"></div><div class="privacy">PUBLIC CODE · PERSONAL ENTRIES STAY IN THIS BROWSER</div>
 
-<script src="legacy-data-v22.js?v=2302"></script>
-<script src="curriculum/base.js?v=2302"></script>
-<script src="curriculum/cycle1.js?v=2302"></script>
-<script src="curriculum/cycle2.js?v=2302"></script>
-<script src="curriculum/cycle3.js?v=2302"></script>
-<script src="curriculum/cycle4.js?v=2302"></script>
-<script src="app.js?v=2302"></script>
-<script src="curriculum/patch.js?v=2302"></script>
-<script src="curriculum/finalize.js?v=2302"></script>
+<script src="legacy-data-v22.js"></script>
+<script src="curriculum/base.js"></script>
+<script src="curriculum/cycle1.js"></script>
+<script src="curriculum/cycle2.js"></script>
+<script src="curriculum/cycle3.js"></script>
+<script src="curriculum/cycle4.js"></script>
+<script src="app.js"></script>
+<script src="curriculum/patch.js"></script>
+<script src="curriculum/finalize.js"></script>
 </body>
 </html>
