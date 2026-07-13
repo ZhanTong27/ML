@@ -64,6 +64,5 @@ window.addEventListener('load',()=>{
     const desc=document.querySelector('#current-execution .section-title p');if(desc)desc.textContent='四个Cycle连续推进；任务详细保留，工作观察与工作之外训练继续分开。';
     migrateCurriculumV23();syncCurriculumUI();
     const tabs=document.getElementById('weekTabs');if(tabs)new MutationObserver(()=>setTimeout(syncCurriculumUI,0)).observe(tabs,{childList:true,subtree:true});
-    const goal=document.getElementById('goalChain');if(goal)new MutationObserver(()=>{const nodes=goal.querySelectorAll('.goal-node');if(nodes[2]){nodes[2].querySelector('h3').textContent='SoC验证第一阶段课程';nodes[2].querySelector('p').textContent='验证环境 → SoC数据流 → 系统状态 → 完整交付'}}).observe(goal,{childList:true,subtree:true});
   }catch(e){console.error('Curriculum V2.3 patch failed',e)}
 });
