@@ -15,61 +15,72 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - run: npm install --no-save jsdom@24
+          node-version: '22'
+      - run: npm install --no-save --silent jsdom@24
       - name: Load and verify Career OS
+        id: smoke
+        continue-on-error: true
         run: |
           cat > /tmp/smoke.mjs <<'EOF'
           import { JSDOM, VirtualConsole } from 'jsdom';
           import path from 'node:path';
           import { pathToFileURL } from 'node:url';
+          import fs from 'node:fs';
 
           const errors = [];
           const virtualConsole = new VirtualConsole();
           virtualConsole.on('jsdomError', error => errors.push(String(error)));
           virtualConsole.on('error', error => errors.push(String(error)));
 
-          const file = path.resolve('career-roadmap/index.html');
-          const dom = await JSDOM.fromFile(file, {
-            url: pathToFileURL(file).href,
-            resources: 'usable',
-            runScripts: 'dangerously',
-            pretendToBeVisual: true,
-            virtualConsole,
-            beforeParse(window) {
-              window.scrollTo = () => {};
-              window.structuredClone ||= value => JSON.parse(JSON.stringify(value));
-              window.URL.createObjectURL ||= () => 'blob:test';
-              window.URL.revokeObjectURL ||= () => {};
-            }
-          });
-
-          await new Promise(resolve => {
-            if (dom.window.document.readyState === 'complete') resolve();
-            else dom.window.addEventListener('load', resolve, { once: true });
-          });
-          await new Promise(resolve => setTimeout(resolve, 2500));
-
-          const d = dom.window.document;
-          const checks = {
-            title: d.title.includes('Career OS V2.3'),
-            today: d.querySelector('#todayStatusRow')?.children.length === 3,
-            actions: d.querySelector('#todayActionList')?.children.length > 0,
-            weeks: d.querySelectorAll('#weekTabs button').length === 16,
-            cycles: d.querySelectorAll('#curriculumMap .curriculum-cycle').length === 4,
-            curriculum: d.documentElement.dataset.curriculum === 'soc-verification-16w-v1',
-            abilities: d.querySelectorAll('#abilityGrid .ability').length === 7,
-            views: d.querySelectorAll('.nav button').length === 4,
-            quickModal: Boolean(d.querySelector('#quickModal')),
-            toolsModal: Boolean(d.querySelector('#toolsModal'))
-          };
-
-          console.log(JSON.stringify({ checks, errors }, null, 2));
-          const failed = Object.entries(checks).filter(([, ok]) => !ok);
-          if (errors.length || failed.length) {
-            console.error('Smoke test failed', { failed, errors });
-            process.exit(1);
+          let checks = {};
+          try {
+            const file = path.resolve('career-roadmap/index.html');
+            const dom = await JSDOM.fromFile(file, {
+              url: pathToFileURL(file).href,
+              resources: 'usable',
+              runScripts: 'dangerously',
+              pretendToBeVisual: true,
+              virtualConsole,
+              beforeParse(window) {
+                window.scrollTo = () => {};
+                window.structuredClone ||= value => JSON.parse(JSON.stringify(value));
+                window.URL.createObjectURL ||= () => 'blob:test';
+                window.URL.revokeObjectURL ||= () => {};
+              }
+            });
+            await new Promise(resolve => {
+              if (dom.window.document.readyState === 'complete') resolve();
+              else dom.window.addEventListener('load', resolve, { once: true });
+            });
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            const d = dom.window.document;
+            checks = {
+              title: d.title.includes('Career OS V2.3'),
+              today: d.querySelector('#todayStatusRow')?.children.length === 3,
+              actions: d.querySelector('#todayActionList')?.children.length > 0,
+              weeks: d.querySelectorAll('#weekTabs button').length === 16,
+              cycles: d.querySelectorAll('#curriculumMap .curriculum-cycle').length === 4,
+              curriculum: d.documentElement.dataset.curriculum === 'soc-verification-16w-v1',
+              abilities: d.querySelectorAll('#abilityGrid .ability').length === 7,
+              views: d.querySelectorAll('.nav button').length === 4,
+              quickModal: Boolean(d.querySelector('#quickModal')),
+              toolsModal: Boolean(d.querySelector('#toolsModal'))
+            };
+            dom.window.close();
+          } catch (error) {
+            errors.push(error?.stack || String(error));
           }
-          dom.window.close();
+          const failed = Object.entries(checks).filter(([, ok]) => !ok).map(([name]) => name);
+          const result = { checks, failed, errors, passed: failed.length === 0 && errors.length === 0 };
+          fs.writeFileSync('/tmp/smoke-result.json', JSON.stringify(result, null, 2));
+          console.log(JSON.stringify(result));
           EOF
           node /tmp/smoke.mjs
+      - name: Upload diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: career-os-smoke-result
+          path: /tmp/smoke-result.json
+      - name: Enforce smoke result
+        run: |
+          node -e "const r=require('/tmp/smoke-result.json'); if(!r.passed){console.error(JSON.stringify(r,null,2)); process.exit(1)}; console.log(JSON.stringify(r,null,2))"
