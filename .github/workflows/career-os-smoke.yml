@@ -49,7 +49,7 @@ jobs:
             await page.waitForTimeout(2500);
             Object.assign(checks, await page.evaluate(() => ({
               titleText: document.title,
-              title: document.title.includes('Career OS V2.3'),
+              title: document.title.includes('Career OS V3.0'),
               staticViews: document.querySelectorAll('.nav button').length,
               todayCount: document.querySelector('#todayStatusRow')?.children.length ?? -1,
               actionCount: document.querySelector('#todayActionList')?.children.length ?? -1,
@@ -57,6 +57,8 @@ jobs:
               cycleCount: document.querySelectorAll('#curriculumMap .curriculum-cycle').length,
               curriculumValue: document.documentElement.dataset.curriculum || '',
               abilityCount: document.querySelectorAll('#abilityGrid .ability').length,
+              manualTitle: document.querySelector('#problem-journal h2')?.textContent || '',
+              manualSearch: document.querySelector('#problemSearch')?.getAttribute('placeholder') || '',
               quickModalExists: Boolean(document.querySelector('#quickModal')),
               toolsModalExists: Boolean(document.querySelector('#toolsModal')),
               bodyHeight: document.body.getBoundingClientRect().height,
@@ -65,8 +67,9 @@ jobs:
             if (checks.todayCount === 3) {
               await page.click('[data-view="growth"]');
               checks.growthVisible = await page.locator('#growth').evaluate(el => getComputedStyle(el).display !== 'none');
-              await page.click('#openQuick');
-              checks.quickOpen = await page.locator('#quickModal').evaluate(el => el.classList.contains('open'));
+              await page.click('[data-quick="problem"]');
+              checks.manualQuickOpen = await page.locator('#quickModal').evaluate(el => el.classList.contains('open'));
+              checks.manualPromptVisible = (await page.locator('#quickContent').innerText()).includes('工作问题手册记录Prompt');
               await page.keyboard.press('Escape');
               await page.click('#openTools');
               checks.toolsOpen = await page.locator('#toolsModal').evaluate(el => el.classList.contains('open'));
@@ -76,7 +79,7 @@ jobs:
           } finally {
             await browser?.close();
           }
-          const passed = errors.length === 0 && checks.httpStatus === 200 && checks.title && checks.staticViews === 4 && checks.todayCount === 3 && checks.actionCount > 0 && checks.weekCount === 16 && checks.cycleCount === 4 && checks.curriculumValue === 'soc-verification-16w-v1' && checks.abilityCount === 7 && checks.quickModalExists && checks.toolsModalExists && checks.bodyHeight > 500 && checks.growthVisible && checks.quickOpen && checks.toolsOpen;
+          const passed = errors.length === 0 && checks.httpStatus === 200 && checks.title && checks.staticViews === 4 && checks.todayCount === 3 && checks.actionCount > 0 && checks.weekCount === 16 && checks.cycleCount === 4 && checks.curriculumValue === 'soc-verification-16w-v1' && checks.abilityCount === 7 && checks.manualTitle.includes('问题手册') && checks.manualSearch.includes('处理方式') && checks.quickModalExists && checks.toolsModalExists && checks.bodyHeight > 500 && checks.growthVisible && checks.manualQuickOpen && checks.manualPromptVisible && checks.toolsOpen;
           const result = { passed, checks, errors };
           fs.writeFileSync('/tmp/smoke-result.json', JSON.stringify(result, null, 2));
           console.log(JSON.stringify(result, null, 2));
