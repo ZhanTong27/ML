@@ -28,58 +28,51 @@ jobs:
         run: |
           python3 -m http.server 8000 --directory . >/tmp/career-http.log 2>&1 &
           sleep 2
-      - name: Render site in Chromium
+      - name: Render V3 site in Chromium
         run: |
           cat > smoke.mjs <<'EOF'
           import { chromium } from 'playwright';
           import fs from 'node:fs';
-
-          const errors = [];
-          const checks = {};
-          let browser;
-          try {
-            browser = await chromium.launch({ headless: true });
-            const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-            page.setDefaultTimeout(5000);
-            page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
-            page.on('console', msg => { if (msg.type() === 'error') errors.push(`console: ${msg.text()}`); });
-            page.on('requestfailed', req => errors.push(`requestfailed: ${req.url()} ${req.failure()?.errorText || ''}`));
-            const response = await page.goto('http://127.0.0.1:8000/career-roadmap/index.html', { waitUntil: 'domcontentloaded', timeout: 15000 });
-            checks.httpStatus = response?.status() || 0;
+          const errors=[];const checks={};let browser;
+          try{
+            browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:1440,height:1000}});
+            page.setDefaultTimeout(7000);
+            page.on('pageerror',e=>errors.push(`pageerror: ${e.message}`));
+            page.on('console',m=>{if(m.type()==='error')errors.push(`console: ${m.text()}`)});
+            page.on('requestfailed',r=>errors.push(`requestfailed: ${r.url()} ${r.failure()?.errorText||''}`));
+            const response=await page.goto('http://127.0.0.1:8000/career-roadmap/index.html',{waitUntil:'domcontentloaded',timeout:15000});
+            checks.httpStatus=response?.status()||0;
             await page.waitForTimeout(2500);
-            Object.assign(checks, await page.evaluate(() => ({
-              titleText: document.title,
-              title: document.title.includes('Career OS V2.3'),
-              staticViews: document.querySelectorAll('.nav button').length,
-              todayCount: document.querySelector('#todayStatusRow')?.children.length ?? -1,
-              actionCount: document.querySelector('#todayActionList')?.children.length ?? -1,
-              weekCount: document.querySelectorAll('#weekTabs button').length,
-              cycleCount: document.querySelectorAll('#curriculumMap .curriculum-cycle').length,
-              curriculumValue: document.documentElement.dataset.curriculum || '',
-              abilityCount: document.querySelectorAll('#abilityGrid .ability').length,
-              quickModalExists: Boolean(document.querySelector('#quickModal')),
-              toolsModalExists: Boolean(document.querySelector('#toolsModal')),
-              bodyHeight: document.body.getBoundingClientRect().height,
-              bodyTextStart: document.body.innerText.slice(0, 300)
+            Object.assign(checks,await page.evaluate(()=>({
+              titleText:document.title,
+              title:document.title.includes('Career OS V3.0'),
+              staticViews:document.querySelectorAll('.nav button').length,
+              todayCount:document.querySelector('#todayStatusRow')?.children.length??-1,
+              actionCount:document.querySelector('#todayActionList')?.children.length??-1,
+              weekCount:document.querySelectorAll('#weekTabs button').length,
+              cycleCount:document.querySelectorAll('#curriculumMap .curriculum-cycle').length,
+              curriculumValue:document.documentElement.dataset.curriculum||'',
+              abilityCount:document.querySelectorAll('#abilityGrid .ability').length,
+              dailyRecordSection:Boolean(document.querySelector('#dailyRecordDetail')),
+              careerModelSection:Boolean(document.querySelector('#careerModelGrid')),
+              evidenceSection:Boolean(document.querySelector('#evidenceFeed')),
+              bodyHeight:document.body.getBoundingClientRect().height,
+              externalScripts:document.querySelectorAll('script[src]').length,
+              externalStyles:document.querySelectorAll('link[rel="stylesheet"]').length
             })));
-            if (checks.todayCount === 3) {
-              await page.click('[data-view="growth"]');
-              checks.growthVisible = await page.locator('#growth').evaluate(el => getComputedStyle(el).display !== 'none');
-              await page.click('#openQuick');
-              checks.quickOpen = await page.locator('#quickModal').evaluate(el => el.classList.contains('open'));
-              await page.keyboard.press('Escape');
-              await page.click('#openTools');
-              checks.toolsOpen = await page.locator('#toolsModal').evaluate(el => el.classList.contains('open'));
-            }
-          } catch (error) {
-            errors.push(error?.stack || String(error));
-          } finally {
-            await browser?.close();
-          }
-          const passed = errors.length === 0 && checks.httpStatus === 200 && checks.title && checks.staticViews === 4 && checks.todayCount === 3 && checks.actionCount > 0 && checks.weekCount === 16 && checks.cycleCount === 4 && checks.curriculumValue === 'soc-verification-16w-v1' && checks.abilityCount === 7 && checks.quickModalExists && checks.toolsModalExists && checks.bodyHeight > 500 && checks.growthVisible && checks.quickOpen && checks.toolsOpen;
-          const result = { passed, checks, errors };
-          fs.writeFileSync('/tmp/smoke-result.json', JSON.stringify(result, null, 2));
-          console.log(JSON.stringify(result, null, 2));
+            await page.click('[data-view="growth"]');
+            checks.growthVisible=await page.locator('#growth').evaluate(el=>getComputedStyle(el).display!=='none');
+            await page.click('#openQuick');
+            checks.quickOpen=await page.locator('#quickModal').evaluate(el=>el.classList.contains('open'));
+            checks.v3PatchPlaceholder=await page.locator('#qText').getAttribute('placeholder');
+            await page.keyboard.press('Escape');
+            await page.click('#openTools');
+            checks.toolsOpen=await page.locator('#toolsModal').evaluate(el=>el.classList.contains('open'));
+            checks.promptTitle=await page.locator('#toolContent').innerText();
+          }catch(e){errors.push(e?.stack||String(e))}finally{await browser?.close()}
+          const passed=errors.length===0&&checks.httpStatus===200&&checks.title&&checks.staticViews===4&&checks.todayCount===3&&checks.actionCount>0&&checks.weekCount===16&&checks.cycleCount===4&&checks.curriculumValue==='soc-verification-16w-v1'&&checks.abilityCount===7&&checks.dailyRecordSection&&checks.careerModelSection&&checks.evidenceSection&&checks.growthVisible&&checks.quickOpen&&checks.toolsOpen&&checks.v3PatchPlaceholder?.includes('career-os-v3-daily-1')&&checks.promptTitle?.includes('每日芯片工作记录与诊断Prompt')&&checks.externalScripts===0&&checks.externalStyles===0&&checks.bodyHeight>500;
+          const result={passed,checks,errors};fs.writeFileSync('/tmp/smoke-result.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
           EOF
           node smoke.mjs
       - name: Publish diagnostic comment
@@ -87,12 +80,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          {
-            echo '### Career OS browser smoke diagnostic'
-            echo '```json'
-            cat /tmp/smoke-result.json
-            echo '```'
-          } >/tmp/comment.md
+          { echo '### Career OS V3 browser smoke diagnostic'; echo '```json'; cat /tmp/smoke-result.json; echo '```'; } >/tmp/comment.md
           gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
       - name: Enforce browser smoke test
         run: node -e "const r=require('/tmp/smoke-result.json'); if(!r.passed)process.exit(1)"
