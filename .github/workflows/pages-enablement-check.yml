@@ -1,0 +1,23 @@
+name: Check GitHub Pages Enablement
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/pages-enablement-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure and enable GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
