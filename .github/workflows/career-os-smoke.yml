@@ -29,7 +29,7 @@ jobs:
           import { chromium } from 'playwright';
           import fs from 'node:fs';
 
-          const url='https://htmlpreview.github.io/?https://github.com/ZhanTong27/ML/blob/main/career-roadmap/index.html';
+          const url='https://zhantong27.github.io/ML/';
           const errors=[];
           const checks={url};
           let browser;
@@ -40,7 +40,7 @@ jobs:
             page.on('pageerror',error=>errors.push(`pageerror: ${error.message}`));
             page.on('requestfailed',req=>{
               const failedUrl=req.url();
-              if(failedUrl.includes('ZhanTong27/ML')||failedUrl.includes('raw.githubusercontent.com'))errors.push(`requestfailed: ${failedUrl} ${req.failure()?.errorText||''}`)
+              if(failedUrl.includes('zhantong27.github.io/ML'))errors.push(`requestfailed: ${failedUrl} ${req.failure()?.errorText||''}`)
             });
             const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
             checks.httpStatus=response?.status()||0;
