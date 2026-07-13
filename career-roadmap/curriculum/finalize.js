@@ -11,11 +11,12 @@ window.addEventListener('load',()=>{
     }
     const updateGoalChain=()=>{
       const nodes=document.querySelectorAll('#goalChain .goal-node');
-      if(nodes[2]){
-        const h=nodes[2].querySelector('h3'),p=nodes[2].querySelector('p');
-        if(h)h.textContent='SoC验证第一阶段课程';
-        if(p)p.textContent='验证环境 → SoC数据流 → 系统状态与低功耗 → 完整交付';
-      }
+      if(!nodes[2])return;
+      const h=nodes[2].querySelector('h3'),p=nodes[2].querySelector('p');
+      const title='SoC验证第一阶段课程';
+      const detail='验证环境 → SoC数据流 → 系统状态与低功耗 → 完整交付';
+      if(h&&h.textContent!==title)h.textContent=title;
+      if(p&&p.textContent!==detail)p.textContent=detail;
     };
     updateGoalChain();
     const goal=document.getElementById('goalChain');
