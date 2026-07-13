@@ -29,7 +29,7 @@ jobs:
           import { chromium } from 'playwright';
           import fs from 'node:fs';
 
-          const url='https://zhantong27.github.io/ML/?v=be5cdb7';
+          const url='https://htmlpreview.github.io/?https://github.com/ZhanTong27/ML/blob/e3c63699fd19b161925959c2900648aa8de7090c/career-roadmap/index.html';
           const errors=[];
           const checks={url};
           let browser;
@@ -40,7 +40,7 @@ jobs:
             page.on('pageerror',error=>errors.push(`pageerror: ${error.message}`));
             page.on('requestfailed',req=>{
               const failedUrl=req.url();
-              if(failedUrl.includes('zhantong27.github.io/ML'))errors.push(`requestfailed: ${failedUrl} ${req.failure()?.errorText||''}`)
+              if(failedUrl.includes('ZhanTong27/ML')||failedUrl.includes('raw.githubusercontent.com'))errors.push(`requestfailed: ${failedUrl} ${req.failure()?.errorText||''}`)
             });
             const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
             checks.httpStatus=response?.status()||0;
@@ -54,7 +54,9 @@ jobs:
               cycleCount:document.querySelectorAll('#curriculumMap .curriculum-cycle').length,
               curriculumValue:document.documentElement.dataset.curriculum||'',
               abilityCount:document.querySelectorAll('#abilityGrid .ability').length,
-              bodyHeight:document.body.getBoundingClientRect().height
+              bodyHeight:document.body.getBoundingClientRect().height,
+              externalScripts:document.querySelectorAll('script[src]').length,
+              externalStyles:document.querySelectorAll('link[rel="stylesheet"]').length
             })));
             await page.click('[data-view="growth"]');
             checks.growthVisible=await page.locator('#growth').evaluate(el=>getComputedStyle(el).display!=='none');
@@ -64,7 +66,7 @@ jobs:
             await page.click('#openTools');
             checks.toolsOpen=await page.locator('#toolsModal').evaluate(el=>el.classList.contains('open'));
           }catch(error){errors.push(error?.stack||String(error))}finally{await browser?.close()}
-          const passed=errors.length===0&&checks.httpStatus===200&&checks.title&&checks.staticViews===4&&checks.todayCount===3&&checks.actionCount>0&&checks.weekCount===16&&checks.cycleCount===4&&checks.curriculumValue==='soc-verification-16w-v1'&&checks.abilityCount===7&&checks.bodyHeight>500&&checks.growthVisible&&checks.quickOpen&&checks.toolsOpen;
+          const passed=errors.length===0&&checks.httpStatus===200&&checks.title&&checks.staticViews===4&&checks.todayCount===3&&checks.actionCount>0&&checks.weekCount===16&&checks.cycleCount===4&&checks.curriculumValue==='soc-verification-16w-v1'&&checks.abilityCount===7&&checks.bodyHeight>500&&checks.externalScripts===0&&checks.externalStyles===0&&checks.growthVisible&&checks.quickOpen&&checks.toolsOpen;
           const result={passed,checks,errors};
           fs.writeFileSync('/tmp/smoke-result.json',JSON.stringify(result,null,2));
           console.log(JSON.stringify(result,null,2));
