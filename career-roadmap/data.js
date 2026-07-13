@@ -5,3 +5,4 @@ document.write('<script src="curriculum/cycle2.js"><\/script>');
 document.write('<script src="curriculum/cycle3.js"><\/script>');
 document.write('<script src="curriculum/cycle4.js"><\/script>');
 document.write('<script src="curriculum/patch.js"><\/script>');
+document.write('<script src="curriculum/finalize.js"><\/script>');
