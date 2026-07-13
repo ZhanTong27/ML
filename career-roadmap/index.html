@@ -5,7 +5,18 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title>Jett · Career OS V2.3</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+:root{
+  --bg:#050a11;--panel:#0b1722;--panel2:#08131d;--line:#244252;--line2:#1b3441;
+  --cyan:#35d6e8;--text:#eef7f8;--muted:#8ca1ab;--green:#43df97;--amber:#e6aa51;
+  --blue:#7aa7ff;--purple:#bd9aff;--red:#ff8585;--side:184px
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 78% 0,rgba(30,190,215,.12),transparent 30%),var(--bg);color:var(--text);font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif}button,input,textarea,select{font:inherit}.shell{min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:var(--side);background:rgba(5,13,21,.97);border-right:1px solid #1d3645;padding:25px 0 18px;z-index:20}.logo{width:54px;height:54px;border:1px solid var(--cyan);border-radius:12px;display:grid;place-items:center;margin:0 auto 14px;color:var(--cyan);font-weight:900;font-size:22px}.side-title{text-align:center;color:#6f8490;font-size:9px;letter-spacing:.15em;margin-bottom:25px}.nav{display:grid;gap:6px}.nav button{display:flex;align-items:center;gap:11px;border:0;border-left:3px solid transparent;background:transparent;color:#94a7b1;padding:15px 19px;text-align:left;cursor:pointer;font-size:14px}.nav button span{color:#4f7180;width:18px}.nav button:hover{color:#d8e6ea;background:rgba(255,255,255,.02)}.nav button.active{border-left-color:var(--cyan);color:white;background:linear-gradient(90deg,rgba(53,214,232,.13),transparent)}.nav button.active span{color:var(--cyan)}.side-note{position:absolute;bottom:20px;left:18px;right:18px;border-top:1px solid #18303c;padding-top:13px;color:#496572;font-size:9px;line-height:1.7;text-align:center}.main{margin-left:var(--side);padding:0 32px 80px;max-width:1680px}.top{height:68px;border-bottom:1px solid #1d3543;display:flex;align-items:center;justify-content:space-between;color:#93a7b1;position:sticky;top:0;background:rgba(5,10,17,.9);backdrop-filter:blur(14px);z-index:15}.top b{color:white}.top-actions{display:flex;align-items:center;gap:8px}.sync{font-size:10px;color:var(--green)}.view{display:none}.view.active{display:block}.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:34px 0 20px}.page-head h1{font-size:44px;letter-spacing:-.04em;margin:6px 0}.page-head p{margin:0;color:var(--muted);line-height:1.7}.eyebrow{font-size:9px;letter-spacing:.17em;color:var(--cyan);font-weight:800}.career-strip{margin:28px 0 0;border:1px solid var(--line);background:linear-gradient(120deg,rgba(14,29,42,.98),rgba(7,18,28,.95));border-radius:16px;padding:24px 26px;display:flex;justify-content:space-between;align-items:center;gap:24px}.career-strip h1{font-size:clamp(28px,4vw,48px);letter-spacing:-.05em;margin:8px 0}.career-strip h1 span{color:var(--cyan)}.career-strip p{margin:0;color:#91a5af;line-height:1.7}.card{border:1px solid var(--line);background:linear-gradient(145deg,rgba(14,29,42,.96),rgba(7,18,28,.97));border-radius:13px;padding:18px}.card-inner{border:1px solid var(--line2);background:#07141e;border-radius:10px;padding:14px}.card-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.card-head h3{margin:5px 0}.muted{color:var(--muted);line-height:1.7}.primary,.secondary,.danger{border:1px solid var(--cyan);border-radius:8px;background:rgba(53,214,232,.1);color:#b8f1f4;padding:10px 14px;cursor:pointer}.primary:hover,.secondary:hover{filter:brightness(1.15)}.secondary{border-color:#35505e;background:#08151f;color:#a8bac2}.danger{border-color:#77444e;background:rgba(119,68,78,.1);color:#ffb6bf}.small-btn{padding:7px 10px;font-size:11px}.actions{display:flex;gap:8px;flex-wrap:wrap}.prominent-actions{margin-top:18px}.date-input,.filter-row input,.filter-row select,.quick-form input,.quick-form textarea,.quick-form select{background:#06111a;border:1px solid #294858;color:white;border-radius:8px;padding:10px}.date-input{width:auto}.status-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}.status-card{border:1px solid var(--line2);background:#07141e;border-radius:11px;padding:13px}.status-card small{color:#718995}.status-card b{display:block;color:#b7eef1;margin:7px 0 3px}.status-card p{margin:0;color:#637b87;font-size:10px}.today-layout{display:grid;grid-template-columns:1.35fr .65fr;gap:12px}.focus-card{min-height:330px}.status-pill{border:1px solid #3e5965;color:#8ba0aa;border-radius:999px;padding:5px 9px;font-size:10px}.status-pill.done{border-color:#287d73;color:var(--green)}.action-list{display:grid;gap:9px;margin-top:16px}.action-item{display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:start;padding:12px;border:1px solid #203e4c;border-radius:10px;background:#081721}.action-icon{width:10px;height:10px;border-radius:50%;margin-top:4px;background:var(--cyan)}.action-icon.work{background:var(--blue)}.action-icon.learn{background:var(--amber)}.action-icon.life{background:var(--green)}.action-item b{font-size:13px}.action-item p{margin:4px 0 0;color:#7f96a1;font-size:11px;line-height:1.55}.action-item small{color:#657d88;font-size:9px}.timeline{display:grid;gap:9px;margin-top:14px}.timeline article{border-left:2px solid #294d5c;padding-left:12px}.timeline time{font-size:9px;color:var(--cyan)}.timeline h4{margin:3px 0;font-size:12px}.timeline p{margin:0;color:#8299a4;font-size:10px}.subsection{border-top:1px solid var(--line2);margin-top:16px;padding-top:13px}.subsection h4{margin:0 0 9px}.compact-list{display:grid;gap:6px}.compact-row{display:flex;justify-content:space-between;gap:10px;font-size:10px;color:#879da8}.compact-row b{color:#b5c6cd;font-weight:600}.section-title{margin:34px 0 15px}.section-title h2{margin:6px 0;font-size:28px}.section-title p{margin:0;color:#8197a2;line-height:1.7}.split-title{display:flex;justify-content:space-between;align-items:flex-end;gap:20px}.week-overview{display:grid;grid-template-columns:1.05fr 1.4fr .85fr;gap:10px}.overview-card h3{margin:7px 0}.overview-card p{margin:0;color:#8197a2;font-size:11px;line-height:1.6}.mini-progress{height:5px;background:#17303c;border-radius:10px;overflow:hidden;margin-top:13px}.mini-progress i{display:block;height:100%;background:linear-gradient(90deg,#25bcd0,#6ce8ee)}.reminder-card{margin-top:10px;border:1px solid #6b542d;background:rgba(230,170,81,.06);border-radius:11px;padding:14px;display:flex;justify-content:space-between;align-items:center;gap:15px}.reminder-card h3{margin:0 0 4px}.reminder-card p{margin:0;color:#a78c62;font-size:11px}.recent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.record-card h3{margin:8px 0}.record-card p{color:#849aa5;font-size:11px;line-height:1.65}.record-card footer{border-top:1px solid var(--line2);padding-top:10px;margin-top:10px;color:#607984;font-size:9px}.tag-row{display:flex;gap:6px;flex-wrap:wrap}.tag{border:1px solid #315261;border-radius:99px;padding:4px 8px;font-size:9px;color:#a7bcc5}.tag.work{border-color:#315687;color:var(--blue)}.tag.learn{border-color:#6d552d;color:var(--amber)}.tag.life{border-color:#2c7053;color:var(--green)}.tag.problem{border-color:#6b496f;color:var(--purple)}.tag.good{border-color:#287d73;color:var(--green)}.disclosure{margin-top:18px;padding:0;overflow:hidden}.disclosure summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:17px 18px;cursor:pointer}.disclosure summary::-webkit-details-marker{display:none}.disclosure summary span:first-child{display:grid;gap:4px}.disclosure summary small{color:#708793;font-weight:400}.disclosure[open] summary{border-bottom:1px solid var(--line2)}.disclosure-body,.calendar-wrap{padding:18px}.calendar-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}.calendar-week,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.calendar-week div{text-align:center;color:#6f8590;font-size:10px;padding:6px}.day{min-height:92px;border:1px solid #1e3947;border-radius:9px;background:#07141e;padding:8px;cursor:pointer}.day:hover{border-color:#3b6678}.day.other{opacity:.35}.day.today{border-color:var(--cyan)}.day.selected{background:rgba(53,214,232,.08)}.day strong{font-size:11px}.day-marks{display:flex;gap:3px;flex-wrap:wrap;margin-top:8px}.mark{width:7px;height:7px;border-radius:50%;background:var(--cyan)}.mark.work{background:var(--blue)}.mark.learn{background:var(--amber)}.mark.life{background:var(--green)}.mark.problem{background:var(--purple)}.calendar-detail{margin-top:12px}.page-index{position:sticky;top:68px;z-index:10;display:flex;gap:4px;overflow-x:auto;background:rgba(5,10,17,.93);backdrop-filter:blur(14px);border-bottom:1px solid #19313e;padding:10px 0}.page-index button{border:0;background:transparent;color:#718994;padding:9px 12px;white-space:nowrap;cursor:pointer;border-radius:7px;font-size:11px}.page-index button:hover,.page-index button.active{color:#d7eff2;background:rgba(53,214,232,.08)}.content-section{scroll-margin-top:120px;padding-top:3px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.metric{border:1px solid var(--line);background:#07141e;border-radius:11px;padding:14px}.metric small{color:#718995}.metric b{float:right;color:var(--cyan);font-size:20px}.progress{clear:both;height:5px;background:#17303c;border-radius:8px;margin-top:15px;overflow:hidden}.progress i{display:block;height:100%;background:linear-gradient(90deg,#25bcd0,#6ce8ee)}.week-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.week-tabs button{cursor:pointer;text-align:left;padding:14px;border:1px solid var(--line);border-radius:10px;background:#091721;color:#7f949f}.week-tabs button.active{border-color:var(--cyan);background:rgba(53,214,232,.08);color:white}.week-tabs span,.week-tabs b,.week-tabs small{display:block}.week-tabs span{color:var(--cyan);font-size:9px}.week-tabs b{margin:5px 0}.week-tabs small{font-size:10px}.week-head{margin-top:12px;border-left:3px solid var(--cyan);padding:18px;background:#091823;display:flex;justify-content:space-between;gap:20px}.week-head h2{margin:5px 0}.week-head p{margin:0;color:#8ca1ab}.observation{margin-top:10px;border:1px solid #315687;background:rgba(49,86,135,.08);border-radius:10px;padding:14px}.observation h3{margin:5px 0}.observation li{color:#91a7b2;font-size:11px;line-height:1.7}.priority-group{margin-top:16px}.priority-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.priority-head h3{margin:0}.priority-head small{color:#6f8792}.tasks{display:grid;grid-template-columns:1fr 1fr;gap:10px}.task{border:1px solid var(--line);background:#081721;border-radius:10px;overflow:hidden}.task.done{border-color:#287d73;background:rgba(40,125,115,.08)}.task label{display:flex;gap:10px;padding:14px;cursor:pointer}.task input{accent-color:var(--cyan);margin-top:4px}.kind{height:max-content;font-size:9px;border:1px solid #416171;border-radius:4px;padding:3px 5px;color:#afc0c7}.kind.test{color:var(--amber);border-color:#6d552d}.kind.feedback{color:var(--purple);border-color:#5b4480}.kind.method{color:var(--green);border-color:#2c7053}.task h3{margin:0 0 5px;font-size:14px}.task small{color:#718894}.task-body{padding:0 14px 14px}.task-body ol{padding-left:18px;color:#94a8b1;line-height:1.65;font-size:11px}.task-body dl{margin:0;display:grid;gap:5px}.task-body dl div{display:grid;grid-template-columns:78px 1fr;font-size:10px}.task-body dt{color:var(--cyan)}.task-body dd{margin:0;color:#8197a1}.filter-row{display:flex;gap:8px;margin-bottom:12px}.filter-row input{flex:1}.filter-row select{width:180px}.stack{display:grid;gap:10px}.entry{border:1px solid var(--line);background:#091721;border-radius:10px;padding:15px}.entry header{display:flex;justify-content:space-between;gap:12px;color:#78909c;font-size:10px}.entry h3{margin:8px 0 5px}.entry p,.entry li{color:#94a8b1;font-size:11px;line-height:1.65}.entry ul{padding-left:18px}.entry details{border-top:1px solid var(--line2);margin-top:10px;padding-top:10px}.entry details summary{cursor:pointer;color:#8fa4ad;font-size:10px}.workflow-card{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.workflow-step{display:grid;grid-template-columns:auto 1fr;column-gap:9px;row-gap:3px;align-items:center;flex:1}.workflow-step span{grid-row:1/3;width:28px;height:28px;border:1px solid var(--cyan);border-radius:50%;display:grid;place-items:center;color:var(--cyan);font-size:10px}.workflow-step b{font-size:11px}.workflow-step small{color:#6d838e;font-size:9px}.workflow-arrow{color:#355663}.ability-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.ability h3{margin:7px 0}.ability-status{display:flex;justify-content:space-between;gap:12px;align-items:center}.ability-status b{color:#aceef2;font-size:12px}.ability p{font-size:10px;color:#8299a4;line-height:1.6}.level{height:5px;background:#17303c;border-radius:8px;overflow:hidden}.level i{display:block;height:100%;background:linear-gradient(90deg,#25bcd0,#6ce8ee)}.resume-hero{display:grid;grid-template-columns:auto 1fr auto;gap:17px;align-items:center}.avatar{width:76px;height:76px;border-radius:18px;border:1px solid var(--cyan);display:grid;place-items:center;font-weight:900;color:var(--cyan);font-size:25px}.resume-hero h2{margin:5px 0}.resume-hero p{margin:0;color:#879da8}.vertical-actions{display:grid}.file-label{display:inline-block;border:1px solid #35505e;border-radius:8px;padding:10px 14px;color:#a0b2ba;font-size:11px;cursor:pointer;text-align:center}.file-label input{display:none}.info{border:1px solid #2a5263;background:rgba(53,214,232,.05);color:#9dc4cd;padding:11px;border-radius:8px;font-size:10px;line-height:1.6;margin-top:10px}.resume-section{border-top:1px solid #203a47;padding-top:14px;margin-top:14px}.resume-item{display:grid;grid-template-columns:140px 1fr;gap:14px;padding:10px 0}.resume-item time{color:#75909d;font-size:10px}.resume-item h4{margin:0 0 4px}.resume-item p{margin:0;color:#879da8;font-size:10px;line-height:1.6}.career-timeline{position:relative;display:grid;gap:12px}.career-timeline:before{content:"";position:absolute;left:89px;top:0;bottom:0;width:1px;background:#23424f}.timeline-record{display:grid;grid-template-columns:76px 1fr;gap:26px;position:relative}.timeline-record:before{content:"";position:absolute;left:85px;top:18px;width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 5px var(--bg)}.timeline-record time{padding-top:14px;color:#718995;font-size:10px;text-align:right}.project-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.project-card h3{margin:8px 0}.project-card p,.project-card li{font-size:10px;color:#849aa5;line-height:1.65}.project-card ul{padding-left:17px}.version-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.version-card h3{margin:8px 0}.version-card p{color:#8299a4;font-size:10px}.career-hero{padding:38px 0 22px}.career-hero h2{font-size:36px;letter-spacing:-.035em;margin:8px 0}.career-hero p{max-width:900px;color:#91a6b0;line-height:1.8}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.north-card small{color:#718995}.north-card b{display:block;color:#abedf1;font-size:20px;margin:8px 0}.north-card p{margin:0;color:#8197a1;font-size:10px;line-height:1.6}.career-line{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}.career-stage{position:relative;min-height:225px}.career-stage>span{color:#345566;font-size:40px;font-weight:900;position:absolute;right:12px;top:4px}.career-stage h3{margin:8px 0}.career-stage ul{padding-left:18px;color:#91a6b0;line-height:1.75;font-size:10px}.career-stage.active{border-color:var(--cyan)}.career-stage.active:after{content:"当前";position:absolute;right:10px;bottom:10px;color:var(--cyan);border:1px solid var(--cyan);border-radius:4px;padding:3px 7px;font-size:9px}.gate-layout{display:grid;grid-template-columns:.8fr 1.2fr;gap:10px}.gate-summary h3{font-size:24px;margin:8px 0}.gate-list{display:grid;gap:8px}.gate-row{display:grid;grid-template-columns:140px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line2);background:#07141e;border-radius:9px;padding:12px}.gate-row b{font-size:11px}.gate-row p{margin:0;color:#7f96a1;font-size:10px}.gate-state{font-size:9px;border:1px solid #3f5965;border-radius:999px;padding:4px 8px;color:#8ba0aa}.gate-state.progress{border-color:#6d552d;color:var(--amber)}.gate-state.done{border-color:#287d73;color:var(--green)}.goal-chain{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.goal-node{position:relative}.goal-node:not(:last-child):after{content:"→";position:absolute;right:-9px;top:44%;color:#355663;z-index:2}.goal-node small{color:var(--cyan);font-size:8px}.goal-node h3{font-size:13px;margin:8px 0}.goal-node p{font-size:10px;color:#8299a4;line-height:1.55;margin:0}.table-wrap{overflow-x:auto}.decision-table{width:100%;border-collapse:collapse;font-size:11px}.decision-table th,.decision-table td{padding:12px;border-bottom:1px solid #203b49;text-align:left;vertical-align:top}.decision-table th{color:var(--cyan)}.decision-table td{color:#95a9b2}.decision-cards{margin-top:10px}.modal{position:fixed;inset:0;z-index:100;display:none}.modal.open{display:block}.modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(5px)}.modal-panel{position:relative;margin:5vh auto;background:#07131d;border:1px solid #294b5a;border-radius:16px;padding:24px;max-height:90vh;overflow:auto;width:min(680px,92vw);box-shadow:0 25px 80px rgba(0,0,0,.45)}.modal-panel.wide{width:min(980px,94vw)}.modal-close{position:absolute;right:15px;top:12px;border:0;background:transparent;color:#718995;font-size:25px;cursor:pointer}.modal-panel h2{margin:7px 0}.quick-tabs,.tool-tabs{display:flex;gap:5px;overflow-x:auto;border-bottom:1px solid var(--line2);margin:18px 0 16px;padding-bottom:9px}.quick-tabs button,.tool-tabs button{border:0;background:transparent;color:#738995;padding:8px 10px;border-radius:7px;white-space:nowrap;cursor:pointer}.quick-tabs button.active,.tool-tabs button.active{background:rgba(53,214,232,.09);color:#c4f3f5}.quick-form{display:grid;gap:10px}.quick-form label{display:grid;gap:5px;color:#8299a4;font-size:10px}.quick-form textarea{min-height:230px;resize:vertical}.prompt-box{border:1px solid var(--line2);border-radius:10px;background:#06111a;padding:14px}.prompt-box pre{white-space:pre-wrap;color:#9bb0ba;font-size:10px;line-height:1.65;max-height:360px;overflow:auto;margin:8px 0 0}.prompt-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.prompt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.toast{position:fixed;right:20px;top:78px;background:#0d2530;border:1px solid var(--cyan);color:#bdf3f5;border-radius:8px;padding:10px 14px;display:none;z-index:150}.toast.show{display:block}.privacy{position:fixed;bottom:8px;right:14px;color:#3d5966;font-size:8px}.empty{text-align:center;padding:28px;border:1px dashed #2d4c5b;color:#708793;border-radius:9px}.hidden{display:none!important}
+@media(max-width:1200px){.career-line{grid-template-columns:1fr 1fr}.grid4,.metrics{grid-template-columns:1fr 1fr}.goal-chain{grid-template-columns:1fr 1fr}.goal-node:after{display:none}.week-overview{grid-template-columns:1fr 1fr}.recent-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:920px){:root{--side:150px}.top span{display:none}.today-layout,.gate-layout,.grid2,.project-grid{grid-template-columns:1fr}.tasks,.ability-grid{grid-template-columns:1fr}.week-tabs{grid-template-columns:1fr 1fr}.resume-hero{grid-template-columns:auto 1fr}.resume-hero .vertical-actions{grid-column:1/-1;display:flex}.workflow-card{align-items:flex-start;flex-direction:column}.workflow-arrow{display:none}.version-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.side{position:fixed;inset:auto 0 0;width:auto;height:68px;padding:0;overflow-x:auto}.logo,.side-title,.side-note{display:none}.nav{display:flex;height:100%;min-width:100%}.nav button{flex:1;min-width:76px;border-left:0;border-bottom:2px solid transparent;padding:7px 5px;display:grid;place-items:center;gap:2px;font-size:10px}.nav button.active{border-bottom-color:var(--cyan)}.main{margin-left:0;padding:0 13px 88px}.top{height:58px}.top-actions{gap:5px}.sync{display:none}.top-actions button{font-size:9px;padding:7px 8px}.career-strip{padding:19px;align-items:flex-start}.career-strip button{display:none}.career-strip h1{font-size:31px}.page-head{padding-top:25px}.page-head h1{font-size:36px}.status-row,.week-overview,.recent-grid,.grid4,.metrics,.career-line,.goal-chain,.version-grid,.prompt-grid,.data-grid{grid-template-columns:1fr}.split-title{align-items:flex-start;flex-direction:column}.calendar-grid{gap:3px}.day{min-height:68px;padding:5px}.page-index{top:58px}.week-tabs{grid-template-columns:1fr}.resume-item{grid-template-columns:1fr}.career-timeline:before{left:10px}.timeline-record{grid-template-columns:1fr;padding-left:27px}.timeline-record:before{left:6px}.timeline-record time{text-align:left;padding-top:0}.gate-row{grid-template-columns:1fr}.filter-row{flex-direction:column}.filter-row select{width:100%}.modal-panel{margin:2vh auto;max-height:96vh;padding:20px 15px}.privacy{display:none}}
+
+</style>
 </head>
 <body>
 <div class="shell">
@@ -77,14 +88,668 @@
 <div class="modal" id="toolsModal" aria-hidden="true"><div class="modal-backdrop" data-close-modal></div><section class="modal-panel wide"><button class="modal-close" data-close-modal>×</button><div class="eyebrow">AI TOOLBOX & DATA</div><h2>AI工具箱</h2><p class="muted">Prompt统一维护，各页面调用同一份内容。</p><div class="tool-tabs"><button data-tool="prompts" class="active">Prompt</button><button data-tool="data">数据管理</button></div><div id="toolContent"></div></section></div>
 <div class="toast" id="toast"></div><div class="privacy">PUBLIC CODE · PERSONAL ENTRIES STAY IN THIS BROWSER</div>
 
-<script src="legacy-data-v22.js"></script>
-<script src="curriculum/base.js"></script>
-<script src="curriculum/cycle1.js"></script>
-<script src="curriculum/cycle2.js"></script>
-<script src="curriculum/cycle3.js"></script>
-<script src="curriculum/cycle4.js"></script>
-<script src="app.js"></script>
-<script src="curriculum/patch.js"></script>
-<script src="curriculum/finalize.js"></script>
+<script data-source="legacy-data-v22.js">
+const CAREER_OS_VERSION = '2.2';
+
+const ABILITY_LEVELS = [
+  '尚未展开','初步理解','能够在提示下完成','能够独立完成','能够处理复杂情况','能够形成方法并指导他人'
+];
+
+const DEFAULT_ABILITIES = [
+  {id:'spec',name:'Spec理解',status:'初步理解',level:2,signal:'能够从触发、状态、结果和异常路径拆解功能，但系统影响仍需积累。',next:'在新功能接入时独立形成边界、功能树和Top问题清单。',opportunity:'当前工作可持续观察'},
+  {id:'strategy',name:'验证计划与策略',status:'能够在提示下完成',level:3,signal:'已能从功能列表转向功能—风险—检查闭环。',next:'为复杂功能独立完成风险排序与sign-off标准。',opportunity:'需要结合真实任务'},
+  {id:'debug',name:'Debug与根因定位',status:'能够在提示下完成',level:3,signal:'可以追踪现象并完成排查，但候选假设和最小实验仍需强化。',next:'连续两次独立形成“预期—首次异常—假设—证据—根因”链路。',opportunity:'当前周期重点'},
+  {id:'uvm',name:'UVM与验证环境',status:'初步理解',level:2,signal:'Agent代码可用，环境组件关系与复用假设需要继续校准。',next:'不看代码说明完整数据流，并独立审查一条model/checker链路。',opportunity:'个人环境受限'},
+  {id:'check',name:'Checker / Model / Assertion / Coverage',status:'初步理解',level:2,signal:'能够区分基本职责，Assertion正反测试经验不足。',next:'完成一条规则的自然语言、时序、property与正反测试。',opportunity:'可用AI与纸笔训练'},
+  {id:'soc',name:'SoC系统理解',status:'初步理解',level:2,signal:'正在从寄存器行为走向跨IP状态和异常传播。',next:'对一个真实任务说清上下游、系统条件和故障传播路径。',opportunity:'需要项目机会'},
+  {id:'lowpower',name:'低功耗验证',status:'尚未展开',level:1,signal:'作为第二技术标签保留，尚缺真实项目证据。',next:'建立power domain、isolation、retention与power state基础框架。',opportunity:'等待合适项目'},
+  {id:'tools',name:'Linux / Verdi / 脚本与自动化',status:'初步理解',level:2,signal:'工具熟练度仍影响定位和效率。',next:'每周沉淀一个可迁移命令、脚本或波形分析方法。',opportunity:'需结合公司环境'},
+  {id:'delivery',name:'交付与风险管理',status:'能够在提示下完成',level:3,signal:'能够按时完成明确任务，正在建立任务拆解和风险台账。',next:'独立管理一块交付的标准、依赖、风险和升级条件。',opportunity:'当前阶段关键'},
+  {id:'communication',name:'技术表达与协作',status:'能够在提示下完成',level:3,signal:'愿意暴露不懂并主动确认，表达结构可继续提升。',next:'连续使用15分钟Review结构，获得可执行反馈并闭环。',opportunity:'每周可实践'}
+];
+
+const LEARNING_WEEKS = [
+  {
+    id:'w1',dates:'07.13—07.19',title:'工作流与Debug基线',
+    shift:'从沿信号追踪，转向用假设和证据定位根因',
+    focus:['个人验证工作流','验证闭环','Debug证据链'],reviewer:'带教导师 · 15分钟',
+    observations:['今天的任务最终交付和最大风险是什么？','定位过程中哪一步最没有效率？','类似跨模块问题应先确认哪三类信息？'],
+    gates:['不看代码画出验证闭环','完成1份可复现Debug复盘','完成1次AI口试且核心项≥3分','获得1条可执行导师反馈'],
+    tasks:[
+      {id:'w1-map',priority:'core',kind:'学习',title:'任务—能力映射',time:'周一晚 · 45–60min',env:'纸笔 / 文档',steps:['写清最终交付与本周风险','区分知识、工具、经验和沟通缺口','只选两项本周训练能力'],output:'1张脱敏任务卡',pass:'3分钟说清本任务要重新证明哪些假设',fallback:'只完成最终交付、最大风险、一个能力缺口'},
+      {id:'w1-loop',priority:'core',kind:'自测',title:'关闭资料画验证闭环',time:'灵活早晨 · 45min',env:'纸笔 / AI',steps:['画输入→激励→DUT→monitor→model→checker→coverage','标记每段输入输出与可能错误','查一次资料后重新闭卷画'],output:'1张通用验证闭环图',pass:'能解释expected来源、比较位置与reset处理',fallback:'只画model到checker链路'},
+      {id:'w1-debug',priority:'core',kind:'练习',title:'重做一份Debug复盘',time:'周三晚 · 60–90min',env:'文档 / AI',steps:['写预期、实际和首次异常','区分DUT/model/environment','列3个候选假设及反证实验','总结如何把检查前移'],output:'1份脱敏Debug案例',pass:'别人能复现你的排除逻辑',fallback:'只完成首次异常、3个假设和根因'},
+      {id:'w1-oral',priority:'regular',kind:'自测',title:'AI口头Debug测试',time:'周四晚 · 20min',env:'AI口试',steps:['只描述通用抽象场景','让AI逐题追问而非直接给答案','记录结构、因果、证据、效率和迁移评分'],output:'口试评分与卡点',pass:'五项均≥3分',fallback:'只完成10分钟解释测试'},
+      {id:'w1-review',priority:'regular',kind:'反馈',title:'导师技术Review',time:'本周 · 15min',env:'导师 / 主管',steps:['1分钟背景、3分钟定位、3分钟不足','只问两个准备好的问题','会后立刻写一句评价和一个动作'],output:'导师反馈记录',pass:'反馈被转化成下一次行动',fallback:'异步发一页复盘'},
+      {id:'w1-flow',priority:'optional',kind:'方法',title:'建立个人验证工作流V1',time:'周末 · 3–4h',env:'文档',steps:['拆任务澄清到sign-off十个阶段','每阶段写输入、动作、输出、错误和标准','标记需要找谁确认'],output:'个人验证工作流V1',pass:'能用于下一个新IP',fallback:'先完成前五个阶段'}
+    ]
+  },
+  {
+    id:'w2',dates:'07.20—07.26',title:'环境复用与Spec接入',
+    shift:'从旧环境能运行，转向重新证明设计和model假设',
+    focus:['复用检查','Spec结构化','Corner六维变换'],reviewer:'直属主管 · 15分钟',
+    observations:['新Spec到达后24小时内是否形成边界和问题清单？','旧环境中的哪些假设需要重新证明？','接触跨IP前最应先确认什么？'],
+    gates:['完成环境复用检查','新spec形成结构化理解','10个corner中5个说清价值','获得主管对成长重点的判断'],
+    tasks:[
+      {id:'w2-reuse',priority:'core',kind:'学习',title:'八项环境复用检查',time:'周一晚 · 60min',env:'文档 / AI',steps:['检查接口、寄存器、clock/reset、状态、时序、model、coverage和系统条件','每项标记已确认/未确认/不适用','禁止写“应该没问题”'],output:'环境复用检查表',pass:'未确认项都有确认对象和截止时间',fallback:'先做model、时序和系统条件'},
+      {id:'w2-recall',priority:'core',kind:'自测',title:'关闭资料复述一个功能',time:'灵活早晨 · 45min',env:'纸笔 / AI',steps:['写触发、前置状态、状态变化、结果、标志、错误与恢复','列3个答不上来的问题','回到资料验证'],output:'功能路径卡',pass:'因果链完整且无模糊词',fallback:'只做触发—状态—结果'},
+      {id:'w2-model',priority:'core',kind:'练习',title:'Checker / Model审查',time:'周三晚 · 60min',env:'抽象案例 / AI',steps:['追expected规则来源','检查输入、状态、延迟和reset','安全改变一个预期条件','观察并判断model错误'],output:'Model审查清单',pass:'能区分model和DUT错误',fallback:'只审查一条expected链路'},
+      {id:'w2-corner',priority:'regular',kind:'自测',title:'Corner六维变换',time:'周四晚 · 60min',env:'纸笔 / AI',steps:['从数值、时间、状态、组合、异常、恢复生成候选','写违反假设、激励、检查与价值','按影响×可能性×检查缺口排序'],output:'10个候选corner',pass:'至少5个说清检查方式与价值',fallback:'每维生成1个'},
+      {id:'w2-review',priority:'regular',kind:'反馈',title:'主管成长Review',time:'本周 · 15min',env:'主管',steps:['汇报交付、方法和缺口','询问下一阶段能力重点','只记录通用反馈'],output:'下一阶段重点',pass:'得到一个明确改进方向',fallback:'5分钟即时沟通'},
+      {id:'w2-script',priority:'optional',kind:'方法',title:'沉淀一个通用工具动作',time:'周末 · 45min',env:'个人电脑 / 文档',steps:['选择一个Linux、脚本或波形分析动作','写清输入、命令、输出和常见错误','用抽象数据复现'],output:'工具卡片V1',pass:'一周后不看资料仍能复现',fallback:'只完成命令与解释'}
+    ]
+  },
+  {
+    id:'w3',dates:'07.27—08.02',title:'从Spec到验证策略',
+    shift:'从功能列表和用例，转向功能—风险—检查闭环',
+    focus:['风险映射','Assertion入门','Corner价值判断'],reviewer:'带教导师 · 15分钟',
+    observations:['主要功能是否具备风险映射？','最高风险的遗漏是什么？','哪些corner没有价值？'],
+    gates:['主要功能具备风险映射','说清三类检查工具边界','第一条assertion完成正反测试','导师遗漏项进入计划'],
+    tasks:[
+      {id:'w3-map',priority:'core',kind:'学习',title:'功能—风险—验证映射',time:'周一晚 · 60–90min',env:'文档 / AI',steps:['列前置状态与风险','选择stimulus、checker、assertion和coverage','标记无法确认的系统假设'],output:'验证策略映射表',pass:'不再只写“写一个用例”',fallback:'只做Top5功能'},
+      {id:'w3-boundary',priority:'core',kind:'学习',title:'Checker / Assertion / Coverage边界',time:'灵活早晨 · 45min',env:'AI口试',steps:['各用一句话定义职责','为3条规则选择机制','让AI追问理由'],output:'检查机制决策卡',pass:'能说明Coverage为何不证明正确性',fallback:'只比较Assertion和Checker'},
+      {id:'w3-sva',priority:'core',kind:'练习',title:'第一条Assertion正反测试',time:'周三晚 · 60–90min',env:'纸笔 / 开源环境',steps:['自然语言写规则并画时序','明确采样clock和reset','转成property','制造违反与合法边界'],output:'正反测试Assertion',pass:'该报能报、合法不误报、语义可解释',fallback:'先完成自然语言和时序图'},
+      {id:'w3-oral',priority:'regular',kind:'自测',title:'AI Spec分析口试',time:'周四晚 · 20min',env:'AI口试',steps:['使用抽象功能','回答边界、状态、时序、异常、恢复和检查','记录四项评分'],output:'口试评分',pass:'四项均≥3分',fallback:'10分钟功能—风险解释'},
+      {id:'w3-review',priority:'regular',kind:'反馈',title:'导师验证策略Review',time:'本周 · 15min',env:'导师',steps:['准备一页映射','确认最高风险遗漏','删除低价值corner'],output:'策略修订记录',pass:'删一个低价值项并补一个高风险项',fallback:'只看Top5风险'},
+      {id:'w3-retro',priority:'optional',kind:'方法',title:'验证策略复盘',time:'周末 · 2–3h',env:'文档',steps:['记录被推翻的理解','区分功能、状态、环境和model风险','总结如何更早发现'],output:'验证策略复盘V1',pass:'形成可迁移方法',fallback:'只写3个被推翻假设'}
+    ]
+  },
+  {
+    id:'w4',dates:'08.03—08.09',title:'复杂交付与准负责人意识',
+    shift:'从完成个人任务，转向提高一块交付的确定性',
+    focus:['任务拆解','风险台账','月度复盘'],reviewer:'直属主管 · 15分钟',
+    observations:['任务是否有明确完成标准、依赖与风险owner？','Top风险是否有升级条件？','如果获得更大scope，最可能失败在哪里？'],
+    gates:['任务具有标准和风险owner','Top5风险有升级条件','完成60分钟交付模拟','四周关键结果达到预期'],
+    tasks:[
+      {id:'w4-break',priority:'core',kind:'学习',title:'任务拆解与风险台账',time:'周一晚 · 60min',env:'文档',steps:['拆功能、未知项、环境/model、用例、assertion、coverage、回归、bug和sign-off','写状态、标准、依赖与截止时间','设升级条件'],output:'任务与风险台账',pass:'能向主管清晰同步',fallback:'只做Top5风险'},
+      {id:'w4-risk',priority:'core',kind:'自测',title:'风险排序闭卷测试',time:'灵活早晨 · 45min',env:'纸笔 / AI',steps:['选Top5风险','判断影响、检测、最晚解决点、owner和升级条件','回到资料校正'],output:'Top5风险判断',pass:'理由清楚且能被挑战',fallback:'只做Top3'},
+      {id:'w4-sim',priority:'core',kind:'自测',title:'60分钟完整交付模拟',time:'周三晚 · 60min',env:'AI / 文档',steps:['10分钟功能结构','10分钟未知项','15分钟corner','10分钟检查','10分钟coverage','5分钟sign-off'],output:'抽象功能验证策略',pass:'时间内形成闭环',fallback:'只完成前四步'},
+      {id:'w4-evidence',priority:'regular',kind:'方法',title:'整理四类成长记录',time:'周四晚 · 60min',env:'网站 / AI',steps:['分类技术、交付、反馈和方法资产','由AI判断记录质量','只保留脱敏内容'],output:'月度成长包',pass:'至少3条具备真实应用或反馈',fallback:'Debug、交付和反馈各1条'},
+      {id:'w4-review',priority:'regular',kind:'反馈',title:'主管月度成长Review',time:'本周 · 15min',env:'主管',steps:['汇报交付、方法、缺口和scope','只问一个最大风险','反馈转成下月目标'],output:'下月能力目标',pass:'获得明确担忧或任务范围',fallback:'异步五行总结'},
+      {id:'w4-month',priority:'optional',kind:'方法',title:'月度四指标复盘',time:'周末 · 2h',env:'AI / 网站',steps:['检查计划完成、自测通过、工作转化和记录充分度','区分能力不足与机会不足','决定下月增删内容'],output:'可导出月报',pass:'能决定下月调整',fallback:'只完成四指标与一个调整'}
+    ]
+  }
+];
+
+const CAREER_STAGES = [
+  {id:'s1',index:'01',range:'2026—2027',title:'可靠的IP Owner',active:true,items:['独立交付复杂IP','补齐Linux、Verdi与Debug','从寄存器行为走向系统影响','形成个人验证工作流']},
+  {id:'s2',index:'02',range:'2028—2029',title:'双标签技术骨干',items:['SoC验证成为第一标签','低功耗验证形成专业壁垒','进入跨IP和SoC级场景','开始Review与小范围协调']},
+  {id:'s3',index:'03',range:'2030—2032',title:'子系统负责人',items:['主导验证计划与sign-off','带2—5人或协调模块Owner','负责质量、进度和风险','形成Spec到Silicon闭环']},
+  {id:'s4',index:'04',range:'2032—2034',title:'MBA决策窗口',items:['具备完整项目交付履历','具备真实带队经历','英语达到商业沟通水平','资金覆盖学习和机会成本']},
+  {id:'s5',index:'05',range:'2035+',title:'产品 / 战略 / 经营',items:['连接终端需求与芯片定义','参与人员和预算分配','影响业务与技术路线','为创业积累团队和信用']}
+];
+
+const STAGE_GATES = [
+  {name:'复杂IP完整交付',description:'能够独立管理边界、计划、风险、Debug、回归与sign-off。',state:'进行中'},
+  {name:'跨模块与系统问题',description:'能够理解上下游、系统状态和异常传播，而不是只看单一寄存器行为。',state:'进行中'},
+  {name:'验证策略独立性',description:'从功能、风险、检查和coverage形成闭环，并能解释取舍。',state:'进行中'},
+  {name:'Review与反馈闭环',description:'能结构化表达问题、接收挑战，并将反馈转化成下一次行动。',state:'进行中'},
+  {name:'小范围责任扩大',description:'开始拆任务、Review他人工作或管理一块交付的质量和进度。',state:'待机会'}
+];
+
+const DECISIONS = [
+  ['技术成长','进入复杂SoC、低功耗和系统问题','长期停留在重复性零散IP UT'],
+  ['交付Scope','从个人任务走向IP、子系统责任','连续两年责任范围没有实质扩大'],
+  ['领导机会','开始拆任务、Review、控风险','只承担执行，没有决策和协调机会'],
+  ['外部通用性','能力能被其他芯片或终端公司认可','工具和方法高度内部化、难以迁移'],
+  ['收入回报','收入随责任和市场价值同步增长','责任持续扩大但回报长期不匹配']
+];
+
+const PROMPTS = {
+  daily:{title:'每日记录Prompt',description:'一次口述同时整理工作、工作中的学习、工作之外学习与生活。',text:`你是我的职业发展记录Agent。我接下来会用口语描述今天发生的事情。请先等待我说“口述结束”，再整理。
+
+请输出纯JSON，不要使用Markdown代码块：
+{
+  "date":"YYYY-MM-DD",
+  "summary":"今日整体概述",
+  "work":[{"title":"任务名称","progress":"今天推进","status":"当前状态","problem":"问题、处理和结果的完整因果描述","unknown":"仍不清楚的地方","next":"下一步"}],
+  "workLearning":["工作中形成的新理解"],
+  "outsideLearning":[{"title":"工作之外学习","result":"完成情况或收获"}],
+  "life":[{"title":"锻炼或生活事项","result":"情况"}],
+  "tomorrow":{"work":["工作事项"],"learning":["工作外学习"],"life":["生活事项"]},
+  "energy":"充足/正常/偏低/高压",
+  "aiObservation":{"signals":["可能的能力信号"],"repeats":["可能重复的问题"],"weeklyWatch":["周复盘继续观察"],"candidate":"是否可能值得长期沉淀及原因"},
+  "gaps":["待确认信息"]
+}
+
+要求：保留因果关系，不夸大成果，严格区分工作中的学习和工作之外学习；对公司内容进行脱敏，不写代码、日志、信号名、项目代号、内部参数或未公开信息。`},
+  problem:{title:'问题日志Prompt',description:'完整保留错误判断、证据变化、根因与可迁移方法。',text:`你是我的技术学习与职业成长记录Agent。我会口述一个问题的真实过程。请等待我说“口述结束”后，输出纯JSON，不要使用Markdown代码块：
+{
+  "date":"YYYY-MM-DD",
+  "title":"问题标题",
+  "context":"脱敏背景",
+  "expected":"预期",
+  "actual":"实际",
+  "initialJudgment":"最初判断及依据",
+  "analysis":["按因果顺序的检查、证据、排除与方向变化"],
+  "rootCause":"根因；未确认时明确写当前推测",
+  "solution":"处理方式、为什么有效、结果与后续风险",
+  "understandingChange":"之前如何理解，现在如何理解",
+  "transferableMethod":["可复用的方法、检查顺序、证据和误区"],
+  "nextTime":["下次的简洁行动流程"],
+  "unknowns":["尚未理解或待确认内容"],
+  "abilities":[{"id":"debug","reason":"关联原因"}],
+  "aiObservation":{"importance":"ordinary/important","repeat":false,"weekly":true,"learningTask":"是否应生成额外学习任务及建议","resumePotential":"是否可能进入候选池及仍缺什么"},
+  "independence":"他人主导/提示后完成/独立完成/独立完成并形成方法"
+}
+
+不要美化过程，不要因问题解决就判断能力已掌握；区分直接原因和深层机制；严格脱敏。`},
+  weekly:{title:'周度复盘Prompt',description:'读取整周事实，生成分析、下周计划与反馈问题。',text:`你是我的周度职业成长分析Agent。我会提供本周每日记录、问题日志、学习任务完成情况、日程和反馈。请基于事实输出纯JSON：
+{
+  "range":"YYYY-MM-DD—YYYY-MM-DD",
+  "workSummary":["主要交付与进展"],
+  "workLearning":["工作中形成的新认知"],
+  "outsideLearning":{"completed":["已完成"],"notCompleted":[{"task":"未完成任务","reason":"时间/计划/能力/机会"}]},
+  "importantProblems":["重要问题"],
+  "repeatedProblems":["重复问题及是否改善"],
+  "abilityChanges":[{"id":"debug","change":"可能的变化","evidence":"依据","confidence":"低/中/高"}],
+  "workloadEnergy":"工作负荷与精力分析",
+  "nextWeekWorkFocus":["工作关注点，不是额外任务"],
+  "nextWeekLearning":[{"title":"工作之外学习任务","priority":"core/regular/optional","reason":"来源","time":"预算","environment":"环境","steps":["步骤"],"pass":"掌握标准","fallback":"降级版"}],
+  "stopOrReduce":["下周停止或减少什么"],
+  "reviewQuestions":["给主管或导师的具体问题"],
+  "resumeCandidates":[{"title":"候选经历","reason":"价值","missing":"仍缺事实","sourceIds":["原始记录ID，可留空"]}]
+}
+
+不要重复粘贴原始记录；分析结果应引用事实，不夸大能力变化。`},
+  oral:{title:'AI口试Prompt',description:'AI逐题追问，不直接给答案。',text:`你是我的验证工程师口试官。围绕我给出的抽象技术主题逐题追问，不要直接讲答案。
+
+规则：
+1. 一次只问一个问题；
+2. 优先追问边界、因果、证据、异常、恢复和迁移；
+3. 当我使用“应该、一般、可能”等模糊词时继续追问；
+4. 每题根据结构、正确性、因果、证据和迁移各给1—5分；
+5. 只有在我明确说“结束口试”后，才总结卡点、错误理解、推荐补充学习和一项最小训练；
+6. 不接收任何公司代码、日志、信号名、项目代号或未公开信息。
+
+先问我：今天要测试哪个主题，以及希望进行10分钟还是20分钟。`},
+  ability:{title:'能力更新Prompt',description:'根据工作和复盘更新能力状态，但避免过度升级。',text:`你是我的能力地图审查Agent。根据我提供的原始记录和周复盘，输出纯JSON：
+{"abilities":[{"id":"debug","status":"初步理解/能够在提示下完成/能够独立完成/能够处理复杂情况/能够形成方法并指导他人","level":1,"signal":"最近变化及证据","next":"下一次升级条件","opportunity":"当前是否有足够工作机会"}]}
+
+规则：完成学习任务不能直接升级；必须考虑真实应用、独立程度、复杂度、反向测试、复用和外部反馈。证据不足时保持原等级，只更新观察。`},
+  resume:{title:'简历整理Prompt',description:'将原始简历整理为网站档案，并保留事实边界。',text:`你是我的职业履历整理Agent。我会提供一份入职前简历或后续经历。请输出纯JSON：
+{
+  "filename":"原文件名",
+  "version":"版本名称",
+  "target":"目标方向",
+  "summary":"职业概述",
+  "education":[{"time":"时间","title":"学校与专业","detail":"关键信息"}],
+  "experiences":[{"time":"时间","title":"组织与角色","detail":"职责与成果","abilities":["能力"]}],
+  "projects":[{"time":"时间","title":"项目名称","role":"角色","background":"背景","scope":"负责范围","challenge":"挑战","process":"解决过程","result":"结果","abilities":["能力"],"publicBoundary":"可公开边界"}],
+  "skills":["技能"],
+  "awards":["奖项/专利/论文"],
+  "versions":[{"name":"版本","date":"日期","target":"适用方向","changes":"变化"}],
+  "candidates":[]
+}
+
+不得夸大职责和结果；缺少量化结果时不要编造；同一事实可生成不同方向的表达，但基础事实保持一致。`},
+  cycle:{title:'四周周期总结Prompt',description:'完整归档当前周期并生成下一周期建议。',text:`你是我的四周成长周期分析Agent。读取四周的每日记录、问题日志、周报、学习任务、能力地图和反馈后，输出纯JSON：
+{
+  "title":"周期名称",
+  "range":"日期范围",
+  "goal":"最初目标",
+  "planned":["原计划"],
+  "actual":["实际完成"],
+  "adjustments":["计划变化及原因"],
+  "problems":["重要与重复问题"],
+  "abilityChanges":["能力变化与依据"],
+  "feedback":["外部反馈"],
+  "summary":"周期结论",
+  "nextCycle":{"theme":"下一周期主题","reason":"为什么","focus":["重点能力"],"suggestedTasks":["建议任务"]}
+}
+
+区分能力不足和工作机会不足，不用完成率掩盖计划不合理。`},
+  career:{title:'职业规划复盘Prompt',description:'使用履历、能力与机会校准长期路线。',text:`你是我的长期职业规划审查Agent。请结合我的履历、工作档案、能力地图、当前岗位机会、收入和生活约束进行分析：
+1. 当前处于哪个职业阶段；
+2. 下一阶段条件已满足、进行中和暂时缺机会的部分；
+3. 当前工作是否仍提供足够成长Scope；
+4. SoC验证和低功耗双标签是否正在形成；
+5. 未来12个月最值得获得的三类经历；
+6. 留任、跳槽、MBA或产品/管理转型的触发条件；
+7. 将建议连接到年度、季度、四周周期和下周行动。
+
+必须区分事实、推断和不确定信息，不因焦虑而建议频繁切换方向。`}
+};
+
+</script>
+<script data-source="curriculum/base.js">
+window.CURRICULUM_CYCLES=[{"id":"c1","index":"01","range":"Week 1—4","title":"验证环境与工程方法基础","main":"UVM环境与验证闭环","support":"Debug证据判断","outcome":"解释完整UVM数据流，把Spec转成风险，并用证据组织Debug。","weeks":["w1","w2","w3","w4"]},{"id":"c2","index":"02","range":"Week 5—8","title":"SoC数据流与Interconnect","main":"地址、总线、DMA与Interrupt","support":"Assertion与End-to-end检查","outcome":"从软件可见接口出发，完成一个DMA＋Interrupt子系统验证方案。","weeks":["w5","w6","w7","w8"]},{"id":"c3","index":"03","range":"Week 9—12","title":"系统状态、异常与低功耗","main":"Reset、CDC、Error与Power state","support":"恢复路径与系统Corner","outcome":"分析状态切换、错误传播和恢复，并建立低功耗验证基础。","weeks":["w9","w10","w11","w12"]},{"id":"c4","index":"04","range":"Week 13—16","title":"Coverage、Regression与IP Owner","main":"Closure与Sign-off","support":"自动化、风险沟通与综合答辩","outcome":"形成从验证计划到Sign-off的完整交付判断。","weeks":["w13","w14","w15","w16"]}];
+window.CURRICULUM_ABILITIES=[{"id":"soc","name":"SoC系统推理","status":"初步理解","level":2,"signal":"能够理解单个IP行为，跨模块数据、控制、异常与恢复路径仍需系统训练。","next":"完成DMA、Interrupt、Reset与Power综合案例，并在陌生场景中独立画出系统路径。","opportunity":"主干课程持续训练；真实项目机会需要主动识别"},{"id":"verification","name":"验证工程设计","status":"能够在提示下完成","level":3,"signal":"能够从功能走向风险与检查，但Coverage、Regression和Sign-off尚未形成完整闭环。","next":"独立完成一个抽象子系统的Testplan、Checker、Assertion、Coverage与Sign-off方案。","opportunity":"工作中可迁移，课外用综合案例补齐"},{"id":"debug","name":"Debug与证据判断","status":"能够在提示下完成","level":3,"signal":"可以追踪现象并排查，候选假设、最小实验和证据强度仍需稳定化。","next":"连续两次在陌生或真实问题中形成可复现的证据链。","opportunity":"工作日志提供诊断，AI案例用于迁移测试"},{"id":"productivity","name":"工程效率与自动化","status":"初步理解","level":2,"signal":"具备SystemVerilog、UVM和脚本基础，但工具使用尚未形成稳定工作流。","next":"完成UVM环境机制梳理和一个可运行的Regression结果分析脚本。","opportunity":"个人电脑可练Python与开源工具；公司环境只做脱敏观察"},{"id":"ownership","name":"交付责任与技术影响力","status":"能够在提示下完成","level":3,"signal":"能够完成明确任务，正在建立风险判断、状态同步与Review习惯。","next":"完成一个有依据的Sign-off判断，并用5分钟向主管说明风险与建议。","opportunity":"每周15分钟反馈与真实工作均可练习"},{"id":"lowpower","name":"低功耗专业化视角","status":"尚未展开","level":1,"signal":"作为第二技术标签保留，目前缺少Power state、Isolation、Retention和恢复的系统框架。","next":"完成Power domain图、状态表和低功耗验证场景矩阵。","opportunity":"先用抽象系统学习，等待合适项目迁移"},{"id":"industry","name":"行业、产品与商业视野","status":"尚未展开","level":1,"signal":"已有技术学习基础，但尚未形成不同芯片产品、验证层级与商业约束之间的判断框架。","next":"完成四次有输出的行业分析，而不是零散阅读新闻。","opportunity":"每个Cycle一次结构化输出"}];
+window.CURRICULUM_PROMPTS={"daily":{"title":"每日记录Prompt","description":"一次口述整理工作、工作中的学习、工作之外学习与生活；工作只提供诊断，不直接决定课程。","text":"你是我的职业发展记录Agent。我接下来会用口语描述今天发生的事情。请先等待我说“口述结束”，再整理。\n\n请输出纯JSON，不要使用Markdown代码块：\n{\n  \"date\":\"YYYY-MM-DD\",\n  \"summary\":\"今日整体概述\",\n  \"work\":[{\"title\":\"任务名称\",\"progress\":\"今天推进\",\"status\":\"当前状态\",\"problem\":\"问题、处理和结果的完整因果描述\",\"unknown\":\"仍不清楚的地方\",\"next\":\"下一步\"}],\n  \"workLearning\":[\"工作中形成的新理解\"],\n  \"outsideLearning\":[{\"title\":\"工作之外学习\",\"result\":\"完成情况或收获\",\"courseLink\":\"对应16周课程模块或无\"}],\n  \"life\":[{\"title\":\"锻炼或生活事项\",\"result\":\"情况\"}],\n  \"tomorrow\":{\"work\":[\"工作事项\"],\"learning\":[\"工作外学习\"],\"life\":[\"生活事项\"]},\n  \"energy\":\"充足/正常/偏低/高压\",\n  \"diagnosis\":{\"type\":\"知识缺口/技能缺口/判断缺口/迁移失败/执行习惯/沟通协作/机会不足/临时环境/无明确缺口\",\"evidence\":\"判断依据\",\"needsCourseChange\":false},\n  \"aiObservation\":{\"signals\":[\"可能的能力信号\"],\"repeats\":[\"可能重复的问题\"],\"weeklyWatch\":[\"周复盘继续观察\"],\"candidate\":\"是否可能值得长期沉淀及原因\"},\n  \"gaps\":[\"待确认信息\"]\n}\n\n要求：保留因果关系，不夸大成果，严格区分工作中的学习和工作之外学习。工作问题只作为诊断信号，不要自动把每个问题生成学习任务。对公司内容进行脱敏，不写代码、日志、信号名、项目代号、内部参数或未公开信息。"},"problem":{"title":"问题日志Prompt","description":"完整保留错误判断、证据变化、根因、缺口类型与可迁移方法。","text":"你是我的技术学习与职业成长记录Agent。我会口述一个问题的真实过程。请等待我说“口述结束”后，输出纯JSON，不要使用Markdown代码块：\n{\n  \"date\":\"YYYY-MM-DD\",\n  \"title\":\"问题标题\",\n  \"context\":\"脱敏背景\",\n  \"expected\":\"预期\",\n  \"actual\":\"实际\",\n  \"initialJudgment\":\"最初判断及假设\",\n  \"analysis\":[\"按因果顺序的检查、证据与判断变化\"],\n  \"rootCause\":\"根因；未确认时明确写当前推测\",\n  \"solution\":\"解决方式与结果\",\n  \"understandingChange\":\"理解变化\",\n  \"transferableMethod\":[\"可迁移的方法\"],\n  \"nextTime\":[\"下次处理流程\"],\n  \"openQuestions\":[\"遗留问题\"],\n  \"independence\":\"独立完成/提示后完成/他人主导\",\n  \"gapType\":\"知识缺口/技能缺口/判断缺口/迁移失败/执行习惯/沟通协作/机会不足/临时环境\",\n  \"courseRelation\":{\"week\":\"w1-w16或无\",\"action\":\"保持课程/增加练习/回退补前置/只在工作再次实践/寻求反馈\"},\n  \"abilities\":[\"相关能力\"],\n  \"aiObservation\":{\"importance\":\"important/normal\",\"repeat\":false,\"weeklyReview\":true,\"learningTask\":\"仅在重复、影响大或长期相关时提出\",\"resumePotential\":\"判断及缺失证据\"}\n}\n要求：不要美化过程，不要因问题解决就判断能力升级；区分知识、技能、判断、迁移和机会问题；严格脱敏。"},"weekly":{"title":"周度复盘Prompt","description":"结合长期课程与工作诊断生成下周计划，不能让当前工作覆盖16周主干。","text":"你是我的周度成长分析Agent。请读取本周每日记录、问题日志、课程完成状态和精力信息，输出纯JSON，不使用Markdown代码块。\n\n关键原则：16周课程是长期主干；工作日志只是诊断与迁移证据。普通一次性工作问题不得自动生成学习任务，也不得挤掉当前课程。\n\n{\n  \"range\":\"YYYY-MM-DD—YYYY-MM-DD\",\n  \"workSummary\":[\"本周真实工作与交付\"],\n  \"workLearning\":[\"工作中形成的新理解\"],\n  \"outsideLearningSummary\":[\"16周课程和其他课外学习完成情况\"],\n  \"diagnoses\":[{\"issue\":\"问题\",\"type\":\"知识/技能/判断/迁移/习惯/沟通/机会/环境\",\"evidence\":\"依据\",\"decision\":\"是否调整课程及原因\"}],\n  \"repeatedProblems\":[\"重复问题\"],\n  \"abilityChanges\":[{\"id\":\"能力id\",\"change\":\"只能写可能信号，不轻易升级等级\",\"evidence\":\"来源记录\",\"confidence\":\"低/中/高\"}],\n  \"courseStatus\":{\"currentWeek\":\"w1-w16\",\"keepMainTrack\":true,\"prerequisiteGap\":\"前置缺口或无\",\"assessmentResult\":\"通过/需补测/未评估\"},\n  \"nextWeekWorkFocus\":[\"工作关注点，不算课外学习任务\"],\n  \"nextWeekLearning\":[{\"title\":\"仅在确有必要时增加的动态任务\",\"reason\":\"来源与必要性\",\"priority\":\"core/regular/optional\",\"kind\":\"学习/练习/自测/方法/反馈\",\"time\":\"时间\",\"env\":\"环境\",\"steps\":[\"步骤\"],\"output\":\"输出\",\"pass\":\"通过标准\",\"fallback\":\"高压降级\"}],\n  \"reviewQuestions\":[\"给主管或导师的问题\"],\n  \"resumeCandidates\":[{\"title\":\"候选经历\",\"reason\":\"为何值得\",\"missing\":\"仍缺事实\",\"target\":\"适用版本\"}],\n  \"loadMode\":\"高压周/正常周/深度周\",\n  \"oneAdjustment\":\"下周最重要的一项调整\"\n}\n\n规则：优先保持当前16周主干；动态任务只有在问题重复、影响交付、暴露关键前置缺口或高度关联长期目标时才生成。若工作已经提供充分练习，应减少重复课外练习。"},"ability":{"title":"能力更新Prompt","description":"用多来源证据更新能力信号、置信度和机会判断。","text":"请根据提供的每日记录、问题日志、口试、综合案例和外部反馈，输出纯JSON：\n{\"abilities\":[{\"id\":\"soc/verification/debug/productivity/ownership/lowpower/industry\",\"status\":\"能力状态\",\"level\":1,\"signal\":\"最近能力信号\",\"next\":\"下一升级条件\",\"opportunity\":\"工作机会判断\",\"confidence\":\"低/中/高\",\"evidence\":[\"证据来源\"]}]}\n单一学习任务不能直接升级等级。至少需要两类证据，优先考虑陌生迁移、真实工作应用和外部反馈。证据不足时只更新signal和confidence。"},"resume":{"title":"简历整理Prompt","description":"把简历和后续经历整理为可持续更新的履历档案。","text":"请将我提供的简历或经历整理成纯JSON，不使用Markdown代码块：\n{\n  \"version\":\"版本名称\",\n  \"target\":\"目标方向\",\n  \"summary\":\"职业概述\",\n  \"education\":[{\"time\":\"时间\",\"title\":\"学校与专业\",\"detail\":\"信息\"}],\n  \"experiences\":[{\"time\":\"时间\",\"title\":\"公司与职位\",\"detail\":\"职责和成果\"}],\n  \"projects\":[{\"time\":\"时间\",\"title\":\"项目\",\"role\":\"角色\",\"scope\":\"范围\",\"background\":\"背景\",\"challenge\":\"挑战\",\"process\":\"过程\",\"result\":\"结果\",\"abilities\":[\"能力\"],\"publicBoundary\":\"可公开边界\"}],\n  \"skills\":[\"技能\"],\n  \"awards\":[\"奖项、专利或研究\"],\n  \"versions\":[{\"name\":\"版本\",\"date\":\"日期\",\"target\":\"用途\",\"changes\":\"变化\"}],\n  \"candidates\":[{\"title\":\"候选经历\",\"source\":\"来源\",\"reason\":\"价值\",\"missing\":\"缺少事实\",\"target\":\"适用版本\",\"status\":\"candidate\"}]\n}\n只依据事实，不夸大责任、独立程度或影响；公司信息必须脱敏。"},"oral":{"title":"AI技术口试Prompt","description":"围绕当前16周模块进行追问，检验知识、推理和迁移。","text":"你是我的SoC验证技术面试官。先问我当前课程周次和主题，然后进行口试。\n规则：\n1. 一次只问一题，不提前给答案。\n2. 先检查概念结构，再检查因果推理，最后给陌生迁移场景。\n3. 持续追问“为什么”“证据是什么”“换一个条件会怎样”。\n4. 对公司内容要求我抽象和脱敏。\n5. 结束后按知识、执行、推理、迁移、影响五项各1—5分评分。\n6. 输出错误答案、遗漏的前置知识、是否通过本周门槛，以及一个最小补测任务。\n7. 不因表达流畅就给高分，重点检查逻辑一致性和边界条件。"}};
+
+</script>
+<script data-source="curriculum/cycle1.js">
+window.CURRICULUM_WEEKS=(window.CURRICULUM_WEEKS||[]).concat([{"id":"w1","dates":"07.13—07.19","cycle":"Cycle 1 · 验证环境与工程方法基础","title":"UVM环境数据流","shift":"从“知道各组件名称”转向解释Transaction如何生成、驱动、观察、预测和检查。","focus":["UVM数据流","Expected来源","组件职责"],"reviewer":"带教导师 · 15分钟","observations":["真实环境中Transaction最早在哪里出现、最终在哪里被判定？","Expected是否来自独立规则，还是复制了DUT思路？","当前最不清楚的是驱动链、观察链还是检查链？"],"gates":["5分钟闭卷解释完整UVM数据流","指出至少3类环境自身可能制造的错误","完成一次AI口试并记录卡点"],"tasks":[{"id":"c1w1-map","priority":"core","kind":"学习","title":"关闭资料画UVM验证数据流","time":"周一晚 · 75–90min","env":"纸笔 / AI","reason":"建立后续所有UVM、Checker和Debug学习的共同地图。","steps":["画Sequence→Sequencer→Driver→DUT→Monitor→Model→Scoreboard→Coverage","为每个节点写输入、输出和职责","标记对象复制、时序、reset和连接错误可能出现的位置","查资料校正后再次闭卷重画"],"output":"UVM数据流图V1","pass":"不看资料5分钟解释全链路，并回答Expected从哪里来","fallback":"只画Driver→DUT→Monitor→Scoreboard并解释职责"},{"id":"c1w1-trace","priority":"regular","kind":"练习","title":"追踪一条抽象Transaction生命周期","time":"周三晚 · 60–75min","env":"AI案例 / 开源伪代码","reason":"把结构图转成能够追踪真实数据对象的执行能力。","steps":["让AI给出一段脱敏UVM伪代码","标出Transaction创建、传递、复制和比较的位置","判断哪里可能发生对象复用、数据覆盖或延迟不一致","写出3个最先检查的点"],"output":"Transaction追踪卡","pass":"能够解释同一个字段在各组件中的来源和时间关系","fallback":"只追踪创建、Monitor发布和Scoreboard接收"},{"id":"c1w1-oral","priority":"regular","kind":"自测","title":"AI环境架构口试","time":"周四晚 · 25–30min","env":"AI口试","reason":"检查是否真正理解组件边界，而不是只会背结构图。","steps":["要求AI逐题追问，不直接给答案","回答Monitor与Scoreboard为何分开、Coverage为何不证明正确","回答Driver与Monitor是否应共享对象、Model如何避免复制DUT","记录知识、推理和迁移评分"],"output":"口试评分与错误答案","pass":"核心问题平均≥3/5，且能修正一个错误理解","fallback":"完成10分钟、回答前3题"},{"id":"c1w1-output","priority":"optional","kind":"方法","title":"建立验证环境阅读清单V1","time":"周末 · 2–3h","env":"文档 / 公司环境只观察","reason":"让以后接手新环境时有稳定的阅读顺序。","steps":["整理入口、配置、激励、驱动、观察、预测、比较、覆盖八个部分","每部分写清要找的对象和常见风险","在公司环境只验证结构，不复制代码或内部信息","根据观察修订清单"],"output":"验证环境阅读清单V1","pass":"清单能够指导下一次阅读陌生环境","fallback":"先完成激励、观察、预测、比较四部分"}]},{"id":"w2","dates":"07.20—07.26","cycle":"Cycle 1 · 验证环境与工程方法基础","title":"UVM运行机制与复用","shift":"从“环境可以跑”转向理解对象何时创建、如何配置、为何连接以及测试何时结束。","focus":["Phase与Objection","config_db","Factory与复用"],"reviewer":"直属主管 · 15分钟","observations":["本周遇到的问题属于配置、连接、运行、数据还是检查？","旧环境复用时哪些配置和override假设必须重新确认？","测试提前结束或组件未工作时，我是否有固定排查顺序？"],"gates":["画出Build→Connect→Run生命周期","完成5个UVM故障分类案例","形成环境复用检查表V2"],"tasks":[{"id":"c1w2-life","priority":"core","kind":"学习","title":"建立UVM生命周期表","time":"周一晚 · 75–90min","env":"文档 / AI","reason":"补齐仅理解数据流但不了解环境运行机制的问题。","steps":["整理build、connect、end_of_elaboration、start_of_simulation和run的核心职责","写出component与object的创建差异","说明objection如何影响测试结束","用一页表格连接phase、动作和常见故障"],"output":"UVM生命周期表","pass":"能够判断某项动作应该发生在哪个phase及原因","fallback":"只整理build、connect和run三个phase"},{"id":"c1w2-fault","priority":"core","kind":"练习","title":"五类UVM故障定位","time":"周三晚 · 75–90min","env":"AI案例","reason":"练习先分类再追代码，减少随机Debug。","steps":["分析Driver拿不到item、config_db路径错误、override未生效、analysis port未连接、test过早结束五类问题","每题先判断机制类别","列最小验证动作和预期证据","对比AI答案并修正检查顺序"],"output":"UVM故障判断表","pass":"5题中至少4题能提出正确的第一验证动作","fallback":"只完成3题并解释分类依据"},{"id":"c1w2-reuse","priority":"regular","kind":"方法","title":"环境复用检查表V2","time":"周四晚 · 60min","env":"文档 / AI","reason":"将复用从“能编译能运行”提升为重新证明关键假设。","steps":["检查接口与参数、config_db、factory override、sequence层级、phase与objection","加入RAL、地址映射、clock/reset、Model和Coverage假设","每项标记已确认、待确认或不适用","为待确认项写确认对象和截止时间"],"output":"环境复用检查表V2","pass":"所有待确认项都有验证动作，不使用“应该没问题”","fallback":"先完成配置、sequence、Model和reset四类"},{"id":"c1w2-review","priority":"optional","kind":"反馈","title":"主管或导师Review：环境理解","time":"本周 · 15min","env":"导师 / 主管","reason":"通过外部挑战检查自己的环境理解是否遗漏关键机制。","steps":["用3分钟讲清环境生命周期和数据流","展示一个最不确定的复用假设","只问两个具体问题","记录一条修订和一次应用机会"],"output":"Review记录","pass":"反馈转化为检查表修订或下次行动","fallback":"异步发送一页结构图和两个问题"}]},{"id":"w3","dates":"07.27—08.02","cycle":"Cycle 1 · 验证环境与工程方法基础","title":"Spec、状态模型与验证风险","shift":"从“列功能和用例”转向建立状态、异常、恢复和风险之间的因果模型。","focus":["Scope边界","状态模型","功能—风险—检查"],"reviewer":"带教导师 · 15分钟","observations":["新功能的边界和系统假设是否被明确写出？","我是否把正常路径、错误路径和恢复路径分开？","最高风险来自设计复杂度、可观察性还是环境假设？"],"gates":["完成一个抽象外设状态模型","Top 5风险均有检查机制","能解释每个测试消除什么风险"],"tasks":[{"id":"c1w3-model","priority":"core","kind":"学习","title":"建立功能状态模型","time":"周一晚 · 75–90min","env":"纸笔 / AI","reason":"状态模型是Corner、Checker、Coverage和Debug的共同前提。","steps":["选择一个抽象外设功能","定义scope、触发、前置状态、状态变化、结果、错误和恢复","画状态图并标出非法或模糊转换","列出仍待确认的系统假设"],"output":"功能状态模型V1","pass":"能够闭卷解释正常、错误和恢复三条路径","fallback":"只完成触发—状态—结果和一个错误路径"},{"id":"c1w3-risk","priority":"core","kind":"练习","title":"功能—风险—验证映射","time":"周三晚 · 90min","env":"文档 / AI","reason":"避免验证计划退化成用例列表。","steps":["从状态模型提取Top 5风险","为每项风险选择stimulus、checker/model、assertion和coverage","说明为何选择该机制而不是其他机制","标记可观察性不足和环境依赖"],"output":"风险—检查映射表","pass":"每项测试都能说明要消除的风险和失败判据","fallback":"只完成Top 3风险"},{"id":"c1w3-boundary","priority":"regular","kind":"自测","title":"Checker / Assertion / Coverage机制决策","time":"周四晚 · 35–45min","env":"AI口试","reason":"训练检查机制的边界判断，而不是背定义。","steps":["让AI给出5条抽象规则","为每条规则选择Checker、Assertion、Coverage或组合","解释Coverage为何不能证明正确性","记录自己最容易混淆的边界"],"output":"机制决策卡","pass":"5题中至少4题的选择和理由成立","fallback":"只比较Checker与Assertion的3题"},{"id":"c1w3-industry","priority":"optional","kind":"方法","title":"行业输出：验证环境为何强调复用","time":"周末 · 90min","env":"公开资料 / 文档","reason":"把UVM学习连接到真实工程组织和成本。","steps":["比较一次性testbench与可复用环境的差异","从项目周期、团队协作、维护和跨IP迁移分析价值","写出复用带来的两个风险","形成一页结论而非资料摘抄"],"output":"一页UVM复用分析","pass":"能够说明复用的收益、代价和适用边界","fallback":"只完成收益、风险、结论三段"}]},{"id":"w4","dates":"08.03—08.09","cycle":"Cycle 1 · 验证环境与工程方法基础","title":"Debug证据链与阶段评估","shift":"从“沿波形寻找可疑点”转向用可证伪假设和最小实验组织定位。","focus":["首次异常","候选假设","最小实验与证据强度"],"reviewer":"带教导师或主管 · 15分钟","observations":["我找到的是首次异常还是后续传播现象？","每个候选原因是否有能推翻它的实验？","问题解决后是否能说明如何更早检测或预防？"],"gates":["完成一份可复现Debug复盘","通过一个陌生AI案例","完成Cycle 1十五分钟答辩"],"tasks":[{"id":"c1w4-retro","priority":"core","kind":"练习","title":"重做一份真实Debug复盘","time":"周一或周三 · 90min","env":"脱敏工作记录 / AI","reason":"把真实经验转化为可迁移的证据判断方法。","steps":["写清预期、实际和首次异常","列出至少3个候选假设","为每个假设设计最小验证动作和预期证据","标出最终根因、错误判断和预防动作"],"output":"Debug证据链V1","pass":"别人能够沿证据复现你的排除逻辑","fallback":"只完成首次异常、3个假设和最终根因"},{"id":"c1w4-case","priority":"core","kind":"自测","title":"陌生环境错误案例","time":"周四晚 · 45–60min","env":"AI限时案例","reason":"检验方法是否能迁移到没有见过的Model或环境问题。","steps":["要求AI设计一个DUT看似异常、实际为Model或环境假设错误的案例","前20分钟不得看提示","输出假设树、最小实验和证据排序","对比标准分析并标出遗漏"],"output":"陌生案例分析","pass":"能在提示前提出至少2个有效候选并设计验证动作","fallback":"完成一个简化案例和10分钟分析"},{"id":"c1w4-defense","priority":"regular","kind":"自测","title":"Cycle 1阶段答辩","time":"周末 · 45min","env":"AI口试","reason":"综合检查环境、Spec和Debug是否形成连接。","steps":["5分钟讲UVM数据流","5分钟讲状态与风险映射","5分钟讲Debug证据链","接受AI追问并记录知识、推理、迁移评分"],"output":"Cycle 1答辩记录","pass":"三项平均≥3/5，且没有无法解释的核心链路","fallback":"只完成15分钟精简答辩"},{"id":"c1w4-archive","priority":"optional","kind":"方法","title":"Cycle 1方法包与下阶段接口","time":"周末 · 90min","env":"网站 / 文档","reason":"把阶段成果保留为后续SoC课程的工具，而不是一次性作业。","steps":["整理数据流图、生命周期表、状态模型、风险映射和Debug证据链","删除重复或无法复用内容","写出进入SoC课程前仍缺少的3个前置问题","更新网站周期总结"],"output":"Cycle 1方法包","pass":"保留5项可直接复用资产，并明确下一阶段缺口","fallback":"只整理3项核心资产"}]}]);
+
+</script>
+<script data-source="curriculum/cycle2.js">
+window.CURRICULUM_WEEKS=(window.CURRICULUM_WEEKS||[]).concat([{"id":"w5","dates":"08.10—08.16","cycle":"Cycle 2 · SoC数据流与Interconnect","title":"地址空间、CSR与软件可见接口","shift":"从单个寄存器行为转向解释软件访问如何穿过地址译码并改变硬件状态。","focus":["Memory map","CSR语义","RAL与软件接口"],"reviewer":"带教导师 · 15分钟","observations":["一个寄存器写入从CPU到DUT经历哪些层级？","访问属性和side effect是否进入验证计划？","错误地址、未对齐和权限问题由谁检测？"],"gates":["设计一份抽象寄存器Spec","完成CSR测试与Coverage计划","解释软件到硬件的完整访问链"],"tasks":[{"id":"c2w5-map","priority":"core","kind":"学习","title":"建立软件到CSR访问路径","time":"周一晚 · 75min","env":"纸笔 / AI","reason":"SoC验证必须理解软件可见行为与硬件状态之间的链路。","steps":["画CPU/软件→Interconnect→地址译码→CSR→内部状态","解释base address、offset、读写通道和response","标出RAL、Monitor和Scoreboard可观察的位置","加入非法地址和访问错误路径"],"output":"CSR访问路径图","pass":"5分钟解释一次写操作和一次错误访问","fallback":"只画正常写访问链"},{"id":"c2w5-spec","priority":"core","kind":"练习","title":"设计抽象外设寄存器表","time":"周三晚 · 90min","env":"文档 / AI","reason":"用设计一个小Spec来检查是否理解访问属性和side effect。","steps":["设计control、status、interrupt和error寄存器","定义RO、RW、W1C、reset value和side effect","写出初始化与清除流程","让AI审查歧义和不可验证描述"],"output":"抽象CSR Spec","pass":"没有明显语义歧义，并能解释每个字段的验证风险","fallback":"只设计4个寄存器和核心字段"},{"id":"c2w5-plan","priority":"regular","kind":"方法","title":"CSR测试与Coverage计划","time":"周四晚 · 60min","env":"文档 / AI","reason":"把寄存器知识转化为可执行验证设计。","steps":["覆盖reset value、读写属性、保留位、side effect、非法访问","区分RAL sequence、Assertion和功能Coverage职责","设计至少3个cross或状态关联检查","定义通过与失败判据"],"output":"CSR验证计划V1","pass":"每类访问属性都有对应检查和Coverage","fallback":"只完成reset、RW、RO、W1C四类"},{"id":"c2w5-oral","priority":"optional","kind":"自测","title":"AI口试：软件可见接口","time":"周末 · 25min","env":"AI口试","reason":"检查是否能从软件视角解释硬件，而非只背寄存器定义。","steps":["回答W1C为何存在、RAL解决什么问题","分析写后读不一致的候选原因","解释地址译码错误如何表现","记录最弱问题"],"output":"CSR口试记录","pass":"核心问题平均≥3/5","fallback":"完成前3题"}]},{"id":"w6","dates":"08.17—08.23","cycle":"Cycle 2 · SoC数据流与Interconnect","title":"AXI-Lite握手与协议检查","shift":"从“知道VALID/READY”转向判断独立通道、Backpressure和Response时序。","focus":["AXI-Lite","握手时序","协议Assertion"],"reviewer":"带教导师 · 15分钟","observations":["当前总线问题是通道握手、数据关联还是Response问题？","Backpressure下状态是否保持稳定？","协议检查应该由Assertion、Monitor还是Scoreboard承担？"],"gates":["判断5类握手时序是否合法","完成一条正反测试Assertion","形成AXI-Lite基础验证清单"],"tasks":[{"id":"c2w6-timing","priority":"core","kind":"学习","title":"画五种VALID/READY时序","time":"周一晚 · 90min","env":"纸笔 / AI","reason":"协议学习必须落到周期级行为判断。","steps":["分别画READY先到、VALID先到、同周期、持续Backpressure和Response延迟","标出每次真正的transfer时刻","说明等待期间哪些信号必须稳定","让AI插入两个边界波形进行判断"],"output":"AXI-Lite时序图集","pass":"能独立判断5个波形并解释通道独立性","fallback":"只完成前三种握手"},{"id":"c2w6-sva","priority":"core","kind":"练习","title":"第一条协议Assertion正反测试","time":"周三晚 · 90min","env":"纸笔 / 开源模拟器可选","reason":"在具体协议语义中学习SVA，而不是孤立背语法。","steps":["用自然语言写等待期间payload稳定规则","画采样时序并明确clock与disable iff","写property或伪property","设计合法、违规和边界案例","检查是否存在vacuity或误报"],"output":"经过正反测试的Assertion","pass":"该报能报、合法不误报，并能解释采样语义","fallback":"只完成自然语言、时序图和伪property"},{"id":"c2w6-check","priority":"regular","kind":"方法","title":"AXI-Lite协议检查分工","time":"周四晚 · 60min","env":"文档 / AI","reason":"训练Assertion、Monitor、Scoreboard与Coverage的边界。","steps":["列握手、payload稳定、response、地址数据关联和非法行为","为每项选择检查机制","设计基础coverpoint和cross","说明哪些问题需要end-to-end Scoreboard"],"output":"协议检查清单","pass":"每项检查都有机制、理由和失败判据","fallback":"只完成Top 5规则"},{"id":"c2w6-oral","priority":"optional","kind":"自测","title":"AXI波形口试","time":"周末 · 30min","env":"AI口试","reason":"验证是否能在陌生波形中应用规则。","steps":["让AI逐步描述或生成6个波形场景","在看答案前判断合法性","解释首次违规周期和影响","记录错误类型"],"output":"AXI口试评分","pass":"6题至少5题判断正确","fallback":"完成4题"}]},{"id":"w7","dates":"08.24—08.30","cycle":"Cycle 2 · SoC数据流与Interconnect","title":"Memory、DMA与数据一致性","shift":"从寄存器控制转向端到端数据搬运、Backpressure、错误和一致性。","focus":["DMA数据流","End-to-end检查","系统Corner"],"reviewer":"直属主管 · 15分钟","observations":["Source到Destination的每一步由谁控制和观察？","并发、Backpressure或错误下数据完整性如何证明？","当前Corner是否来自真实系统假设，而不是机械凑数量？"],"gates":["画出完整DMA数据路径","10个Corner均有风险依据","形成End-to-end Scoreboard方案"],"tasks":[{"id":"c2w7-flow","priority":"core","kind":"学习","title":"建立DMA端到端数据流","time":"周一晚 · 90min","env":"纸笔 / AI","reason":"DMA是连接CSR、总线、Memory、Interrupt和软件的核心系统案例。","steps":["画CPU配置、Descriptor/参数、Source读取、FIFO、Destination写入、状态更新","标出地址、长度、数据、response和completion信息","区分控制路径与数据路径","加入一个错误传播路径"],"output":"DMA系统路径图","pass":"能够解释正常完成和一个失败路径的全部状态变化","fallback":"只完成CPU配置→读取→写入→完成"},{"id":"c2w7-corner","priority":"core","kind":"练习","title":"基于系统假设生成DMA Corner","time":"周三晚 · 90min","env":"文档 / AI","reason":"把Corner训练放在具体系统对象中，避免机械套模板。","steps":["围绕地址边界、长度边界、Backpressure、中途错误、Reset和并发生成候选","每个Corner写违反的假设、激励、检查和价值","按影响、可能性和检测缺口排序","删除没有新增风险覆盖的低价值项"],"output":"DMA Corner清单","pass":"至少10项中8项能清楚说明风险和检查机制","fallback":"只完成Top 6 Corner"},{"id":"c2w7-scoreboard","priority":"regular","kind":"方法","title":"设计End-to-end Scoreboard","time":"周四晚 · 75min","env":"纸笔 / AI","reason":"训练跨接口关联与数据完整性检查。","steps":["定义Scoreboard输入和Transaction key","说明Expected数据如何生成","处理乱序、延迟、错误和Reset","设计Mismatch输出需要包含的证据"],"output":"DMA Scoreboard方案","pass":"能解释如何发现丢失、重复、错序和数据错误","fallback":"只设计正常顺序传输"},{"id":"c2w7-industry","priority":"optional","kind":"方法","title":"产品视角：数据搬运为何关键","time":"周末 · 90min","env":"公开资料 / 文档","reason":"将DMA知识连接到GPU、AI加速器和高性能SoC。","steps":["比较CPU搬运与DMA/专用引擎搬运","分析带宽、延迟、功耗和软件开销","列出验证关注点如何变化","形成一页观点"],"output":"数据搬运产品分析","pass":"能够说明技术选择背后的性能、功耗和验证权衡","fallback":"只写对比表和3条结论"}]},{"id":"w8","dates":"08.31—09.06","cycle":"Cycle 2 · SoC数据流与Interconnect","title":"Interrupt与综合案例二","shift":"从单一功能验证转向DMA完成、Interrupt、软件读取和清除的系统闭环。","focus":["Interrupt状态","软件驱动场景","IP级与SoC级验证"],"reviewer":"带教导师 · 15分钟","observations":["Interrupt source、enable、pending和clear之间是否存在明确状态关系？","Pulse、level、mask和clear的Corner由谁检查？","哪些问题只有软件驱动或集成层才能暴露？"],"gates":["完成Interrupt状态模型","完成DMA＋Interrupt综合验证方案","解释IP级与SoC级验证边界"],"tasks":[{"id":"c2w8-int","priority":"core","kind":"学习","title":"建立Interrupt状态模型","time":"周一晚 · 75min","env":"纸笔 / AI","reason":"Interrupt是硬件状态与软件处理流程的关键接口。","steps":["定义source、enable、pending、mask、clear和输出","比较level与pulse语义","加入事件重复、清除同周期和disabled状态","画软件读取与清除流程"],"output":"Interrupt状态图","pass":"能解释5个状态组合及预期输出","fallback":"只完成source→pending→output→clear"},{"id":"c2w8-integrated","priority":"core","kind":"练习","title":"DMA＋Interrupt综合验证方案","time":"周三与周末 · 3–4h","env":"文档 / AI","reason":"检查前四周知识能否形成一个系统验证闭环。","steps":["画CPU配置DMA、数据搬运、完成事件、Interrupt和软件清除路径","列Top 10风险","设计Stimulus、Scoreboard、Assertion和Coverage","加入Backpressure、错误和一次Reset","定义IP级与集成级各自负责的场景"],"output":"综合验证方案V1","pass":"方案覆盖正常、错误、恢复和软件可见闭环","fallback":"高压周只完成架构图、Top 5风险和检查分工"},{"id":"c2w8-levels","priority":"regular","kind":"自测","title":"IP验证与SoC集成验证对比","time":"周四晚 · 45min","env":"AI口试","reason":"避免把IP testbench能力误认为完整SoC验证能力。","steps":["比较IP级、子系统级和SoC级可见性与控制能力","判断哪些场景适合UVM sequence、软件C test或二者协同","分析集成层新增风险","回答AI追问"],"output":"验证层级对比表","pass":"能为6个场景选择合理验证层级并解释原因","fallback":"只比较IP级和SoC级"},{"id":"c2w8-review","priority":"optional","kind":"反馈","title":"Cycle 2方案Review与归档","time":"本周 · 30–45min","env":"导师 / AI","reason":"通过外部挑战发现系统路径和验证边界遗漏。","steps":["用5分钟讲系统路径","用5分钟讲Top风险与检查","记录被挑战的3处假设","更新Cycle 2结论和下一阶段接口"],"output":"Cycle 2评估记录","pass":"至少修正一个风险或验证边界判断","fallback":"异步Review一页方案"}]}]);
+
+</script>
+<script data-source="curriculum/cycle3.js">
+window.CURRICULUM_WEEKS=(window.CURRICULUM_WEEKS||[]).concat([{"id":"w9","dates":"09.07—09.13","cycle":"Cycle 3 · 系统状态、异常与低功耗","title":"Reset与初始化","shift":"从把Reset当作单一信号，转向分析顺序、部分复位、在途Transaction和重新初始化。","focus":["Reset taxonomy","初始化依赖","在途Transaction"],"reviewer":"带教导师 · 15分钟","observations":["Reset发生时哪些状态必须清除、保留或重新同步？","部分模块Reset是否会留下不一致状态？","Reset后软件和验证环境如何重新建立共同认知？"],"gates":["完成Reset场景矩阵","定义Reset后检查清单","设计至少3条Reset相关Assertion候选"],"tasks":[{"id":"c3w9-taxonomy","priority":"core","kind":"学习","title":"建立Reset与初始化模型","time":"周一晚 · 75min","env":"纸笔 / AI","reason":"系统状态验证需要区分不同Reset来源和作用域。","steps":["比较Power-on、software、watchdog、局部与同步/异步Reset","列各类Reset作用域和优先级","画初始化依赖顺序","标记环境、Model和RAL需要同步的位置"],"output":"Reset模型图","pass":"能解释不同Reset为何不能共用同一套预期","fallback":"只完成Power-on、software和局部Reset"},{"id":"c3w9-matrix","priority":"core","kind":"练习","title":"DMA系统Reset场景矩阵","time":"周三晚 · 90min","env":"文档 / AI","reason":"把Reset放入具体系统状态和在途Transaction中。","steps":["覆盖传输前、读请求后、FIFO有数据、写响应等待和完成中断前Reset","分别分析DUT、Scoreboard和软件状态","定义丢弃、恢复或重启策略","标出Spec必须明确的问题"],"output":"Reset场景矩阵","pass":"每个场景都有状态处理、检查点和恢复预期","fallback":"只完成Top 4场景"},{"id":"c3w9-check","priority":"regular","kind":"方法","title":"Reset后检查与Assertion候选","time":"周四晚 · 60min","env":"纸笔 / AI","reason":"将Reset语义转成可执行检查。","steps":["列寄存器、协议输出、内部状态和pending事件的预期","设计disable iff边界","区分立即检查、若干周期后检查和软件重新初始化后检查","写3条自然语言Assertion"],"output":"Reset检查清单","pass":"能解释每条检查的采样时机和避免误报方法","fallback":"只完成检查清单和1条Assertion"},{"id":"c3w9-oral","priority":"optional","kind":"自测","title":"Reset异常口试","time":"周末 · 25min","env":"AI口试","reason":"检查是否能处理部分Reset和在途状态等陌生情况。","steps":["让AI给出5个Reset场景","逐题说明风险、预期和验证机制","回答哪些问题属于Spec缺口","记录错误"],"output":"Reset口试记录","pass":"5题至少4题分析完整","fallback":"完成3题"}]},{"id":"w10","dates":"09.14—09.20","cycle":"Cycle 3 · 系统状态、异常与低功耗","title":"Clock、CDC与时序边界","shift":"从知道“两级同步器”转向根据数据类型、持续时间和吞吐选择跨域机制。","focus":["CDC机制选择","异步FIFO","动态与静态验证边界"],"reviewer":"带教导师或CDC专家 · 15分钟","observations":["跨域对象是状态、Pulse、握手还是数据流？","当前方案如何保证不丢、不重和数据一致？","仿真、Assertion和静态CDC工具各能证明什么？"],"gates":["完成CDC机制决策表","分析3种跨域场景","说清动态仿真与静态CDC的边界"],"tasks":[{"id":"c3w10-concept","priority":"core","kind":"学习","title":"CDC基础与失效模型","time":"周一晚 · 90min","env":"纸笔 / AI","reason":"避免只记模板，不理解Metastability、数据一致性和事件丢失。","steps":["解释Metastability为何无法通过普通仿真直接证明","比较两级同步、toggle、handshake和async FIFO","说明多bit信号不能逐bit独立同步的原因","画四种机制的数据与控制路径"],"output":"CDC机制图","pass":"能根据对象类型解释每种机制的适用与风险","fallback":"只完成两级同步、handshake和FIFO"},{"id":"c3w10-decision","priority":"core","kind":"练习","title":"三类跨域场景决策","time":"周三晚 · 90min","env":"AI案例 / 文档","reason":"训练从需求约束选择方案。","steps":["分析单bit配置状态、短Pulse事件和高吞吐多bit数据","写清源/目的频率、事件持续时间、吞吐和允许延迟","选择机制并说明失败模式","设计基本动态检查和Assertion候选"],"output":"CDC决策表","pass":"每个方案都由需求约束推导而非套模板","fallback":"只完成3个场景的机制选择和理由"},{"id":"c3w10-boundary","priority":"regular","kind":"自测","title":"静态CDC与动态验证边界","time":"周四晚 · 45min","env":"AI口试","reason":"理解工具边界，避免对仿真或静态报告过度自信。","steps":["列静态CDC可发现的结构问题","列仿真可检查的功能和协议行为","分析waiver需要哪些依据","回答“CDC clean为何仍可能功能错误”"],"output":"CDC验证边界卡","pass":"能列出双方至少3项能力与3项盲区","fallback":"只完成对比表"},{"id":"c3w10-transfer","priority":"optional","kind":"方法","title":"工作迁移：识别一条跨域链路","time":"公司环境观察 · 30–45min","env":"公司环境只观察 / 脱敏记录","reason":"将课程连接到真实环境，但不复制内部信息。","steps":["选择一条不敏感的跨域行为","只记录源域、目的域、数据类型和同步机制类别","列一个功能风险和一个检查方法","不记录信号名、代码或内部参数"],"output":"脱敏CDC观察卡","pass":"能够用通用语言解释机制与风险","fallback":"没有合适机会时改做AI案例"}]},{"id":"w11","dates":"09.21—09.27","cycle":"Cycle 3 · 系统状态、异常与低功耗","title":"错误、超时与恢复","shift":"从“发现错误并报错”转向定义错误分类、传播、清理、重试和再次启动。","focus":["Error taxonomy","Timeout","Recovery state"],"reviewer":"直属主管 · 15分钟","observations":["错误是局部、可恢复还是会污染系统状态？","错误后哪些资源、pending状态和Scoreboard记录必须清理？","恢复成功的判据是什么，是否允许再次启动？"],"gates":["完成错误分类与恢复状态图","设计错误注入计划","通过一个恢复失败的陌生案例"],"tasks":[{"id":"c3w11-taxonomy","priority":"core","kind":"学习","title":"建立系统错误分类","time":"周一晚 · 75min","env":"文档 / AI","reason":"统一错误语言，避免所有失败都只写成“error”。","steps":["区分illegal access、timeout、overflow、underflow、protocol error和data corruption","标记检测点、传播路径和严重度","定义可恢复、需Reset和不可恢复三类","为每类写软件可见行为"],"output":"Error taxonomy","pass":"能够为8个错误选择检测、传播和恢复类别","fallback":"只完成6类错误"},{"id":"c3w11-recovery","priority":"core","kind":"练习","title":"设计DMA错误与恢复状态机","time":"周三晚 · 90min","env":"纸笔 / AI","reason":"把错误处理连接到资源清理和再次启动。","steps":["加入Source error、Destination error、FIFO overflow和timeout","定义Abort、Drain、Clear和Retry状态","说明Interrupt、status和未完成数据如何处理","设计错误后再次启动路径"],"output":"恢复状态图","pass":"每个错误都有状态清理、软件可见结果和重启条件","fallback":"只完成两类错误和一个恢复路径"},{"id":"c3w11-inject","priority":"regular","kind":"方法","title":"错误注入验证计划","time":"周四晚 · 60min","env":"文档 / AI","reason":"训练可控地制造错误并证明恢复。","steps":["为每类错误定义注入点与触发条件","列检查、Coverage和结束条件","区分预期错误日志与真正test failure","加入恢复后的正常传输验证"],"output":"错误注入计划","pass":"至少5类错误都能稳定触发并检查恢复","fallback":"只完成Top 3错误"},{"id":"c3w11-case","priority":"optional","kind":"自测","title":"陌生恢复失败案例","time":"周末 · 35min","env":"AI限时案例","reason":"检查能否发现错误处理留下的隐性状态。","steps":["让AI设计一个错误后第二次启动失败的案例","定位可能残留的状态、资源和Model记录","设计最小实验","提出预防性Checker或Assertion"],"output":"恢复Debug案例","pass":"能提出至少3个有效残留状态候选","fallback":"只完成假设树"}]},{"id":"w12","dates":"09.28—10.04","cycle":"Cycle 3 · 系统状态、异常与低功耗","title":"Power state与低功耗验证基础","shift":"从“关闭模块以省电”转向分析Power domain、Isolation、Retention、在途Transaction和Wake-up恢复。","focus":["Power domain","Isolation / Retention","Power sequence与恢复"],"reviewer":"低功耗或系统验证导师 · 15分钟","observations":["Power切换时接口、未完成Transaction和中断如何处理？","哪些状态必须Retention，哪些应重新初始化？","低功耗问题会如何跨协议、状态和软件层传播？"],"gates":["完成Power domain图与状态表","完成低功耗场景矩阵","通过Cycle 3综合评估"],"tasks":[{"id":"c3w12-domain","priority":"core","kind":"学习","title":"建立Power domain与状态模型","time":"周一晚 · 90min","env":"纸笔 / AI","reason":"为第二技术标签建立系统级基础，而不是只记术语。","steps":["定义Always-on、可关断和Retention域","标出跨域接口、Isolation位置和Retention状态","设计Active、Idle、Retention、Off和Wake-up状态","写出每次转换的前置条件和完成条件"],"output":"Power domain图与状态表","pass":"能够解释Isolation、Retention和Reset在每次转换中的作用","fallback":"只完成Active、Retention、Off三态"},{"id":"c3w12-matrix","priority":"core","kind":"练习","title":"低功耗验证场景矩阵","time":"周三晚 · 90min","env":"文档 / AI","reason":"把Power state转化为协议、数据和恢复风险。","steps":["覆盖空闲进入、传输中请求关电、错误中关电、Wake-up和连续切换","分析未完成Transaction、Interrupt和软件状态","为每项选择Checker、Assertion和Coverage","定义非法Power sequence"],"output":"低功耗场景矩阵","pass":"至少8个场景具有明确风险和检查机制","fallback":"只完成Top 5场景"},{"id":"c3w12-industry","priority":"regular","kind":"方法","title":"行业输出：移动、汽车与AI芯片的低功耗差异","time":"周四或周末 · 90min","env":"公开资料 / 文档","reason":"避免把低功耗理解成统一问题，建立产品约束视角。","steps":["比较三类产品的功耗、可靠性、唤醒和安全侧重点","分析验证优先级为何不同","列出设计选择对验证复杂度的影响","形成一页对比与结论"],"output":"低功耗产品对比","pass":"结论能够连接产品目标、架构选择和验证风险","fallback":"只比较其中两类产品"},{"id":"c3w12-assess","priority":"optional","kind":"自测","title":"Cycle 3系统状态答辩","time":"周末 · 45min","env":"AI口试","reason":"综合检查Reset、CDC、Error和Power是否形成统一状态思维。","steps":["用一个DMA系统串联四个主题","回答Reset、跨域、错误和Power交叉场景","说明最危险的状态不一致","记录知识、推理和迁移评分"],"output":"Cycle 3答辩记录","pass":"平均≥3/5，且能处理至少一个交叉场景","fallback":"只完成20分钟精简答辩"}]}]);
+
+</script>
+<script data-source="curriculum/cycle4.js">
+window.CURRICULUM_WEEKS=(window.CURRICULUM_WEEKS||[]).concat([{"id":"w13","dates":"10.05—10.11","cycle":"Cycle 4 · Coverage、Regression与IP Owner","title":"Coverage设计与Closure","shift":"从“覆盖率数字变高”转向用Coverage证明风险空间被有意义地探索。","focus":["Functional coverage","Cross与Coverage hole","Waiver与Closure"],"reviewer":"带教导师 · 15分钟","observations":["每个Coverpoint对应哪个验证风险？","Coverage hole来自激励不足、不可达、检查缺失还是模型错误？","哪些Coverage数字看起来漂亮但没有决策价值？"],"gates":["完成DMA系统Coverage model","分析5个Coverage hole","形成Closure行动表"],"tasks":[{"id":"c4w13-model","priority":"core","kind":"学习","title":"建立Coverage层次与风险映射","time":"周一晚 · 90min","env":"文档 / AI","reason":"Coverage应服务验证计划，而不是独立追数字。","steps":["比较code、functional、assertion coverage","将功能、状态、错误、恢复和Power风险映射到Coverpoint","设计必要Cross并避免组合爆炸","标记Coverage不能证明正确的部分"],"output":"Coverage plan V1","pass":"每个关键Coverpoint都能追溯到风险或需求","fallback":"只完成功能、错误和状态三类"},{"id":"c4w13-holes","priority":"core","kind":"练习","title":"五类Coverage hole分析","time":"周三晚 · 90min","env":"AI案例","reason":"训练从数字走向原因和行动。","steps":["分析激励未到达、状态不可达、采样错误、交叉条件过严和设计功能未实现五类hole","为每类列证据","决定补test、修coverage、修设计或waive","写出错误处理会造成的风险"],"output":"Coverage hole决策表","pass":"5题中至少4题给出合理诊断和行动","fallback":"只完成3题"},{"id":"c4w13-waiver","priority":"regular","kind":"方法","title":"Coverage Closure与Waiver清单","time":"周四晚 · 60min","env":"文档 / AI","reason":"建立可审计的Closure判断。","steps":["定义目标、Owner、证据和截止时间","为不可达项写正式依据","区分暂时未覆盖与可接受waiver","加入回归稳定性和bug关联"],"output":"Closure行动表","pass":"每个未闭合项都有Owner、证据和决策路径","fallback":"只完成Top 5项"},{"id":"c4w13-oral","priority":"optional","kind":"自测","title":"Coverage决策口试","time":"周末 · 25min","env":"AI口试","reason":"检查是否能拒绝无价值Coverage并解释取舍。","steps":["让AI给出6个Coverage建议","判断保留、修改或删除","解释风险价值与成本","记录最弱判断"],"output":"Coverage口试记录","pass":"6题至少5题理由成立","fallback":"完成4题"}]},{"id":"w14","dates":"10.12—10.18","cycle":"Cycle 4 · Coverage、Regression与IP Owner","title":"Regression、失败分类与自动化","shift":"从逐个打开日志转向建立可复现、可分类和可汇总的Regression工作流。","focus":["Regression分层","Failure triage","Python / Shell自动化"],"reviewer":"直属主管或工具熟练同事 · 15分钟","observations":["失败是否可复现，属于同一根因还是多个问题？","当前最耗时的人工动作能否自动提取或分类？","Smoke、Nightly和专项回归的目标是否清楚？"],"gates":["设计Regression分层","完成一个个人电脑可运行的日志分类脚本","形成每日Triage模板"],"tasks":[{"id":"c4w14-strategy","priority":"core","kind":"学习","title":"设计Regression分层策略","time":"周一晚 · 75min","env":"文档 / AI","reason":"不同回归集合应服务不同反馈速度和风险。","steps":["定义smoke、sanity、nightly和专项回归","为每层设置测试范围、seed、频率和失败处理","说明随机与定向测试的关系","加入可复现性和flaky处理"],"output":"Regression策略表","pass":"能够解释每层为何存在及进入条件","fallback":"只完成smoke、nightly和专项三层"},{"id":"c4w14-script","priority":"core","kind":"练习","title":"Python失败日志分类脚本","time":"周三与周末 · 3–4h","env":"个人电脑 / Python","reason":"在没有公司工具的环境下建立真实自动化输出。","steps":["生成或使用脱敏模拟Regression结果","提取test、seed、status和首个error signature","按错误类型聚类并统计重复失败","输出Markdown或CSV摘要","加入异常输入处理"],"output":"可运行的Regression分析脚本","pass":"能处理模拟数据并生成可读摘要，代码可重复运行","fallback":"高压周只完成CSV读取、分类和统计"},{"id":"c4w14-triage","priority":"regular","kind":"方法","title":"每日Failure Triage模板","time":"周四晚 · 60min","env":"文档 / AI","reason":"把脚本输出转成工程决策。","steps":["定义reproducible、environment、DUT、test issue和unknown分类","记录Owner、优先级、下一动作和阻塞关系","设计重复失败合并规则","定义需要升级的条件"],"output":"Triage模板V1","pass":"一页内能说明失败规模、主要根因和下一动作","fallback":"只完成分类、Owner和下一动作"},{"id":"c4w14-tool","priority":"optional","kind":"方法","title":"沉淀一个通用工具动作","time":"周末 · 45min","env":"个人电脑","reason":"建立长期工程效率资产。","steps":["选择日志搜索、批量处理、Git或数据可视化动作","记录输入、命令/代码、输出和常见错误","一周后闭卷复现","写入工具卡库"],"output":"工具卡片","pass":"一周后能在新数据上复现","fallback":"只记录命令、用途和一个例子"}]},{"id":"w15","dates":"10.19—10.25","cycle":"Cycle 4 · Coverage、Regression与IP Owner","title":"Sign-off、风险与状态沟通","shift":"从“我的任务做完了”转向判断一块验证工作是否足以承担发布风险。","focus":["Verification complete","Risk owner","状态沟通与升级"],"reviewer":"直属主管 · 15分钟","observations":["Testplan、Coverage、Bug和Regression分别达到什么状态才可Sign-off？","已知问题和Waiver由谁承担风险？","我能否区分事实、判断、建议和需要决策的事项？"],"gates":["完成Sign-off checklist","做出一次有依据的Go/No-go建议","完成5分钟主管状态汇报"],"tasks":[{"id":"c4w15-checklist","priority":"core","kind":"学习","title":"建立Verification Sign-off Checklist","time":"周一晚 · 90min","env":"文档 / AI","reason":"IP Owner必须能够定义“完成”，而不是只报告完成率。","steps":["覆盖Spec/Testplan、功能检查、Coverage、Regression、Bug、Waiver和Known issue","为每项写证据、Owner和门槛","区分必须闭合与可带风险接受","加入环境和Model可信度判断"],"output":"Sign-off Checklist V1","pass":"每个门槛都有证据与决策责任人","fallback":"只完成7个核心门槛"},{"id":"c4w15-decision","priority":"core","kind":"练习","title":"抽象IP Go / No-go判断","time":"周三晚 · 90min","env":"AI情景案例","reason":"训练在不完美信息下进行风险判断。","steps":["让AI给出Coverage未满、少量bug、Regression波动和deadline压力的情景","区分事实、未知和假设","评估影响、可检测性、最晚解决点和备选方案","给出Go、Conditional Go或No-go建议"],"output":"Sign-off决策备忘录","pass":"建议与证据一致，并明确剩余风险和升级对象","fallback":"只完成事实、Top 3风险和建议"},{"id":"c4w15-report","priority":"regular","kind":"自测","title":"5分钟主管状态汇报","time":"周四晚 · 30min","env":"AI口试 / 主管","reason":"将技术判断转化为简洁、可行动的沟通。","steps":["按目标、当前状态、Top风险、建议和需决策事项组织","控制在5分钟","让AI扮演主管追问","根据反馈删减无关细节"],"output":"一页状态＋口试记录","pass":"5分钟内说清风险和需要的决策","fallback":"只做3分钟Top风险汇报"},{"id":"c4w15-review","priority":"optional","kind":"反馈","title":"主管Review：下一阶段Scope","time":"本周 · 15min","env":"直属主管","reason":"判断能力缺口与机会缺口，避免只靠继续上课。","steps":["展示一项交付或综合案例","询问下一阶段最关键担忧","确认可争取的跨模块、Review或责任机会","记录一个能力动作和一个机会动作"],"output":"Scope与反馈记录","pass":"同时得到能力和机会层面的下一步","fallback":"异步五行总结"}]},{"id":"w16","dates":"10.26—11.01","cycle":"Cycle 4 · Coverage、Regression与IP Owner","title":"综合项目与阶段答辩","shift":"把验证环境、SoC数据流、系统状态和完整交付整合为一个可Review的子系统方案。","focus":["综合架构","验证闭环","阶段答辩与下一课程"],"reviewer":"导师＋直属主管 · 30分钟","observations":["我能否解释每个设计风险如何被激励、检查和覆盖？","Reset、CDC、Error和Power交叉时，方案是否仍保持一致？","Sign-off建议是否能够追溯到证据？"],"gates":["完成12部分综合验证方案","完成30—45分钟AI答辩","形成下一16周课程建议"],"tasks":[{"id":"c4w16-capstone","priority":"core","kind":"练习","title":"SoC子系统综合验证项目","time":"本周 · 6–8h","env":"文档 / AI / 个人电脑","reason":"验证16周内容是否形成系统能力而非独立知识点。","steps":["设计CPU通过CSR配置DMA、跨Clock/Power domain搬运数据并产生Interrupt的抽象系统","完成架构、数据/控制路径、状态、边界和Top风险","设计Testplan、Scoreboard、Assertion、Coverage和错误注入","加入Reset、CDC、Error、Power和软件驱动场景","设计Regression和Sign-off条件"],"output":"综合验证方案V1","pass":"12个部分形成一致闭环，关键取舍均有理由","fallback":"高压周先完成架构、Top风险、检查分工、Coverage和Sign-off"},{"id":"c4w16-defense","priority":"core","kind":"自测","title":"30—45分钟AI阶段答辩","time":"周末 · 45min","env":"AI口试","reason":"通过追问检验推理、迁移和取舍能力。","steps":["让AI围绕验证边界、最高风险、检查机制、软件场景、Reset/Power和Sign-off追问","不提前查看答案","记录知识、执行、推理、迁移和影响五维评分","对低于3分的项安排补测"],"output":"阶段答辩评分","pass":"五维平均≥3/5，且没有核心逻辑矛盾","fallback":"完成20分钟精简答辩"},{"id":"c4w16-review","priority":"regular","kind":"反馈","title":"外部Review与方案修订","time":"本周 · 30min","env":"导师 / 主管 / AI二次Review","reason":"用外部挑战降低自我评估偏差。","steps":["准备一页架构和一页风险/检查","让Reviewer只找最高价值遗漏","区分事实错误、方案取舍和表达问题","完成一次版本修订"],"output":"Review差异记录","pass":"至少修正一个实质性风险或检查问题","fallback":"使用AI作为第二Reviewer"},{"id":"c4w16-next","priority":"optional","kind":"方法","title":"下一16周路线与课程归档","time":"周末 · 90min","env":"网站 / AI","reason":"根据证据决定下一阶段，而不是自动重复课程。","steps":["汇总完成任务、答辩、真实工作迁移和外部反馈","区分能力缺口、迁移缺口和机会缺口","决定下一主干与辅助线","归档综合项目并生成下一周期课程"],"output":"第一阶段总结与下一路线","pass":"下一阶段选择能够追溯到证据和职业目标","fallback":"只完成三类缺口和下一主干选择"}]}]);
+
+</script>
+<script data-source="app.js">
+const KEY = 'jett-career-os-v22';
+const PREVIOUS_KEYS = ['jett-career-os-v2','jett-growth-static-v1'];
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+function localISO(date = new Date()){
+  const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+function uid(prefix='id'){return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`}
+function esc(value=''){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function arr(value){return Array.isArray(value)?value:(value? [value]:[])}
+function parseMaybeJSON(text){
+  const raw=(text||'').trim(); if(!raw) throw new Error('内容为空');
+  const cleaned=raw.replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'').trim();
+  try{return JSON.parse(cleaned)}catch{return {raw:raw}}
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch{}}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('show'),1900)}
+function download(name,text,type='application/json'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function weekStart(dateStr=localISO()){
+  const d=new Date(`${dateStr}T12:00:00`);const day=d.getDay()||7;d.setDate(d.getDate()-day+1);return localISO(d)
+}
+function addDays(dateStr,n){const d=new Date(`${dateStr}T12:00:00`);d.setDate(d.getDate()+n);return localISO(d)}
+function dateLabel(dateStr){if(!dateStr)return '—';const d=new Date(`${dateStr}T12:00:00`);return `${d.getMonth()+1}月${d.getDate()}日 · ${'日一二三四五六'[d.getDay()]}`}
+
+function defaultState(){return{
+  version:CAREER_OS_VERSION,
+  selectedDate:localISO(),calendarMonth:localISO().slice(0,7),week:'w1',checks:{},
+  dailyLogs:[],problemLogs:[],weeklyReviews:[],schedule:[],
+  abilities:structuredClone(DEFAULT_ABILITIES),
+  cycleArchives:[{id:'cycle-202607',title:'2026年7月 · Debug与验证工作流',range:'2026-07-13—2026-08-09',status:'进行中',goal:'建立工作流、Debug证据链、Spec接入、Corner与验证策略。',summary:'当前固定四周周期。周期结束后保留完整计划、实际变化和能力结论。'}],
+  resume:{filename:'',version:'入职前版本待导入',target:'SoC系统型验证工程师 → 芯片项目负责人',summary:'等待导入入职前简历。',education:[],experiences:[],projects:[],skills:[],awards:[],versions:[],candidates:[]},
+  customLearning:[],settings:{lastView:'today'}
+}}
+function normalizeState(s){
+  const base=defaultState(),out={...base,...(s||{})};
+  out.abilities=arr(out.abilities).length?out.abilities:base.abilities;
+  out.resume={...base.resume,...(out.resume||{})};
+  ['dailyLogs','problemLogs','weeklyReviews','schedule','cycleArchives','customLearning'].forEach(k=>out[k]=arr(out[k]));
+  out.checks=out.checks||{};out.settings={...base.settings,...(out.settings||{})};out.version=CAREER_OS_VERSION;
+  return out
+}
+function load(){
+  try{const current=JSON.parse(localStorage.getItem(KEY)||'null');if(current)return normalizeState(current)}catch{}
+  for(const oldKey of PREVIOUS_KEYS){
+    try{const old=JSON.parse(localStorage.getItem(oldKey)||'null');if(!old)continue;
+      if(oldKey==='jett-career-os-v2'){
+        const migrated=normalizeState(old);migrated.version=CAREER_OS_VERSION;localStorage.setItem(KEY,JSON.stringify(migrated));return migrated
+      }
+      const migrated=defaultState();migrated.checks=old.checks||{};migrated.week=old.week||'w1';
+      if(old.evidence?.length)migrated.cycleArchives.push({id:uid('archive'),title:'旧版成长证据迁移',range:'旧版数据',status:'已迁移',summary:old.evidence.map(x=>`${x.date||''} ${x.title||''}：${x.summary||''}`).join('\n')});
+      if(old.reflection&&Object.values(old.reflection).some(Boolean))migrated.weeklyReviews.push({id:uid('weekly'),range:'旧版周复盘',raw:JSON.stringify(old.reflection,null,2),createdAt:localISO()});
+      localStorage.setItem(KEY,JSON.stringify(migrated));return migrated
+    }catch{}
+  }
+  return defaultState()
+}
+let S=load();
+
+function switchView(view,anchor){
+  $$('.view').forEach(v=>v.classList.toggle('active',v.id===view));
+  $$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+  S.settings.lastView=view;save();
+  window.scrollTo({top:0,behavior:'instant'});
+  renderAll();
+  if(anchor)setTimeout(()=>document.getElementById(anchor)?.scrollIntoView({behavior:'smooth'}),80)
+}
+$$('.nav button').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+$$('[data-view-jump]').forEach(b=>b.onclick=()=>switchView(b.dataset.viewJump,b.dataset.anchor));
+$$('.page-index button').forEach(b=>b.onclick=()=>{
+  const id=b.dataset.scroll;document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
+  b.closest('.page-index').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));
+});
+
+function selectedDaily(){return S.dailyLogs.find(x=>x.date===S.selectedDate)}
+function currentWeek(){return LEARNING_WEEKS.find(w=>w.id===S.week)||LEARNING_WEEKS[0]}
+function weekTaskStats(){const tasks=currentWeek().tasks;const done=tasks.filter(t=>S.checks[t.id]).length;return{done,total:tasks.length,pct:Math.round(done/tasks.length*100)}}
+function learningStats(){
+  const all=LEARNING_WEEKS.flatMap(w=>w.tasks),done=all.filter(t=>S.checks[t.id]).length;
+  const self=all.filter(t=>t.kind==='自测'),feedback=all.filter(t=>t.kind==='反馈');
+  return{all:Math.round(done/all.length*100),self:self.length?Math.round(self.filter(t=>S.checks[t.id]).length/self.length*100):0,feedback:feedback.length?Math.round(feedback.filter(t=>S.checks[t.id]).length/feedback.length*100):0,week:weekTaskStats().pct}
+}
+function weeklyLogCount(){const start=weekStart(),end=addDays(start,6);return S.dailyLogs.filter(x=>x.date>=start&&x.date<=end).length}
+function latestWeekly(){return [...S.weeklyReviews].sort((a,b)=>(b.createdAt||b.range||'').localeCompare(a.createdAt||a.range||''))[0]}
+
+function renderToday(){
+  $('#todayDate').value=S.selectedDate;$('#todayTitle').textContent=dateLabel(S.selectedDate);
+  const log=selectedDaily(),week=currentWeek(),stats=weekTaskStats();
+  $('#todayRecordStatus').textContent=log?'已记录':'未记录';$('#todayRecordStatus').classList.toggle('done',!!log);
+  const start=weekStart(),weeklyDone=!!S.weeklyReviews.find(x=>(x.range||'').includes(start));
+  $('#todayStatusRow').innerHTML=[
+    ['今日记录',log?'已完成':'等待口述',log?'事实已经进入系统':'点击“记录今天”即可'],
+    ['本周额外学习',`${stats.done} / ${stats.total} 项`,`${stats.pct}% 完成，只统计工作之外`],
+    ['周度复盘',weeklyDone?'已完成':(new Date().getDay()===0?'待生成':'本周进行中'),weeklyDone?'下周计划已可更新':'周末由AI统一分析']
+  ].map(x=>`<article class="status-card"><small>${x[0]}</small><b>${x[1]}</b><p>${x[2]}</p></article>`).join('');
+
+  const previousLog=S.dailyLogs.find(x=>x.date===addDays(S.selectedDate,-1));
+  const tomorrow=previousLog?.tomorrow||{};
+  const defaultLearning=week.tasks.filter(t=>!S.checks[t.id]).slice(0,3);
+  const actions=[];
+  arr(tomorrow.work).forEach(x=>actions.push({type:'work',title:x,meta:'工作重点'}));
+  arr(tomorrow.learning).forEach(x=>actions.push({type:'learn',title:x,meta:'工作之外学习'}));
+  if(!arr(tomorrow.learning).length)defaultLearning.forEach(t=>actions.push({type:'learn',title:t.title,meta:`${priorityLabel(t.priority)} · ${t.time}`}));
+  arr(tomorrow.life).forEach(x=>actions.push({type:'life',title:x,meta:'生活 / 锻炼'}));
+  const schedules=S.schedule.filter(x=>x.date===S.selectedDate);schedules.forEach(x=>actions.push({type:x.type,title:x.title,meta:x.time||typeLabel(x.type)}));
+  if(!actions.length)actions.push({type:'work',title:'完成今日记录并确认明日重点',meta:'先留下事实，再由AI分析'});
+  $('#todayActionList').innerHTML=actions.slice(0,8).map(a=>`<div class="action-item"><i class="action-icon ${a.type}"></i><div><b>${esc(a.title)}</b><p>${esc(a.meta)}</p></div><small>${typeLabel(a.type)}</small></div>`).join('');
+
+  const timeline=S.schedule.filter(x=>x.date===S.selectedDate).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  $('#todayTimeline').innerHTML=timeline.length?timeline.map(x=>`<article><time>${esc(x.time||'待安排')}</time><h4>${esc(x.title)}</h4><p>${typeLabel(x.type)}</p></article>`).join(''):'<div class="empty">今天还没有单独安排。可以继续保持轻量。</div>';
+  const next=[];for(let i=1;i<=3;i++){const d=addDays(S.selectedDate,i),items=S.schedule.filter(x=>x.date===d);next.push(`<div class="compact-row"><b>${dateLabel(d)}</b><span>${items.length?esc(items.map(x=>x.title).join('、')):'暂无特别安排'}</span></div>`)}
+  $('#nextThreeDays').innerHTML=next.join('');
+
+  $('#weekOverview').innerHTML=`
+    <article class="card overview-card"><div class="eyebrow">WORK FOCUS</div><h3>记录真实交付与问题</h3><p>${esc(week.observations[0])}</p></article>
+    <article class="card overview-card"><div class="eyebrow">LEARNING FOCUS</div><h3>${esc(week.title)}</h3><p>${esc(week.shift)}</p><div class="mini-progress"><i style="width:${stats.pct}%"></i></div></article>
+    <article class="card overview-card"><div class="eyebrow">NEXT ACTION</div><h3>${esc(defaultLearning[0]?.title||'进入本周复盘')}</h3><p>${esc(defaultLearning[0]?.fallback||'检查本周记录并生成下一周计划')}</p></article>`;
+  const day=new Date().getDay();
+  $('#weeklyReminder').innerHTML=(day===0||day===6)?`<article class="reminder-card"><div><h3>本周记录可以开始复盘</h3><p>网站会汇总原始事实，AI负责分析重复问题、能力变化和下周任务。</p></div><button class="primary" data-quick="weekly">开始周复盘</button></article>`:'';
+  $('#weeklyReminder').querySelectorAll('[data-quick]').forEach(bindQuickButton);
+
+  const recent=[...S.dailyLogs].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,3);
+  $('#recentRecords').innerHTML=recent.length?recent.map(renderDailyCard).join(''):'<div class="empty" style="grid-column:1/-1">还没有每日记录。第一次口述后，这里会自动形成最近记录。</div>';
+  renderCalendar();
+}
+function renderDailyCard(x){
+  const work=arr(x.work),outside=arr(x.outsideLearning),life=arr(x.life);
+  return `<article class="card record-card"><header><span class="eyebrow">${esc(x.date||'未标日期')}</span></header><h3>${esc(x.summary||'每日记录')}</h3><p>${work[0]?esc(work[0].title||work[0]):'未拆分具体工作任务'}</p><div class="tag-row"><span class="tag work">工作 ${work.length}</span><span class="tag learn">额外学习 ${outside.length}</span><span class="tag life">生活 ${life.length}</span></div><footer>精力：${esc(x.energy||'未记录')}</footer></article>`
+}
+function priorityLabel(p){return({core:'核心',regular:'常规',optional:'可选'})[p]||p}
+function typeLabel(type){return({work:'工作',learn:'额外学习',life:'生活',problem:'问题'})[type]||type||'事项'}
+
+function renderCalendar(){
+  const [y,m]=S.calendarMonth.split('-').map(Number),first=new Date(y,m-1,1),last=new Date(y,m,0),startOffset=(first.getDay()+6)%7;
+  $('#monthTitle').textContent=`${y}年${m}月`;
+  const cells=[];for(let i=0;i<42;i++){
+    const day=i-startOffset+1,d=new Date(y,m-1,day),iso=localISO(d),other=d.getMonth()!==m-1;
+    const hasDaily=S.dailyLogs.some(x=>x.date===iso),hasProblem=S.problemLogs.some(x=>x.date===iso),schedules=S.schedule.filter(x=>x.date===iso);
+    const marks=[hasDaily?'work':'',hasProblem?'problem':'',...schedules.map(x=>x.type)].filter(Boolean);
+    cells.push(`<button class="day ${other?'other':''} ${iso===localISO()?'today':''} ${iso===S.selectedDate?'selected':''}" data-date="${iso}"><strong>${d.getDate()}</strong><div class="day-marks">${[...new Set(marks)].map(x=>`<i class="mark ${x}"></i>`).join('')}</div></button>`)
+  }
+  $('#calendarGrid').innerHTML=cells.join('');
+  $$('#calendarGrid .day').forEach(b=>b.onclick=()=>{S.selectedDate=b.dataset.date;save();renderToday();renderCalendarDetail()});
+  renderCalendarDetail();
+}
+function renderCalendarDetail(){
+  const d=S.selectedDate,log=S.dailyLogs.find(x=>x.date===d),problems=S.problemLogs.filter(x=>x.date===d),schedules=S.schedule.filter(x=>x.date===d);
+  $('#calendarDayDetail').innerHTML=`<div class="card-head"><div><div class="eyebrow">DAY DETAIL</div><h3>${dateLabel(d)}</h3></div><button class="secondary small-btn" data-quick="schedule">添加安排</button></div>
+  ${log?`<p class="muted"><b>工作记录：</b>${esc(log.summary||'已记录')}</p>`:'<p class="muted">当天没有工作记录。</p>'}
+  ${problems.length?`<p class="muted"><b>问题：</b>${problems.map(x=>esc(x.title||'问题记录')).join('、')}</p>`:''}
+  ${schedules.length?`<p class="muted"><b>安排：</b>${schedules.map(x=>`${esc(x.time||'')} ${esc(x.title)}`).join('；')}</p>`:''}`;
+  $('#calendarDayDetail').querySelectorAll('[data-quick]').forEach(bindQuickButton)
+}
+
+function renderGrowth(){renderLearning();renderProblems();renderWeekly();renderAbilities();renderArchives()}
+function renderLearning(){
+  const s=learningStats();$('#learningMetrics').innerHTML=[['全部课外任务',s.all],['本周完成',s.week],['自测通过动作',s.self],['反馈闭环动作',s.feedback]].map(x=>`<article class="metric"><small>${x[0]}</small><b>${x[1]}%</b><div class="progress"><i style="width:${x[1]}%"></i></div></article>`).join('');
+  const custom=S.customLearning.filter(t=>!t.archived);
+  $('#dynamicWeekTasks').innerHTML=custom.length?`<article class="observation"><div class="eyebrow">AI-GENERATED WEEKLY PLAN</div><h3>根据周复盘新增的学习任务</h3><p class="muted">这些任务来自真实工作记录与周度分析，不会覆盖固定四周计划。</p></article>${['core','regular','optional'].map(g=>{const ts=custom.filter(t=>t.priority===g);return ts.length?`<div class="priority-group"><div class="priority-head"><h3>${priorityLabel(g)}任务</h3><small>AI周复盘生成</small></div><div class="tasks">${ts.map(renderTask).join('')}</div></div>`:''}).join('')}`:'';
+  $('#dynamicWeekTasks').querySelectorAll('input[type=checkbox]').forEach(c=>c.onchange=()=>{S.checks[c.dataset.id]=c.checked;save();renderLearning();renderToday()});
+  $('#weekTabs').innerHTML=LEARNING_WEEKS.map((w,i)=>`<button data-week="${w.id}" class="${S.week===w.id?'active':''}"><span>W0${i+1}</span><b>${w.dates}</b><small>${w.title}</small></button>`).join('');
+  $$('#weekTabs button').forEach(b=>b.onclick=()=>{S.week=b.dataset.week;save();renderLearning();renderToday()});
+  const w=currentWeek();
+  const groups=['core','regular','optional'];
+  $('#weekContent').innerHTML=`<div class="week-head"><div><div class="eyebrow">${w.dates}</div><h2>${w.title}</h2><p>${w.shift}</p></div><div class="tag-row">${w.focus.map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div></div>
+    <article class="observation"><div class="eyebrow">WORK OBSERVATION · 不计入课外完成率</div><h3>本周在真实工作中重点观察</h3><ul>${w.observations.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article>
+    ${groups.map(g=>renderTaskGroup(w,g)).join('')}
+    <div class="grid2" style="margin-top:10px"><article class="card"><div class="eyebrow">WEEK PASS GATE</div><h3>本周通过条件</h3><ul class="muted">${w.gates.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article><article class="card"><div class="eyebrow">15-MIN REVIEW</div><h3>${esc(w.reviewer)}</h3><p class="muted">准备一个真实问题、一条自己的判断和两个具体问题。会后将反馈转化成下一次行动。</p></article></div>`;
+  $$('#weekContent input[type=checkbox]').forEach(c=>c.onchange=()=>{S.checks[c.dataset.id]=c.checked;save();renderLearning();renderToday()})
+}
+function renderTaskGroup(w,priority){
+  const tasks=w.tasks.filter(t=>t.priority===priority);if(!tasks.length)return'';
+  return `<div class="priority-group"><div class="priority-head"><h3>${priorityLabel(priority)}任务</h3><small>${priority==='core'?'当前周期必须优先':'regular'===priority?'按计划推进':'有余力时探索'}</small></div><div class="tasks">${tasks.map(renderTask).join('')}</div></div>`
+}
+function kindClass(k){return k==='自测'?'test':k==='反馈'?'feedback':k==='方法'?'method':''}
+function renderTask(t){return `<article class="task ${S.checks[t.id]?'done':''}"><label><input type="checkbox" data-id="${t.id}" ${S.checks[t.id]?'checked':''}><span class="kind ${kindClass(t.kind)}">${t.kind}</span><div><h3>${esc(t.title)}</h3><small>${esc(t.time)} · ${esc(t.env)}</small></div></label><div class="task-body"><ol>${arr(t.steps).map(x=>`<li>${esc(x)}</li>`).join('')}</ol><dl><div><dt>为什么做</dt><dd>${esc(t.reason||'支持当前能力主题')}</dd></div><div><dt>留下什么</dt><dd>${esc(t.output)}</dd></div><div><dt>怎样算会</dt><dd>${esc(t.pass)}</dd></div><div><dt>高压降级</dt><dd>${esc(t.fallback)}</dd></div></dl></div></article>`}
+
+function renderProblems(){
+  const q=($('#problemSearch')?.value||'').toLowerCase(),f=$('#problemFilter')?.value||'';
+  let items=[...S.problemLogs].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  items=items.filter(x=>{const hay=JSON.stringify(x).toLowerCase();if(q&&!hay.includes(q))return false;if(f==='important'&&x.aiObservation?.importance!=='important')return false;if(f==='repeat'&&!x.aiObservation?.repeat)return false;return true});
+  $('#problemFeed').innerHTML=items.length?items.map(x=>`<article class="entry"><header><span>${esc(x.date||'未标日期')} · ${esc(x.independence||'独立程度待确认')}</span><div class="tag-row">${x.aiObservation?.importance==='important'?'<span class="tag good">重要经历</span>':''}${x.aiObservation?.repeat?'<span class="tag problem">重复问题</span>':''}</div></header><h3>${esc(x.title||'问题日志')}</h3><p><b>根因：</b>${esc(x.rootCause||x.raw||'待整理')}</p><p><b>理解变化：</b>${esc(x.understandingChange||'待补充')}</p><div class="tag-row">${arr(x.abilities).map(a=>`<span class="tag">${esc(typeof a==='string'?a:a.id)}</span>`).join('')}</div><details><summary>展开完整过程</summary><p><b>预期与实际：</b>${esc(x.expected||'')} / ${esc(x.actual||'')}</p><p><b>最初判断：</b>${esc(x.initialJudgment||'')}</p><ol>${arr(x.analysis).map(a=>`<li>${esc(a)}</li>`).join('')}</ol><p><b>解决方式：</b>${esc(x.solution||'')}</p><p><b>可迁移方法：</b>${arr(x.transferableMethod).map(esc).join('；')}</p></details></article>`).join(''):'<div class="empty">还没有问题日志。只有重要或值得复盘的问题才需要单独记录。</div>'
+}
+function renderWeekly(){
+  const items=[...S.weeklyReviews].sort((a,b)=>(b.createdAt||b.range||'').localeCompare(a.createdAt||a.range||''));
+  const html=items.length?items.map(x=>`<article class="entry"><header><span>${esc(x.range||'周度复盘')}</span><span>${esc(x.createdAt||'')}</span></header><h3>${esc(arr(x.workSummary)[0]||'本周总结')}</h3>${x.raw?`<p>${esc(x.raw)}</p>`:`<div class="grid2"><div><p><b>主要工作</b></p><ul>${arr(x.workSummary).map(a=>`<li>${esc(a)}</li>`).join('')}</ul><p><b>能力观察</b></p><ul>${arr(x.abilityChanges).map(a=>`<li>${esc(a.change||a)}</li>`).join('')}</ul></div><div><p><b>下周工作关注点</b></p><ul>${arr(x.nextWeekWorkFocus).map(a=>`<li>${esc(a)}</li>`).join('')}</ul><p><b>反馈问题</b></p><ul>${arr(x.reviewQuestions).map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div></div>`}</article>`).join(''):'<div class="empty">还没有周度复盘。周末由AI读取一整周记录后生成。</div>';
+  $('#weeklyFeed').innerHTML=html;$('#historicalWeeklyFeed').innerHTML=html
+}
+function renderAbilities(){
+  $('#abilityGrid').innerHTML=S.abilities.map(a=>`<article class="card ability"><div class="ability-status"><div><div class="eyebrow">${esc(a.id.toUpperCase())}</div><h3>${esc(a.name)}</h3></div><b>${esc(a.status)}</b></div><div class="level"><i style="width:${Math.min(100,(Number(a.level)||1)/6*100)}%"></i></div><p><b>最近信号：</b>${esc(a.signal||'暂无')}</p><p><b>升级条件：</b>${esc(a.next||'待定义')}</p><p><b>机会判断：</b>${esc(a.opportunity||'待观察')}</p></article>`).join('')
+}
+function renderArchives(){
+  $('#archiveFeed').innerHTML=S.cycleArchives.length?S.cycleArchives.map(x=>`<article class="entry"><header><span>${esc(x.range||'')}</span><span class="tag ${x.status==='进行中'?'learn':'good'}">${esc(x.status||'已归档')}</span></header><h3>${esc(x.title)}</h3><p><b>目标：</b>${esc(x.goal||'')}</p><p>${esc(x.summary||'')}</p>${arr(x.nextCycle?.focus).length?`<div class="tag-row">${x.nextCycle.focus.map(a=>`<span class="tag">${esc(a)}</span>`).join('')}</div>`:''}</article>`).join(''):'<div class="empty">暂无周期档案。</div>'
+}
+
+function renderResume(){
+  const r=S.resume;$('#resumeTarget').textContent=r.target||'SoC系统型验证工程师 → 芯片项目负责人';
+  $('#resumeTags').innerHTML=`<span class="tag">${esc(r.version||'待导入')}</span><span class="tag work">持续更新</span>${r.filename?`<span class="tag">${esc(r.filename)}</span>`:''}`;
+  $('#resumeFileInfo').textContent=r.filename?`已记录原始文件：${r.filename}。静态网站不上传文件内容。`:'尚未选择原始简历文件。文件内容需先由AI整理，再导入网站。';
+  $('#resumeDisplay').innerHTML=`<div class="eyebrow">PROFILE SUMMARY</div><h2>当前简历快照</h2><p class="muted">${esc(r.summary||'等待导入入职前简历。')}</p>
+  ${r.education.length?`<div class="resume-section"><h3>教育背景</h3>${r.education.map(resumeItem).join('')}</div>`:''}
+  ${r.experiences.length?`<div class="resume-section"><h3>工作与实习经历</h3>${r.experiences.map(resumeItem).join('')}</div>`:''}
+  ${r.skills.length?`<div class="resume-section"><h3>技能</h3><div class="tag-row">${r.skills.map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div></div>`:''}
+  ${r.awards.length?`<div class="resume-section"><h3>奖项 / 专利 / 研究</h3><ul class="muted">${r.awards.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}`;
+  const timeline=[...r.education.map(x=>({...x,type:'教育'})),...r.experiences.map(x=>({...x,type:'经历'})),...r.projects.map(x=>({...x,type:'项目'}))];
+  $('#experienceTimeline').innerHTML=timeline.length?timeline.map(x=>`<article class="timeline-record"><time>${esc(x.time||'')}</time><div class="card"><div class="eyebrow">${esc(x.type)}</div><h3>${esc(x.title)}</h3><p class="muted">${esc(x.detail||x.role||x.result||'')}</p></div></article>`).join(''):'<div class="empty">导入简历后自动形成经历时间线。</div>';
+  $('#projectGrid').innerHTML=r.projects.length?r.projects.map(x=>`<article class="card project-card"><div class="eyebrow">${esc(x.time||'PROJECT')}</div><h3>${esc(x.title)}</h3><p><b>角色：</b>${esc(x.role||'')}</p><p><b>负责范围：</b>${esc(x.scope||'')}</p><p><b>核心挑战：</b>${esc(x.challenge||'')}</p><details><summary>查看完整项目档案</summary><p><b>背景：</b>${esc(x.background||'')}</p><p><b>解决过程：</b>${esc(x.process||'')}</p><p><b>结果：</b>${esc(x.result||'')}</p><p><b>可公开边界：</b>${esc(x.publicBoundary||'待确认')}</p></details><div class="tag-row">${arr(x.abilities).map(a=>`<span class="tag">${esc(a)}</span>`).join('')}</div></article>`).join(''):'<div class="empty" style="grid-column:1/-1">尚未建立项目档案。</div>';
+  $('#candidateFeed').innerHTML=r.candidates.length?r.candidates.map(x=>`<article class="entry"><header><span>${esc(x.source||x.date||'来源待关联')}</span><span class="tag ${x.status==='confirmed'?'good':'learn'}">${x.status==='confirmed'?'已确认':'候选'}</span></header><h3>${esc(x.title)}</h3><p><b>为什么值得：</b>${esc(x.reason||'')}</p><p><b>仍缺事实：</b>${esc(x.missing||'无')}</p><p><b>适用版本：</b>${esc(x.target||'待判断')}</p></article>`).join(''):'<div class="empty">当前没有简历候选。AI不会把普通日常任务都塞进这里。</div>';
+  $('#versionGrid').innerHTML=r.versions.length?r.versions.map(x=>`<article class="card version-card"><div class="eyebrow">${esc(x.date||'VERSION')}</div><h3>${esc(x.name)}</h3><p>${esc(x.target||'')}</p><p>${esc(x.changes||'')}</p></article>`).join(''):'<article class="card version-card"><div class="eyebrow">INITIAL VERSION</div><h3>入职前简历</h3><p>等待上传并由AI整理。</p></article>'
+}
+function resumeItem(x){return `<div class="resume-item"><time>${esc(x.time||'')}</time><div><h4>${esc(x.title||'')}</h4><p>${esc(x.detail||'')}</p></div></div>`}
+
+function renderCareer(){
+  $('#northStarCards').innerHTML=[['主标签','SoC验证','跨IP协同、系统状态、异常传播与完整交付'],['第二标签','低功耗验证','power domain、isolation、retention与异常切换'],['责任方向','芯片项目负责人','从个人交付走向质量、进度、风险和团队'],['长期选择','产品 / 战略 / 经营','在技术信用基础上连接产品与商业判断']].map(x=>`<article class="card north-card"><small>${x[0]}</small><b>${x[1]}</b><p>${x[2]}</p></article>`).join('');
+  $('#careerLine').innerHTML=CAREER_STAGES.map(s=>`<article class="card career-stage ${s.active?'active':''}"><span>${s.index}</span><div class="eyebrow">${s.range}</div><h3>${s.title}</h3><ul>${s.items.map(x=>`<li>${x}</li>`).join('')}</ul></article>`).join('');
+  $('#stageGateLayout').innerHTML=`<article class="card gate-summary"><div class="eyebrow">CURRENT STAGE</div><h3>可靠的IP Owner</h3><p class="muted">下一阶段不是由年份自动到来，而是由完整交付、系统问题、验证策略、Review和责任范围共同触发。</p></article><div class="gate-list">${STAGE_GATES.map(g=>`<article class="gate-row"><b>${g.name}</b><p>${g.description}</p><span class="gate-state ${g.state==='已满足'?'done':g.state==='进行中'?'progress':''}">${g.state}</span></article>`).join('')}</div>`;
+  const w=currentWeek();$('#goalChain').innerHTML=[['长期目标','芯片项目负责人','能够连接技术、产品、团队与经营'],['年度目标','可靠的IP Owner','形成完整交付与系统理解'],['季度重点','Debug / Spec / Corner','建立可迁移的问题定位与验证策略'],['当前周期',w.title,w.shift],['本周行动',w.tasks.filter(t=>t.priority==='core').map(t=>t.title).join('、'),'工作之外训练，工作内只观察与应用']].map(x=>`<article class="card goal-node"><small>${x[0]}</small><h3>${esc(x[1])}</h3><p>${esc(x[2])}</p></article>`).join('');
+  $('#decisionRows').innerHTML=DECISIONS.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td><td>${x[2]}</td></tr>`).join('');
+  $('#transitionCards').innerHTML=`<article class="card"><div class="eyebrow">MBA & TRANSITION</div><h3>MBA是条件触发的转型工具</h3><ul class="muted"><li>具备子系统或芯片项目交付记录</li><li>具备真实带队、协调和风险决策经历</li><li>英语达到课堂讨论与商业表达水平</li><li>资金覆盖学费、生活费和机会成本</li></ul></article><article class="card"><div class="eyebrow">PRIORITY</div><h3>转型优先级</h3><ol class="muted"><li>芯片 / 技术产品</li><li>企业战略 / 业务管理</li><li>战略投资</li></ol><p class="muted">如果内部持续扩大Scope并进入产品、规划或项目管理，可推迟或放弃MBA。</p></article>`;
+  $('#moneyCards').innerHTML=[['当前税前年薪','¥600K'],['3年目标','¥800K'],['5年目标','¥1M'],['10年目标','¥1.5M+']].map(x=>`<article class="card north-card"><small>${x[0]}</small><b>${x[1]}</b></article>`).join('');
+  $('#lifeCards').innerHTML=`<article class="card"><h3>50岁前获得退休选择权</h3><p class="muted">目标是被动收入覆盖日常开销。优先建立应急资金、稳定储蓄和长期分散投资，并将MBA资金与高波动资产分开。</p></article><article class="card"><h3>职业成功的底线</h3><p class="muted">即使没有创业、战略投资或提前退休，只要最终成为高收入、能够主导完整芯片项目的负责人，依然是一段成功的职业生涯。</p></article>`
+}
+
+function openModal(id){const m=$(id);m.classList.add('open');m.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}
+function closeModals(){$$('.modal').forEach(m=>{m.classList.remove('open');m.setAttribute('aria-hidden','true')});document.body.style.overflow=''}
+$$('[data-close-modal]').forEach(x=>x.onclick=closeModals);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModals()});
+$('#openQuick').onclick=()=>{openQuick('daily')};$('#openTools').onclick=()=>{renderTools('prompts');openModal('#toolsModal')};
+function bindQuickButton(b){b.onclick=()=>openQuick(b.dataset.quick)}
+$$('[data-quick]').forEach(bindQuickButton);
+$$('[data-copy-prompt]').forEach(b=>b.onclick=()=>copyPrompt(b.dataset.copyPrompt));
+function copyPrompt(key){navigator.clipboard.writeText(PROMPTS[key]?.text||'').then(()=>toast('Prompt已复制')).catch(()=>toast('复制失败，请在工具箱手动复制'))}
+
+function openQuick(mode='daily'){
+  openModal('#quickModal');renderQuick(mode)
+}
+function renderQuick(mode){
+  $$('#quickTabs button').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  const map={
+    daily:['记录今天','一次口述可以同时包含工作、工作中的学习、工作之外学习和生活。'],
+    problem:['记录一个问题','只在问题值得完整复盘时使用，不需要每天都写。'],
+    schedule:['添加安排','快速添加工作、额外学习、锻炼或生活事项。'],
+    weekly:['导入周度复盘','先将本周事实与Prompt交给AI，再把结果粘贴回来。'],
+    ability:['导入能力更新','能力等级必须由真实应用、独立程度和反馈支持。'],
+    resume:['导入简历档案','将入职前简历或后续经历先交给AI整理。']
+  };
+  $('#quickTitle').textContent=map[mode][0];$('#quickDescription').textContent=map[mode][1];
+  $('#quickContent').innerHTML=quickForm(mode);
+  $$('#quickContent [data-copy]').forEach(b=>b.onclick=()=>copyPrompt(b.dataset.copy));
+  $('#quickContent [data-save]')?.addEventListener('click',()=>saveQuick(mode));
+  $$('#quickTabs button').forEach(b=>b.onclick=()=>renderQuick(b.dataset.mode));
+}
+function quickForm(mode){
+  if(mode==='schedule')return `<div class="quick-form"><label>日期<input id="qDate" type="date" value="${S.selectedDate}"></label><label>类别<select id="qType"><option value="work">工作</option><option value="learn">额外学习</option><option value="life">锻炼 / 生活</option></select></label><label>标题<input id="qTitle" placeholder="例如：力量训练 / AI口试"></label><label>时间<input id="qTime" placeholder="例如：20:30—21:10"></label><div class="actions"><button class="primary" data-save>保存安排</button></div></div>`;
+  const promptKey={daily:'daily',problem:'problem',weekly:'weekly',ability:'ability',resume:'resume'}[mode];
+  const placeholders={daily:'粘贴每日记录JSON；无法提供JSON时也可以粘贴完整文本。',problem:'粘贴问题日志JSON。',weekly:'粘贴周复盘JSON。',ability:'粘贴能力更新JSON。',resume:'粘贴简历档案JSON。'};
+  const dateField=mode==='daily'||mode==='problem'?`<label>日期<input id="qDate" type="date" value="${S.selectedDate}"></label>`:mode==='weekly'?`<label>周次<input id="qRange" value="${weekStart()}—${addDays(weekStart(),6)}"></label>`:'';
+  return `<div class="quick-form"><div class="prompt-box"><div class="prompt-head"><div><b>${PROMPTS[promptKey].title}</b><p class="muted" style="margin:3px 0">${PROMPTS[promptKey].description}</p></div><button class="secondary small-btn" data-copy="${promptKey}">复制Prompt</button></div></div>${dateField}<label>AI输出<textarea id="qText" placeholder="${placeholders[mode]}"></textarea></label><div class="actions"><button class="primary" data-save>保存并更新网站</button></div></div>`
+}
+function saveQuick(mode){
+  try{
+    if(mode==='schedule'){
+      const title=$('#qTitle').value.trim();if(!title)throw new Error('请填写标题');S.schedule.push({id:uid('schedule'),date:$('#qDate').value||S.selectedDate,type:$('#qType').value,title,time:$('#qTime').value.trim()});
+    }else{
+      const data=parseMaybeJSON($('#qText').value);
+      if(mode==='daily'){data.id=data.id||uid('daily');data.date=data.date||$('#qDate').value||S.selectedDate;S.dailyLogs=S.dailyLogs.filter(x=>x.date!==data.date);S.dailyLogs.push(data);S.selectedDate=data.date}
+      if(mode==='problem'){data.id=data.id||uid('problem');data.date=data.date||$('#qDate').value||S.selectedDate;S.problemLogs.unshift(data)}
+      if(mode==='weekly'){data.id=data.id||uid('weekly');data.range=data.range||$('#qRange').value;data.createdAt=localISO();S.weeklyReviews.unshift(data);applyWeeklyOutputs(data)}
+      if(mode==='ability'){applyAbilityUpdate(data)}
+      if(mode==='resume'){S.resume={...S.resume,...data};['education','experiences','projects','skills','awards','versions','candidates'].forEach(k=>S.resume[k]=arr(S.resume[k]))}
+    }
+    save();closeModals();renderAll();toast('已保存并更新')
+  }catch(e){toast(e.message||'内容格式错误')}
+}
+function applyWeeklyOutputs(data){
+  arr(data.nextWeekLearning).forEach((t,i)=>{
+    const id=t.id||`custom-${(data.range||localISO()).replace(/\D/g,'')}-${i}`;
+    if(!S.customLearning.some(x=>x.id===id))S.customLearning.push({...t,id,priority:t.priority||'regular',kind:t.kind||'学习',output:t.output||'学习记录',fallback:t.fallback||'完成最小版本'})
+  });
+  arr(data.resumeCandidates).forEach(c=>{if(!S.resume.candidates.some(x=>x.title===c.title))S.resume.candidates.unshift({...c,status:'candidate',source:data.range})});
+  if(arr(data.abilityChanges).length)applyAbilityUpdate({abilities:data.abilityChanges.map(a=>({...a,signal:a.evidence||a.change}))})
+}
+function applyAbilityUpdate(data){
+  arr(data.abilities).forEach(u=>{const i=S.abilities.findIndex(a=>a.id===u.id);if(i>=0)S.abilities[i]={...S.abilities[i],...u};else S.abilities.push(u)})
+}
+
+function renderTools(tab='prompts'){
+  $$('.tool-tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tool===tab));
+  $$('.tool-tabs button').forEach(b=>b.onclick=()=>renderTools(b.dataset.tool));
+  if(tab==='prompts'){
+    $('#toolContent').innerHTML=`<div class="prompt-grid">${Object.entries(PROMPTS).map(([k,p])=>`<article class="prompt-box"><div class="prompt-head"><div><b>${p.title}</b><p class="muted" style="margin:4px 0">${p.description}</p></div><button class="secondary small-btn" data-copy-tool="${k}">复制</button></div><details><summary>查看完整Prompt</summary><pre>${esc(p.text)}</pre></details></article>`).join('')}</div>`;
+    $$('[data-copy-tool]').forEach(b=>b.onclick=()=>copyPrompt(b.dataset.copyTool))
+  }else{
+    $('#toolContent').innerHTML=`<div class="data-grid"><article class="card"><h3>导出全部数据</h3><p class="muted">生成JSON备份，用于跨设备迁移或交给Agent分析。</p><button class="primary" id="exportAll">导出JSON</button></article><article class="card"><h3>导入全部数据</h3><p class="muted">导入会替换当前浏览器中的Career OS数据。</p><label class="file-label">选择JSON<input id="importAll" type="file" accept="application/json"></label></article><article class="card"><h3>生成本周AI材料</h3><p class="muted">汇总本周每日记录、问题、学习状态和安排，不重复生成新事实。</p><button class="secondary" id="exportWeek">导出本周材料</button></article><article class="card"><h3>重置本机数据</h3><p class="muted">只清除当前浏览器的数据，不影响GitHub页面代码。</p><button class="danger" id="resetData">清除数据</button></article></div>`;
+    $('#exportAll').onclick=()=>download(`jett-career-os-${localISO()}.json`,JSON.stringify(S,null,2));
+    $('#importAll').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{S=normalizeState(JSON.parse(r.result));save();renderAll();closeModals();toast('数据已导入')}catch{toast('文件格式错误')}};r.readAsText(f)};
+    $('#exportWeek').onclick=exportWeekMaterial;
+    $('#resetData').onclick=()=>{if(confirm('确认清除当前浏览器中的全部Career OS数据？')){S=defaultState();save();renderAll();closeModals();toast('已重置')}}
+  }
+}
+function exportWeekMaterial(){
+  const start=weekStart(),end=addDays(start,6),payload={range:`${start}—${end}`,dailyLogs:S.dailyLogs.filter(x=>x.date>=start&&x.date<=end),problemLogs:S.problemLogs.filter(x=>x.date>=start&&x.date<=end),learning:{week:S.week,checks:S.checks,tasks:currentWeek().tasks},schedule:S.schedule.filter(x=>x.date>=start&&x.date<=end),prompt:PROMPTS.weekly.text};
+  download(`jett-week-material-${start}.json`,JSON.stringify(payload,null,2));toast('本周材料已导出')
+}
+
+$('#prevMonth').onclick=()=>{const [y,m]=S.calendarMonth.split('-').map(Number),d=new Date(y,m-2,1);S.calendarMonth=localISO(d).slice(0,7);save();renderCalendar()};
+$('#nextMonth').onclick=()=>{const [y,m]=S.calendarMonth.split('-').map(Number),d=new Date(y,m,1);S.calendarMonth=localISO(d).slice(0,7);save();renderCalendar()};
+$('#todayDate').onchange=e=>{S.selectedDate=e.target.value||localISO();S.calendarMonth=S.selectedDate.slice(0,7);save();renderToday()};
+$('#problemSearch').oninput=renderProblems;$('#problemFilter').onchange=renderProblems;
+$('#resumeFile').onchange=e=>{const f=e.target.files[0];if(!f)return;S.resume.filename=f.name;save();renderResume();toast('已记录文件名')};
+
+function renderAll(){renderToday();renderGrowth();renderResume();renderCareer()}
+renderAll();
+switchView(S.settings.lastView||'today');
+
+</script>
+<script data-source="curriculum/patch.js">
+(function(){
+  const weeks=()=>window.CURRICULUM_WEEKS||[];
+  window.addEventListener('load',()=>{
+    try{
+      Object.assign(PROMPTS,window.CURRICULUM_PROMPTS||{});
+      currentWeek=function(){return weeks().find(w=>w.id===S.week)||weeks()[0]};
+      weekTaskStats=function(){const tasks=currentWeek().tasks;const done=tasks.filter(t=>S.checks[t.id]).length;return{done,total:tasks.length,pct:tasks.length?Math.round(done/tasks.length*100):0}};
+      learningStats=function(){const all=weeks().flatMap(w=>w.tasks),done=all.filter(t=>S.checks[t.id]).length,self=all.filter(t=>t.kind==='自测'),feedback=all.filter(t=>t.kind==='反馈');return{all:all.length?Math.round(done/all.length*100):0,self:self.length?Math.round(self.filter(t=>S.checks[t.id]).length/self.length*100):0,feedback:feedback.length?Math.round(feedback.filter(t=>S.checks[t.id]).length/feedback.length*100):0,week:weekTaskStats().pct}};
+      renderLearning=function(){
+        const s=learningStats();$('#learningMetrics').innerHTML=[['全部课外任务',s.all],['本周完成',s.week],['自测通过动作',s.self],['反馈闭环动作',s.feedback]].map(x=>`<article class="metric"><small>${x[0]}</small><b>${x[1]}%</b><div class="progress"><i style="width:${x[1]}%"></i></div></article>`).join('');
+        const custom=S.customLearning.filter(t=>!t.archived);$('#dynamicWeekTasks').innerHTML=custom.length?`<article class="observation"><div class="eyebrow">AI-GENERATED DIAGNOSTIC TASKS</div><h3>周复盘新增的诊断任务</h3><p class="muted">只有重复、影响交付或暴露关键前置缺口的问题才进入这里；不覆盖16周主干。</p></article>${['core','regular','optional'].map(g=>{const ts=custom.filter(t=>t.priority===g);return ts.length?`<div class="priority-group"><div class="priority-head"><h3>${priorityLabel(g)}任务</h3><small>AI周复盘生成</small></div><div class="tasks">${ts.map(renderTask).join('')}</div></div>`:''}).join('')}`:'';
+        $('#dynamicWeekTasks').querySelectorAll('input[type=checkbox]').forEach(c=>c.onchange=()=>{S.checks[c.dataset.id]=c.checked;save();renderLearning();renderToday()});
+        $('#weekTabs').innerHTML=weeks().map((w,i)=>`<button data-week="${w.id}" class="${S.week===w.id?'active':''}"><span>W${String(i+1).padStart(2,'0')}</span><b>${w.dates}</b><small>${w.title}</small></button>`).join('');
+        $$('#weekTabs button').forEach(b=>b.onclick=()=>{S.week=b.dataset.week;save();renderLearning();renderToday()});
+        const w=currentWeek(),groups=['core','regular','optional'];$('#weekContent').innerHTML=`<div class="week-head"><div><div class="eyebrow">${w.cycle} · ${w.dates}</div><h2>${w.title}</h2><p>${w.shift}</p></div><div class="tag-row">${w.focus.map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div></div><article class="observation"><div class="eyebrow">WORK DIAGNOSIS · 不计入课外完成率</div><h3>真实工作只提供诊断与迁移机会</h3><ul>${w.observations.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article>${groups.map(g=>renderTaskGroup(w,g)).join('')}<div class="grid2" style="margin-top:10px"><article class="card"><div class="eyebrow">WEEK PASS GATE</div><h3>本周通过条件</h3><ul class="muted">${w.gates.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article><article class="card"><div class="eyebrow">15-MIN REVIEW</div><h3>${esc(w.reviewer)}</h3><p class="muted">准备一个真实问题、一条自己的判断和两个具体问题。会后将反馈转化成能力动作或机会动作。</p></article></div>`;
+        $$('#weekContent input[type=checkbox]').forEach(c=>c.onchange=()=>{S.checks[c.dataset.id]=c.checked;save();renderLearning();renderToday()});setTimeout(syncCurriculumUI,0)
+      };
+      exportWeekMaterial=function(){const start=weekStart(),end=addDays(start,6),payload={range:`${start}—${end}`,dailyLogs:S.dailyLogs.filter(x=>x.date>=start&&x.date<=end),problemLogs:S.problemLogs.filter(x=>x.date>=start&&x.date<=end),curriculum:{week:S.week,cycle:curriculumCycleForWeek(S.week),checks:S.checks,tasks:currentWeek().tasks},schedule:S.schedule.filter(x=>x.date>=start&&x.date<=end),prompt:PROMPTS.weekly.text};download(`jett-week-material-${start}.json`,JSON.stringify(payload,null,2));toast('本周材料已导出')};
+    }catch(e){console.error('Curriculum overrides failed',e)}
+  },{once:true});
+})();
+
+function curriculumCycleForWeek(weekId){
+  return window.CURRICULUM_CYCLES.find(c=>c.weeks.includes(weekId))||window.CURRICULUM_CYCLES[0]
+}
+function installCurriculumStyles(){
+  if(document.getElementById('curriculum-v23-style'))return;
+  const style=document.createElement('style');style.id='curriculum-v23-style';style.textContent=`
+    .curriculum-map{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.curriculum-cycle{border:1px solid var(--line);background:linear-gradient(145deg,rgba(14,29,42,.96),rgba(7,18,28,.97));border-radius:12px;padding:15px;text-align:left;color:var(--text);cursor:pointer}.curriculum-cycle:hover,.curriculum-cycle.active{border-color:var(--cyan);background:rgba(53,214,232,.07)}.curriculum-cycle span,.curriculum-cycle b,.curriculum-cycle small{display:block}.curriculum-cycle span{font-size:9px;color:var(--cyan);letter-spacing:.12em}.curriculum-cycle b{margin:7px 0;font-size:14px}.curriculum-cycle small{color:var(--muted);line-height:1.5}.course-context{display:grid;grid-template-columns:1.1fr .9fr;gap:10px;margin:10px 0}.course-context article{border:1px solid #294b5a;background:#081721;border-radius:10px;padding:14px}.course-context h3{margin:5px 0}.course-context p{margin:0;color:var(--muted);font-size:11px;line-height:1.65}.week-tabs.curriculum-filtered{grid-template-columns:repeat(4,1fr)}.cycle-progress{height:5px;background:#17303c;border-radius:9px;overflow:hidden;margin-top:10px}.cycle-progress i{display:block;height:100%;background:linear-gradient(90deg,#25bcd0,#6ce8ee)}@media(max-width:950px){.curriculum-map{grid-template-columns:1fr 1fr}.course-context{grid-template-columns:1fr}}@media(max-width:720px){.curriculum-map{grid-template-columns:1fr}.week-tabs.curriculum-filtered{grid-template-columns:1fr 1fr}}
+  `;document.head.appendChild(style)
+}
+function syncCurriculumUI(){
+  const tabs=document.getElementById('weekTabs');if(!tabs||typeof S==='undefined')return;
+  installCurriculumStyles();
+  const current=curriculumCycleForWeek(S.week);
+  let map=document.getElementById('curriculumMap');
+  if(!map){map=document.createElement('div');map.id='curriculumMap';map.className='curriculum-map';const metrics=document.getElementById('learningMetrics');metrics?.insertAdjacentElement('afterend',map)}
+  map.innerHTML=window.CURRICULUM_CYCLES.map(c=>`<button class="curriculum-cycle ${c.id===current.id?'active':''}" data-cycle="${c.id}"><span>CYCLE ${c.index} · ${c.range}</span><b>${c.title}</b><small>主干：${c.main}<br>辅助：${c.support}</small></button>`).join('');
+  map.querySelectorAll('[data-cycle]').forEach(b=>b.onclick=()=>{const c=window.CURRICULUM_CYCLES.find(x=>x.id===b.dataset.cycle);if(!c)return;S.week=c.weeks[0];save();renderLearning();renderToday();setTimeout(syncCurriculumUI,0)});
+  let context=document.getElementById('courseContext');
+  if(!context){context=document.createElement('div');context.id='courseContext';context.className='course-context';map.insertAdjacentElement('afterend',context)}
+  const done=current.weeks.flatMap(id=>window.CURRICULUM_WEEKS.find(w=>w.id===id)?.tasks||[]).filter(t=>S.checks[t.id]).length;
+  const total=current.weeks.flatMap(id=>window.CURRICULUM_WEEKS.find(w=>w.id===id)?.tasks||[]).length;
+  const pct=total?Math.round(done/total*100):0;
+  context.innerHTML=`<article><div class="eyebrow">CURRENT CURRICULUM</div><h3>${current.title}</h3><p>${current.outcome}</p><div class="cycle-progress"><i style="width:${pct}%"></i></div></article><article><div class="eyebrow">LOAD RULE</div><h3>主干不被临时工作覆盖</h3><p>高压周缩小任务规模；普通工作问题只进入诊断，不自动生成课外任务。当前Cycle完成 ${done}/${total} 项。</p></article>`;
+  tabs.classList.add('curriculum-filtered');
+  [...tabs.querySelectorAll('button')].forEach((b,i)=>{const w=window.CURRICULUM_WEEKS[i];if(!w)return;b.style.display=current.weeks.includes(w.id)?'block':'none';const label=b.querySelector('span');if(label&&label.textContent!==`W${String(i+1).padStart(2,'0')}`)label.textContent=`W${String(i+1).padStart(2,'0')}`});
+}
+function migrateCurriculumV23(){
+  if(typeof S==='undefined'||S.curriculumVersion==='soc-verification-16w-v1')return;
+  const oldMap={spec:'verification',strategy:'verification',check:'verification',uvm:'productivity',tools:'productivity',delivery:'ownership',communication:'ownership',soc:'soc',debug:'debug',lowpower:'lowpower'};
+  const old=Array.isArray(S.abilities)?S.abilities:[];
+  S.abilities=window.CURRICULUM_ABILITIES.map(a=>{const related=old.filter(x=>oldMap[x.id]===a.id);if(!related.length)return a;const strongest=related.sort((x,y)=>(y.level||0)-(x.level||0))[0];return {...a,level:Math.min(a.level,Number(strongest.level)||a.level),signal:`旧版记录迁移：${strongest.signal||a.signal}`,status:a.status}});
+  const legacy=S.cycleArchives?.find(x=>x.id==='cycle-202607');if(legacy){legacy.status='已升级';legacy.summary='原四周Debug/Spec/Corner Bootcamp已重新编入16周课程的Cycle 1与Cycle 4。旧记录继续保留。'}
+  if(!S.cycleArchives?.some(x=>x.id==='curriculum-16w-2026'))S.cycleArchives=[{id:'curriculum-16w-2026',title:'2026年7—11月 · SoC验证第一阶段课程',range:'2026-07-13—2026-11-01',status:'进行中',goal:'验证环境 → SoC数据流 → 系统状态与低功耗 → Coverage、Regression与Sign-off。',summary:'四个Cycle、16周。工作日志用于诊断与迁移，但不直接控制全部课程。'},...(S.cycleArchives||[])];
+  S.curriculumVersion='soc-verification-16w-v1';S.version='2.3';save();renderAll()
+}
+window.addEventListener('load',()=>{
+  try{
+    document.title='Jett · Career OS V2.3';
+    const st=document.querySelector('.side-title');if(st)st.textContent='CAREER OS · V2.3';
+    const strip=document.querySelector('.career-strip p');if(strip)strip.textContent='当前阶段：可靠的IP Owner　·　当前课程：16周SoC验证第一阶段　·　关键差距：系统推理、验证闭环与独立判断';
+    const heading=document.querySelector('#current-execution .section-title h2');if(heading)heading.textContent='本周学习与16周专业课程';
+    const desc=document.querySelector('#current-execution .section-title p');if(desc)desc.textContent='四个Cycle连续推进；任务详细保留，工作观察与工作之外训练继续分开。';
+    migrateCurriculumV23();syncCurriculumUI();
+    const tabs=document.getElementById('weekTabs');if(tabs)new MutationObserver(()=>setTimeout(syncCurriculumUI,0)).observe(tabs,{childList:true,subtree:true});
+  }catch(e){console.error('Curriculum V2.3 patch failed',e)}
+});
+
+</script>
+<script data-source="curriculum/finalize.js">
+window.addEventListener('load',()=>{
+  try{
+    const weeks=window.CURRICULUM_WEEKS||[];
+    const tasks=weeks.flatMap(w=>w.tasks||[]);
+    const ids=tasks.map(t=>t.id);
+    if(weeks.length!==16||tasks.length!==64||new Set(ids).size!==ids.length){
+      console.error('Curriculum integrity check failed',{weeks:weeks.length,tasks:tasks.length,uniqueIds:new Set(ids).size});
+      const target=document.getElementById('dynamicWeekTasks');
+      if(target)target.innerHTML='<div class="warning">课程数据加载不完整，请强制刷新页面。</div>';
+      return;
+    }
+    const updateGoalChain=()=>{
+      const nodes=document.querySelectorAll('#goalChain .goal-node');
+      if(!nodes[2])return;
+      const h=nodes[2].querySelector('h3'),p=nodes[2].querySelector('p');
+      const title='SoC验证第一阶段课程';
+      const detail='验证环境 → SoC数据流 → 系统状态与低功耗 → 完整交付';
+      if(h&&h.textContent!==title)h.textContent=title;
+      if(p&&p.textContent!==detail)p.textContent=detail;
+    };
+    updateGoalChain();
+    const goal=document.getElementById('goalChain');
+    if(goal)new MutationObserver(updateGoalChain).observe(goal,{childList:true,subtree:true});
+    document.documentElement.dataset.curriculum='soc-verification-16w-v1';
+  }catch(error){console.error('Curriculum finalization failed',error)}
+},{once:true});
+
+</script>
 </body>
 </html>
