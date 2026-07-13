@@ -10,6 +10,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  pull-requests: write
 
 jobs:
   check:
@@ -17,7 +18,36 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Configure and enable GitHub Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
+      - name: Inspect and enable Pages through API
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          echo 'GET /pages' >/tmp/pages-result.txt
+          gh api "repos/${GITHUB_REPOSITORY}/pages" >>/tmp/pages-result.txt 2>&1
+          GET_STATUS=$?
+          echo "get_status=${GET_STATUS}" >>/tmp/pages-result.txt
+          if [ "$GET_STATUS" -ne 0 ]; then
+            echo 'POST /pages build_type=workflow' >>/tmp/pages-result.txt
+            printf '{"build_type":"workflow"}' | gh api --method POST "repos/${GITHUB_REPOSITORY}/pages" --input - >>/tmp/pages-result.txt 2>&1
+            echo "post_status=$?" >>/tmp/pages-result.txt
+          else
+            echo 'PUT /pages build_type=workflow' >>/tmp/pages-result.txt
+            printf '{"build_type":"workflow"}' | gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" --input - >>/tmp/pages-result.txt 2>&1
+            echo "put_status=$?" >>/tmp/pages-result.txt
+          fi
+          cat /tmp/pages-result.txt
+          exit 0
+      - name: Publish Pages diagnostic
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo '### GitHub Pages enablement diagnostic'
+            echo '```text'
+            cat /tmp/pages-result.txt
+            echo '```'
+          } >/tmp/pages-comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/pages-comment.md
