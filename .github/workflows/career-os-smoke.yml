@@ -26,7 +26,7 @@ jobs:
           sleep 2
       - name: Render site in Chromium
         run: |
-          cat > /tmp/smoke.mjs <<'EOF'
+          cat > smoke.mjs <<'EOF'
           import { chromium } from 'playwright';
           import fs from 'node:fs';
 
@@ -71,7 +71,7 @@ jobs:
           fs.writeFileSync('/tmp/smoke-result.json', JSON.stringify({ checks, errors }, null, 2));
           console.log(JSON.stringify({ checks, errors }));
           EOF
-          node /tmp/smoke.mjs
+          node smoke.mjs
       - name: Check script and network errors
         run: node -e "const r=require('/tmp/smoke-result.json'); if(r.errors.length){console.error(r.errors.join('\n'));process.exit(1)}"
       - name: Check page title
