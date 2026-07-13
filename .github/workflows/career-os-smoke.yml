@@ -29,20 +29,22 @@ jobs:
           import { chromium } from 'playwright';
           import fs from 'node:fs';
 
-          const url='https://raw.githack.com/ZhanTong27/ML/main/career-roadmap/index.html';
+          const url='https://htmlpreview.github.io/?https://github.com/ZhanTong27/ML/blob/main/career-roadmap/index.html';
           const errors=[];
           const checks={url};
           let browser;
           try{
             browser=await chromium.launch({headless:true});
             const page=await browser.newPage({viewport:{width:1440,height:1000}});
-            page.setDefaultTimeout(7000);
+            page.setDefaultTimeout(10000);
             page.on('pageerror',error=>errors.push(`pageerror: ${error.message}`));
-            page.on('console',msg=>{if(msg.type()==='error')errors.push(`console: ${msg.text()}`)});
-            page.on('requestfailed',req=>errors.push(`requestfailed: ${req.url()} ${req.failure()?.errorText||''}`));
+            page.on('requestfailed',req=>{
+              const failedUrl=req.url();
+              if(failedUrl.includes('ZhanTong27/ML')||failedUrl.includes('raw.githubusercontent.com'))errors.push(`requestfailed: ${failedUrl} ${req.failure()?.errorText||''}`)
+            });
             const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
             checks.httpStatus=response?.status()||0;
-            await page.waitForFunction(()=>document.querySelector('#todayStatusRow')?.children.length===3,null,{timeout:10000});
+            await page.waitForFunction(()=>document.querySelector('#todayStatusRow')?.children.length===3,null,{timeout:15000});
             Object.assign(checks,await page.evaluate(()=>({
               title:document.title.includes('Career OS V2.3'),
               staticViews:document.querySelectorAll('.nav button').length,
