@@ -36,11 +36,12 @@ jobs:
           try {
             browser = await chromium.launch({ headless: true });
             const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+            page.setDefaultTimeout(5000);
             page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
             page.on('console', msg => { if (msg.type() === 'error') errors.push(`console: ${msg.text()}`); });
             page.on('requestfailed', req => errors.push(`requestfailed: ${req.url()} ${req.failure()?.errorText || ''}`));
-            await page.goto('http://127.0.0.1:8000/career-roadmap/index.html', { waitUntil: 'networkidle', timeout: 60000 });
-            await page.waitForTimeout(1500);
+            await page.goto('http://127.0.0.1:8000/career-roadmap/index.html', { waitUntil: 'domcontentloaded', timeout: 15000 });
+            await page.waitForFunction(() => document.querySelector('#todayStatusRow')?.children.length === 3, null, { timeout: 5000 });
             Object.assign(checks, await page.evaluate(() => ({
               title: document.title.includes('Career OS V2.3'),
               today: document.querySelector('#todayStatusRow')?.children.length === 3,
@@ -55,14 +56,12 @@ jobs:
               bodyVisible: document.body.getBoundingClientRect().height > 500
             })));
             await page.click('[data-view="growth"]');
-            await page.waitForTimeout(300);
             checks.growthVisible = await page.locator('#growth').evaluate(el => getComputedStyle(el).display !== 'none');
             await page.click('#openQuick');
             checks.quickOpen = await page.locator('#quickModal').evaluate(el => el.classList.contains('open'));
             await page.keyboard.press('Escape');
             await page.click('#openTools');
             checks.toolsOpen = await page.locator('#toolsModal').evaluate(el => el.classList.contains('open'));
-            await page.screenshot({ path: '/tmp/career-os-home.png', fullPage: true });
           } catch (error) {
             errors.push(error?.stack || String(error));
           } finally {
