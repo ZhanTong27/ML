@@ -29,7 +29,7 @@ jobs:
           import { chromium } from 'playwright';
           import fs from 'node:fs';
 
-          const url='https://zhantong27.github.io/ML/';
+          const url='https://zhantong27.github.io/ML/?v=be5cdb7';
           const errors=[];
           const checks={url};
           let browser;
