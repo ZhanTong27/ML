@@ -1,0 +1,53 @@
+name: Pages Enablement Diagnostic
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/pages-enable-diagnostic.yml'
+
+permissions:
+  contents: read
+  pages: write
+  pull-requests: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Inspect and enable Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          gh api "repos/${GITHUB_REPOSITORY}/pages" >/tmp/get.out 2>&1
+          GET_STATUS=$?
+          if [ "$GET_STATUS" -ne 0 ]; then
+            printf '{"build_type":"workflow"}' | gh api --method POST "repos/${GITHUB_REPOSITORY}/pages" --input - >/tmp/write.out 2>&1
+            WRITE_STATUS=$?
+            ACTION=POST
+          else
+            printf '{"build_type":"workflow"}' | gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" --input - >/tmp/write.out 2>&1
+            WRITE_STATUS=$?
+            ACTION=PUT
+          fi
+          {
+            echo "get_status=${GET_STATUS}"
+            cat /tmp/get.out
+            echo "action=${ACTION}"
+            echo "write_status=${WRITE_STATUS}"
+            cat /tmp/write.out
+          } >/tmp/pages-result.txt
+          cat /tmp/pages-result.txt
+      - name: Publish diagnostic
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo '### Pages API diagnostic'
+            echo '```text'
+            cat /tmp/pages-result.txt
+            echo '```'
+          } >/tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
