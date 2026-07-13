@@ -1,0 +1,71 @@
+name: Bundle Career OS V3.2 Branch
+
+on:
+  push:
+    branches: ['agent/career-os-v3-2']
+    paths:
+      - 'career-roadmap/**'
+      - '.github/workflows/bundle-v32-branch.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/career-os-v3-2
+          fetch-depth: 0
+      - name: Generate self-contained page
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root=Path('career-roadmap')
+          html=(root/'index.template.html').read_text(encoding='utf-8')
+          css=(root/'style.css').read_text(encoding='utf-8')
+          marker='<link rel="stylesheet" href="style.css">'
+          if marker not in html: raise SystemExit('stylesheet marker missing')
+          html=html.replace(marker,'<style>\n'+css+'\n</style>',1)
+          sources=['legacy-data-v22.js','curriculum/base.js','curriculum/cycle1.js','curriculum/cycle2.js','curriculum/cycle3.js','curriculum/cycle4.js','app.js','curriculum/patch.js','curriculum/finalize.js']
+          markers='\n'.join(f'<script src="{s}"></script>' for s in sources)
+          if markers not in html: raise SystemExit('script marker sequence missing')
+          blocks=[]
+          for src in sources:
+              code=(root/src).read_text(encoding='utf-8')
+              code=re.sub(r'</script',r'<\\/script',code,flags=re.I)
+              blocks.append(f'<script data-source="{src}">\n{code}\n</script>')
+          html=html.replace(markers,'\n'.join(blocks),1)
+          extras=['curriculum/manual-v31.js','curriculum/v32.js']
+          extra=[]
+          for src in extras:
+              code=(root/src).read_text(encoding='utf-8')
+              code=re.sub(r'</script',r'<\\/script',code,flags=re.I)
+              extra.append(f'<script data-source="{src}">\n{code}\n</script>')
+          html=html.replace('</body>','\n'.join(extra)+'\n</body>',1)
+          required=['CAREER OS · V3.2','PERSONAL RESOURCES','career-os-manual-1','function renderAll()','soc-verification-16w-v1']
+          missing=[x for x in required if x not in html]
+          if missing: raise SystemExit(f'missing markers: {missing}')
+          if re.search(r'<script\s+[^>]*src=',html,re.I): raise SystemExit('external script remains')
+          if re.search(r'<link\s+[^>]*rel=["\']stylesheet["\']',html,re.I): raise SystemExit('external stylesheet remains')
+          (root/'index.html').write_text(html,encoding='utf-8')
+          PY
+      - name: Validate bundle markers
+        run: |
+          grep -q 'Career OS V3.2' career-roadmap/index.html
+          grep -q 'decisionCockpit' career-roadmap/index.html
+          grep -q 'resourceDashboard' career-roadmap/index.html
+          grep -q 'prompt-v32-toolbar' career-roadmap/index.html
+          grep -q 'pendingConfidenceFeed' career-roadmap/index.html
+      - name: Commit bundle to branch
+        run: |
+          if git diff --quiet -- career-roadmap/index.html; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add career-roadmap/index.html
+          git commit -m 'Bundle Career OS V3.2 single-file page'
+          git push origin HEAD:agent/career-os-v3-2
