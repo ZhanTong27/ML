@@ -64,7 +64,7 @@ jobs:
               inline_blocks.append(f'<script data-source="{src}">\n{code}\n</script>')
           html = html.replace(markers, '\n'.join(inline_blocks), 1)
 
-          extra_sources = ['curriculum/manual-v31.js']
+          extra_sources = ['curriculum/manual-v31.js', 'curriculum/v32.js']
           extra_blocks = []
           for src in extra_sources:
               code = (root / src).read_text(encoding='utf-8')
@@ -80,9 +80,9 @@ jobs:
               'window.CURRICULUM_WEEKS',
               'function renderAll()',
               'soc-verification-16w-v1',
-              'CAREER OS · V2.3',
               'career-os-manual-1',
-              '我的问题手册',
+              'CAREER OS · V3.2',
+              'PERSONAL RESOURCES',
           ]
           missing = [item for item in required if item not in html]
           if missing:
@@ -98,10 +98,11 @@ jobs:
           import re
           text = Path('career-roadmap/index.html').read_text(encoding='utf-8')
           assert '<style>' in text
-          assert len(re.findall(r'<script(?:\s|>)', text, flags=re.I)) >= 10
+          assert len(re.findall(r'<script(?:\s|>)', text, flags=re.I)) >= 11
           assert not re.search(r'<script\s+[^>]*src=', text, flags=re.I)
           assert 'window.CURRICULUM_CYCLES' in text
           assert 'career-os-manual-1' in text
+          assert 'CAREER OS · V3.2' in text
           print('Single-file structure validated')
           PY
       - name: Commit generated page
