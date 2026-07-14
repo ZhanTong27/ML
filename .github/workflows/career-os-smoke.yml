@@ -57,7 +57,8 @@ jobs:
               formalConfidenceUntouched:S.careerModel.filter(x=>['diag-sim-timing-debug','diag-ate-interface-knowledge','diag-lowpower-intent-judgment'].includes(x.diagnosisId)).every(x=>Number(x.diagnosisConfidence)===0)
             })));
             await page.click('[data-view="today"]');
-            checks.dailyImpact=(await page.locator('#dailyCareerImpact').innerText()).includes('6')&&(await page.locator('#dailyCareerImpact').innerText()).includes('3项待确认');
+            const impactText=await page.locator('#dailyCareerImpact').innerText();
+            checks.dailyImpact=await page.locator('#dailyCareerImpact .impact-flow article').count()===5&&impactText.includes('Evidence')&&impactText.includes('项待确认');
             await page.click('[data-view="growth"]');
             checks.lifecycleCards=await page.locator('#diagnosisLifecycleGrid .lifecycle-card').count();
             checks.reviewLayer=await page.locator('#reviewLayerV4').count();
