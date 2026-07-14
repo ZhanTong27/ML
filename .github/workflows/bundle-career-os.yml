@@ -32,65 +32,34 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
-
           root = Path('career-roadmap')
           template = (root / 'index.template.html').read_text(encoding='utf-8')
           css = (root / 'style.css').read_text(encoding='utf-8')
-
           stylesheet = '<link rel="stylesheet" href="style.css">'
-          if stylesheet not in template:
-              raise SystemExit('Template stylesheet marker not found')
+          if stylesheet not in template: raise SystemExit('Template stylesheet marker not found')
           html = template.replace(stylesheet, '<style>\n' + css + '\n</style>', 1)
-
-          sources = [
-              'legacy-data-v22.js',
-              'curriculum/base.js',
-              'curriculum/cycle1.js',
-              'curriculum/cycle2.js',
-              'curriculum/cycle3.js',
-              'curriculum/cycle4.js',
-              'app.js',
-              'curriculum/patch.js',
-              'curriculum/finalize.js',
-          ]
+          sources = ['legacy-data-v22.js','curriculum/base.js','curriculum/cycle1.js','curriculum/cycle2.js','curriculum/cycle3.js','curriculum/cycle4.js','app.js','curriculum/patch.js','curriculum/finalize.js']
           markers = '\n'.join(f'<script src="{src}"></script>' for src in sources)
-          if markers not in html:
-              raise SystemExit('Template script marker sequence not found')
-
-          inline_blocks = []
+          if markers not in html: raise SystemExit('Template script marker sequence not found')
+          inline_blocks=[]
           for src in sources:
-              code = (root / src).read_text(encoding='utf-8')
-              code = re.sub(r'</script', r'<\\/script', code, flags=re.IGNORECASE)
+              code=(root/src).read_text(encoding='utf-8')
+              code=re.sub(r'</script',r'<\\/script',code,flags=re.IGNORECASE)
               inline_blocks.append(f'<script data-source="{src}">\n{code}\n</script>')
-          html = html.replace(markers, '\n'.join(inline_blocks), 1)
-
-          extra_sources = ['curriculum/manual-v31.js', 'curriculum/v32.js', 'curriculum/resume-v33.js']
-          extra_blocks = []
+          html=html.replace(markers,'\n'.join(inline_blocks),1)
+          extra_sources=['curriculum/manual-v31.js','curriculum/v32.js','curriculum/resume-v33.js','curriculum/resume-portfolio-v34.js']
+          extra_blocks=[]
           for src in extra_sources:
-              code = (root / src).read_text(encoding='utf-8')
-              code = re.sub(r'</script', r'<\\/script', code, flags=re.IGNORECASE)
+              code=(root/src).read_text(encoding='utf-8')
+              code=re.sub(r'</script',r'<\\/script',code,flags=re.IGNORECASE)
               extra_blocks.append(f'<script data-source="{src}">\n{code}\n</script>')
-          html = html.replace('</body>', '\n'.join(extra_blocks) + '\n</body>', 1)
-
-          if re.search(r'<script\s+[^>]*src=', html, flags=re.IGNORECASE):
-              raise SystemExit('External script remains in generated HTML')
-          if re.search(r'<link\s+[^>]*rel=["\']stylesheet["\']', html, flags=re.IGNORECASE):
-              raise SystemExit('External stylesheet remains in generated HTML')
-          required = [
-              'window.CURRICULUM_WEEKS',
-              'function renderAll()',
-              'soc-verification-16w-v1',
-              'career-os-manual-1',
-              'CAREER OS · V3.2',
-              'PERSONAL RESOURCES',
-              'resume-upload-2026-07-14',
-              '面向ML加速的RISC-V SoC',
-          ]
-          missing = [item for item in required if item not in html]
-          if missing:
-              raise SystemExit(f'Missing bundled markers: {missing}')
-
-          (root / 'index.html').write_text(html, encoding='utf-8')
+          html=html.replace('</body>','\n'.join(extra_blocks)+'\n</body>',1)
+          if re.search(r'<script\s+[^>]*src=',html,flags=re.IGNORECASE): raise SystemExit('External script remains')
+          if re.search(r'<link\s+[^>]*rel=["\']stylesheet["\']',html,flags=re.IGNORECASE): raise SystemExit('External stylesheet remains')
+          required=['window.CURRICULUM_WEEKS','function renderAll()','soc-verification-16w-v1','career-os-manual-1','CAREER OS · V3.2','PERSONAL RESOURCES','resume-upload-2026-07-14','ENGINEERING PORTFOLIO','Recruiter View']
+          missing=[item for item in required if item not in html]
+          if missing: raise SystemExit(f'Missing bundled markers: {missing}')
+          (root/'index.html').write_text(html,encoding='utf-8')
           print(f'Generated {root / "index.html"}: {len(html):,} characters')
           PY
       - name: Validate bundled HTML structure
@@ -98,14 +67,13 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
-          text = Path('career-roadmap/index.html').read_text(encoding='utf-8')
+          text=Path('career-roadmap/index.html').read_text(encoding='utf-8')
           assert '<style>' in text
-          assert len(re.findall(r'<script(?:\s|>)', text, flags=re.I)) >= 12
-          assert not re.search(r'<script\s+[^>]*src=', text, flags=re.I)
+          assert len(re.findall(r'<script(?:\s|>)',text,flags=re.I)) >= 13
+          assert not re.search(r'<script\s+[^>]*src=',text,flags=re.I)
           assert 'window.CURRICULUM_CYCLES' in text
-          assert 'career-os-manual-1' in text
-          assert 'CAREER OS · V3.2' in text
-          assert 'resume-upload-2026-07-14' in text
+          assert 'ENGINEERING PORTFOLIO' in text
+          assert 'Recruiter View' in text
           print('Single-file structure validated')
           PY
       - name: Commit generated page
