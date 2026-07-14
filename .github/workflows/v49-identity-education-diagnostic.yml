@@ -23,6 +23,7 @@ jobs:
           python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
           sleep 2
       - run: |
+          # V4.9 identity validation trigger
           cat > check.mjs <<'EOF'
           import {chromium} from 'playwright';
           const b=await chromium.launch({headless:true});const p=await b.newPage({viewport:{width:1280,height:900}});const errors=[];
