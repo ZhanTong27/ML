@@ -1357,5 +1357,238 @@ function renderPersonalAnalysisV45(){
 function injectPersonalStylesV45(){if(document.getElementById('v45-style'))return;const s=document.createElement('style');s.id='v45-style';s.textContent=`.profile-stage-v45{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}.profile-stage-v45 article{padding:16px;border:1px solid #31596a;border-radius:12px;background:linear-gradient(145deg,#0b202c,#07141c)}.profile-stage-v45 small{color:var(--muted)}.profile-stage-v45 h3{margin:7px 0}.profile-stage-v45 p,.profile-grid-v45 li,.learning-rule-v45 p{color:var(--muted);line-height:1.7}.profile-grid-v45{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.profile-grid-v45 ul{padding-left:20px}.learning-rule-v45{margin-top:10px}@media(max-width:900px){.profile-stage-v45,.profile-grid-v45{grid-template-columns:1fr}}`;document.head.appendChild(s)}
 
 </script>
+<script data-source="curriculum/v46-pack-w1.js">
+window.LEARNING_PACKS_V46=window.LEARNING_PACKS_V46||{};
+window.LEARNING_PACKS_V46.w1={
+ title:'Week 1 Learning Pack · 验证闭环与Owner基线',
+ objective:'把“用例通过”升级为可审计的风险闭环与交付判断。',
+ modes:{
+  high:{label:'高压周',hours:'2—3h',items:['完成Feature→Risk→Check→Evidence四段','完成15分钟Owner口试','记录一条真实工作迁移']},
+  normal:{label:'正常周',hours:'4—6h',items:['完成闭环图与Closure台账','完成Owner口试并自评','整理一页导师Review材料']},
+  deep:{label:'深度周',hours:'8—10h',items:['完成全部任务与示例修订','邀请导师或主管Review','一周后完成陌生变式复测']}
+ },
+ materials:[
+  {title:'OpenTitan Design Verification Methodology',source:'OpenTitan官方文档',required:true,scope:'重点看验证计划、环境、检查、Coverage和回归如何组成闭环；不需要阅读具体IP实现。',use:'建立Spec→Risk→Stimulus→Check→Coverage→Sign-off结构。',url:'https://opentitan.org/book/hw/dv/index.html'},
+  {title:'Universal Verification Methodology Standards',source:'Accellera官方入口',required:false,scope:'只作为UVM术语与职责边界参考，不要求重新学习UVM基础。',use:'确认Driver、Monitor、Scoreboard、RAL在证据链中的职责。',url:'https://accellera.org/downloads/standards/uvm'},
+  {title:'IEEE 1800.2 UVM Standard',source:'IEEE标准页面',required:false,scope:'仅在术语或机制有争议时查阅。',use:'正式标准索引，不作为主教材。',url:'https://standards.ieee.org/ieee/1800.2/7323/'}
+ ],
+ starter:{
+  title:'Starter Case：AMON双通道自适应监控IP',
+  background:'AMON通过APB配置两个监控通道，在16周期窗口内测量输入事件数；超过阈值后置位sticky status、产生interrupt，并通过串行接口发送结果。环境已有APB VIP、RAL和基础Monitor。',
+  facts:['Feature共8项：CSR配置、启动测量、16周期窗口、阈值告警、sticky status/interrupt、串行发送、soft reset、双通道。','18/18定向用例PASS。','Requirement closure为82%，未闭合项集中在soft reset期间在途发送和双通道同时告警。','Functional coverage为89%，一个Cross从未命中。','Nightly最近10次有1次超时，尚未稳定复现。','存在2个Known issue：一个文档歧义，一个环境Model与DUT使用同一公式。','当前Deadline要求本周给出交付建议。'],
+  questions:['画出AMON的风险驱动验证闭环。','建立Closure台账并区分数量、质量和剩余风险。','给出Go、Conditional Go或No-go建议。','列出必须升级给设计、系统或主管的事项。']
+ },
+ templates:[
+  {title:'风险驱动验证闭环图模板',content:'目标/Feature：\n业务或产品风险：\n设计失效模式：\nStimulus/场景：\nChecker/Assertion：\nCoverage：\nRegression证据：\n剩余风险：\nSign-off门槛：\n贡献边界/外部依赖：'},
+  {title:'Closure台账模板',content:'| ID | Requirement/Risk | Test状态 | Check证据 | Coverage | Bug/Known issue | Owner | 下一动作 | 截止条件 | 交付影响 |\n|---|---|---|---|---|---|---|---|---|---|'},
+  {title:'Go / No-go决策备忘录',content:'结论：Go / Conditional Go / No-go\n已确认事实：\n关键未知：\nTop 3剩余风险：\n风险可检测性与最晚解决点：\n必要条件/限制：\n升级对象：\n下一次复核时间：'},
+  {title:'导师Review记录',content:'Reviewer：\n日期：\n团队最看重的三项完成证据：\n我可以独立决定的范围：\n必须升级的范围：\n被挑战的假设：\n本周标准修订：\n下一次实践机会：'}
+ ],
+ answerGuide:{
+  checkpoints:['18/18 PASS只能证明已执行用例通过，不能替代Requirement closure、Coverage、回归稳定性和Model独立性。','Requirement closure 82%且两个高价值场景未闭合，不能直接宣称完整Sign-off。','Model与DUT共享公式削弱证据独立性，需要其他Reference或端到端结果补强。','一次Nightly超时必须先分类为DUT、环境、flaky或unknown，不能简单忽略。','较稳妥的建议通常是Conditional Go，并明确关闭条件、Owner和最晚复核点。'],
+  mistakes:['把用例通过率直接当验证完成度。','只列问题，不说明交付影响和下一动作。','所有未覆盖项都要求补测，没有区分风险价值。','使用“基本完成”“问题不大”等不可审计措辞。']
+ },
+ rubric:[
+  {score:1,label:'概念复述',criteria:'只能列Test、Coverage、Bug等名词，不能建立因果和交付关系。'},
+  {score:2,label:'局部完整',criteria:'能填写模板，但风险、证据和决策之间关联较弱。'},
+  {score:3,label:'基本Owner判断',criteria:'能区分事实、未知和风险，给出基本合理的Conditional Go条件。'},
+  {score:4,label:'证据驱动',criteria:'能审查Model独立性、回归稳定性和未闭合项价值，并明确责任边界。'},
+  {score:5,label:'可迁移Owner能力',criteria:'能在新条件下调整决策，主动提出反证、最晚解决点和替代方案。'}
+ ],
+ retest:{due:'2026-07-26前',variant:'将AMON改为三通道；所有Requirement已覆盖，但97% Coverage主要来自低价值Cross，并发现一个低概率双通道错序。重新做Sign-off判断。',pass:'不得沿用第一次结论；必须根据风险价值、可检测性和最晚解决点重新排序。'},
+ aiPrompt:'你是我的IP验证Owner口试官。请基于AMON Starter Case一次只问一题。先检查我能否区分Test Pass、Requirement closure、Coverage、Bug、Known issue和Model可信度，再追问Go/Conditional Go/No-go。不要提前给答案。最后按1—5分Rubric评分，并指出一周后变式复测应重点检查什么。'
+};
+</script>
+<script data-source="curriculum/v46-pack-w2.js">
+window.LEARNING_PACKS_V46=window.LEARNING_PACKS_V46||{};
+window.LEARNING_PACKS_V46.w2={
+ title:'Week 2 Learning Pack · Spec→VFL→工作量估算',
+ objective:'把测试点清单升级为可解释的范围、依赖、不确定性和资源判断。',
+ modes:{
+  high:{label:'高压周',hours:'2—3h',items:['完成Top 5 Spec歧义','完成8类工作包粗估','对Top 10测试点做风险分级']},
+  normal:{label:'正常周',hours:'4—6h',items:['完成Spec审查表与估算模型','完成资源不足Scope决策','输出一页估算风险说明']},
+  deep:{label:'深度周',hours:'8—10h',items:['对估算模型做敏感性分析','邀请主管挑战关键假设','一周后用不同成熟度项目复测']}
+ },
+ materials:[
+  {title:'OpenTitan Hardware IP Documentation',source:'OpenTitan官方IP文档入口',required:true,scope:'观察成熟IP文档如何组织寄存器、接口、状态、错误和验证信息；选择一个IP浏览即可。',use:'识别一份可验证Spec至少应包含哪些层次。',url:'https://opentitan.org/book/hw/ip/index.html'},
+  {title:'OpenTitan Design Verification Methodology',source:'OpenTitan官方文档',required:true,scope:'重点看Testplan、Coverage和验证环境与Feature之间的关系。',use:'把Spec问题连接到验证工作量。',url:'https://opentitan.org/book/hw/dv/index.html'},
+  {title:'lowRISC Style Guides',source:'lowRISC官方GitHub',required:false,scope:'只查看文档与SystemVerilog表达规范，不要求通读。',use:'理解清晰接口和约束表达如何降低实现与验证歧义。',url:'https://github.com/lowRISC/style-guides'}
+ ],
+ starter:{
+  title:'Starter Case：PMON-Lite验证规划与资源评估',
+  background:'PMON-Lite是双通道电源监控IP，支持APB配置、8—64周期采样窗口、阈值比较、sticky alert、soft reset和可选模拟行为模型。已有APB VIP与RAL，但没有独立Reference Model和Coverage。计划由1名验证工程师在6周内完成。',
+  facts:['Spec写“告警应尽快产生”，未定义最大延迟。','双通道同时越阈值时，告警优先级未定义。','soft reset是否清除sticky alert存在两处冲突描述。','采样窗口运行中是否允许重配置未说明。','模拟模型预计第4周才交付。','系统集成要求第5周提供一个ST smoke。','团队初始估算为2.5人月，但未拆分环境、Debug、Coverage和Review成本。','可复用内容：APB VIP、RAL、基础Clock/Reset agent；不可复用内容：Reference Model、Checker、Coverage、Cosim接口。'],
+  questions:['形成Spec歧义与影响清单。','建立工作包、复杂度、复用度、依赖和缓冲构成的估算模型。','判断6周/1人是否可行。','若资源不增加，提出必须做、可降级、可延期和需升级事项。']
+ },
+ templates:[
+  {title:'Spec审查表',content:'| ID | Spec原句/主题 | 歧义或冲突 | 验证影响 | 设计影响 | 需要谁确认 | 最晚确认时间 | 临时假设 |\n|---|---|---|---|---|---|---|---|'},
+  {title:'工作量估算模型',content:'| 工作包 | 基础工作量 | 复杂度系数 | 复用系数 | 依赖系数 | 不确定性缓冲 | Review/Debug成本 | 合计 | 关键假设 |\n|---|---:|---:|---:|---:|---:|---:|---:|---|\n工作包建议：环境接入、Testplan、Case、Model/Checker、Coverage、Regression、Debug、交付。'},
+  {title:'Scope四象限',content:'必须做：\n可降级：\n可延期：\n必须升级：\n\n每项说明：对应风险 / 可检测性 / 最晚验证点 / 替代方案 / 残留风险。'},
+  {title:'估算假设与敏感性',content:'最敏感的三个假设：\n1. \n2. \n3. \n\n若假设变差20%，总量如何变化：\n最容易被低估的工作包：\n可以通过复用或并行降低的工作包：'}
+ ],
+ answerGuide:{
+  checkpoints:['“测试点数量”不能直接代表工作量，环境、Model、Coverage、Debug和交付常是隐藏成本。','模拟模型第4周交付会把Cosim风险推迟到后半程，应单列依赖和缓冲。','第5周ST smoke与第4周模型交付形成关键路径，必须在估算中显式体现。','1人6周是否可行不能只看总人月，还要看并行性、Review等待和关键依赖。','Scope取舍应保护最高风险和最晚才能暴露的问题，而不是平均删除测试点。'],
+  mistakes:['用统一“每个case几天”估算全部工作。','把可复用环境等同于无需接入和验证。','只给总人月，不列假设和风险缓冲。','资源不足时按比例砍所有模块。']
+ },
+ rubric:[
+  {score:1,label:'清单级',criteria:'只能列测试点和总工期。'},
+  {score:2,label:'工作包级',criteria:'能拆工作包，但系数、依赖和缓冲缺少依据。'},
+  {score:3,label:'可解释估算',criteria:'估算能追溯到工作包、复用和不确定性，并给出基本Scope建议。'},
+  {score:4,label:'资源决策',criteria:'能识别关键路径、敏感假设和资源不足下的风险优先级。'},
+  {score:5,label:'动态估算',criteria:'能根据Spec成熟度、依赖变化和Review反馈实时更新估算与交付方案。'}
+ ],
+ retest:{due:'2026-08-02前',variant:'同一PMON-Lite项目改为Spec已成熟、模拟模型可复用，但增加三种PVT Corner和硅后IPTEST要求。重新估算并比较与第一次的差异。',pass:'必须说明哪些工作量下降、哪些上升，以及关键路径如何变化。'},
+ aiPrompt:'你是验证项目估算Reviewer。请基于PMON-Lite Starter Case逐步挑战我的Spec问题清单、工作包估算和Scope决策。一次只问一题，不给标准答案。重点追问假设、复用、依赖、关键路径和风险缓冲。最后按1—5分Rubric评分。'
+};
+</script>
+<script data-source="curriculum/v46-pack-w3.js">
+window.LEARNING_PACKS_V46=window.LEARNING_PACKS_V46||{};
+window.LEARNING_PACKS_V46.w3={
+ title:'Week 3 Learning Pack · UT / ST / FPV / Cosim / IPTEST方法融合',
+ objective:'按风险选择验证层级，并判断多种方法是否真正提供独立证据。',
+ modes:{
+  high:{label:'高压周',hours:'2—3h',items:['完成五方法对比表','为一个Feature分配主方法和辅助方法','完成6题方法边界口试']},
+  normal:{label:'正常周',hours:'4—6h',items:['完成方法矩阵和多层Feature方案','分析冲突结果','完成10题口试']},
+  deep:{label:'深度周',hours:'8—10h',items:['增加正反Trace和约束审查','让方法学同事Review','一周后完成新Feature变式']}
+ },
+ materials:[
+  {title:'OpenTitan Design Verification Methodology',source:'OpenTitan官方文档',required:true,scope:'重点看不同验证组件、测试、Coverage和系统级环境如何分工。',use:'比较动态仿真和系统验证的证据边界。',url:'https://opentitan.org/book/hw/dv/index.html'},
+  {title:'SymbiYosys Documentation',source:'YosysHQ形式化工具官方文档',required:true,scope:'只理解形式化任务、property、assume/assert/cover和反例概念，不要求安装商业工具。',use:'建立FPV能证明什么、依赖哪些约束的基础。',url:'https://symbiyosys.readthedocs.io/en/latest/'},
+  {title:'Universal Verification Methodology Standards',source:'Accellera官方入口',required:false,scope:'查UVM环境、sequence、monitor、scoreboard和RAL职责。',use:'明确UT/ST动态仿真中的控制与观察机制。',url:'https://accellera.org/downloads/standards/uvm'}
+ ],
+ starter:{
+  title:'Starter Case：FDD快速跌落检测Feature',
+  background:'FDD对模拟输入进行采样；当连续3个样本低于阈值时，应在2个数字周期内置位alarm，通过APB暴露sticky status，并请求系统降频。产品还要求量产时能够注入测试模式。',
+  facts:['UT nominal与边界用例均PASS。','FPV在soft reset与第3个低样本同周期时找到反例：alarm可能短暂保持。','Cosim在TT/SS/FF标称Corner均匹配，但行为模型与RTL使用相同阈值舍入公式。','ST中系统降频场景暂时Blocked，因为上游控制器版本未就绪。','IPTEST能够注入alarm，但不能覆盖真实模拟采样路径。','Coverage显示阈值上下1LSB已覆盖，连续样本与reset交叉未覆盖。'],
+  questions:['为功能、边界、状态空间、模型真实性、系统联动和量产可测性分配主验证方法。','说明每种方法新增了什么置信度。','判断哪些结果不是独立证据。','定义冲突结果的排查顺序和当前可交付结论。']
+ },
+ templates:[
+  {title:'五方法选择矩阵',content:'| 风险 | UT | ST | FPV | Cosim | IPTEST | 主方法 | 辅助方法 | 关键假设 | 输出证据 |\n|---|---|---|---|---|---|---|---|---|---|'},
+  {title:'单Feature多层验证方案',content:'Feature：\n产品/系统风险：\nUT目标与判据：\nFPV property与约束：\nCosim模型与Corner：\nST端到端行为：\nIPTEST可测性：\nCoverage映射：\n方法间不能互相替代的部分：'},
+  {title:'证据独立性检查',content:'证据A：\n证据B：\n是否共享同一模型/公式/Stimulus/Observer：\n共同失效模式：\n能够互相补强的部分：\n仍需第三类证据：'},
+  {title:'冲突结果处理流程',content:'冲突现象：\n各方法输入假设：\n各方法观察点：\n优先检查约束/模型/接口：\n最小区分实验：\n暂时结论：\n影响的交付门槛：'}
+ ],
+ answerGuide:{
+  checkpoints:['FPV反例直接暴露reset交叉状态问题，不能被UT nominal PASS覆盖。','Cosim与RTL共享舍入公式，意味着它对公式错误缺乏独立性。','IPTEST证明可测入口和数字链路，不证明真实模拟采样行为。','ST Blocked意味着系统降频闭环尚未形成证据，不能宣称系统级完成。','合理分工通常是FPV主责状态空间边界、Cosim主责模拟接口与Corner、ST主责系统因果、IPTEST主责量产可测性。'],
+  mistakes:['认为方法越多，置信度必然越高。','把FPV clean解释为系统功能完整。','把Cosim通过解释为数字逻辑和模型都正确。','忽略assumption、Reference Model和观察点是否独立。']
+ },
+ rubric:[
+  {score:1,label:'工具名称级',criteria:'知道五种方法名称，但无法按风险分工。'},
+  {score:2,label:'经验匹配级',criteria:'能凭经验选择方法，但不能解释假设和盲区。'},
+  {score:3,label:'风险分工级',criteria:'能为主要风险选择主方法、辅助方法和判据。'},
+  {score:4,label:'证据审查级',criteria:'能识别共享模型、约束不足和系统Blocked造成的证据弱点。'},
+  {score:5,label:'方法Owner级',criteria:'能处理方法冲突、设计第三类证据，并根据成本与最晚暴露点调整方案。'}
+ ],
+ retest:{due:'2026-08-09前',variant:'将Feature改为异步短Pulse捕获：动态仿真偶尔通过、FPV因约束过强clean、Cosim不相关、ST发现低频目的域丢事件。重新分配方法并解释第一次矩阵为何不能直接复用。',pass:'必须根据数据类型、时钟关系和约束重新选择方法，不得按固定模板套用。'},
+ aiPrompt:'你是数字IC验证方法学Reviewer。请基于FDD Starter Case逐题追问UT、ST、FPV、Cosim和IPTEST的主责、假设、盲区和证据独立性。一次只问一题。对我任何“都通过所以可信”的表达继续追问共同失效模式。最后按1—5分Rubric评分。'
+};
+</script>
+<script data-source="curriculum/v46-pack-w4.js">
+window.LEARNING_PACKS_V46=window.LEARNING_PACKS_V46||{};
+window.LEARNING_PACKS_V46.w4={
+ title:'Week 4 Learning Pack · 复杂Debug与环境可信度',
+ objective:'用假设树、最小实验和环境自证区分DUT、Spec、Model、环境和时序根因。',
+ modes:{
+  high:{label:'高压周',hours:'2—3h',items:['完成五类假设树','设计Top 2最小实验','完成20分钟陌生案例']},
+  normal:{label:'正常周',hours:'4—6h',items:['完成完整证据链与环境清单','完成混合根因案例','提出一个预防性检查']},
+  deep:{label:'深度周',hours:'8—10h',items:['执行全部正反实验推演','让Reviewer复核首次有效分叉点','一周后完成新的双根因变式']}
+ },
+ materials:[
+  {title:'Verilator Warnings Guide',source:'Verilator官方文档',required:true,scope:'浏览与宽度、未初始化、时序和结构有关的warning类别；重点学习warning如何成为排查入口。',use:'训练从工具信号建立候选，而不是直接把warning当根因。',url:'https://verilator.org/guide/latest/warnings.html'},
+  {title:'lowRISC SystemVerilog Style Guide',source:'lowRISC官方GitHub',required:true,scope:'重点查看Reset、时序逻辑、位宽与可读性相关规则。',use:'理解哪些编码和接口习惯能减少X传播、位宽和状态问题。',url:'https://github.com/lowRISC/style-guides'},
+  {title:'OpenTitan Design Verification Methodology',source:'OpenTitan官方文档',required:false,scope:'查环境、Scoreboard、Coverage和回归职责。',use:'设计环境自检与预防性机制。',url:'https://opentitan.org/book/hw/dv/index.html'}
+ ],
+ starter:{
+  title:'Starter Case：随机时钟切换后的超时与X传播',
+  background:'一个双时钟监控IP在nightly随机场景中偶发超时。测试会在运行中切换source clock，并可能在切换附近触发局部reset。最终software-visible status保持busy，串行输出出现X。',
+  facts:['强制固定source clock后100次未复现。','时钟MUX select在源时钟边沿前后1个周期内更新。','设计文档只写“支持动态切换”，未给无毛刺前置条件。','行为Model在reset释放后延迟2周期初始化。','Scoreboard在局部reset时不会清空pending transaction。','busy首次异常出现在串行输出X之前约20周期。','一次波形显示Clock gate enable保持开启，但MUX输出少了一个脉冲。','编译存在一个位宽截断warning，位置在状态回读路径。'],
+  questions:['分别建立DUT、Spec、Model、环境和时序五类假设。','识别首次异常与后续传播结果。','设计能够区分Top 3候选的最小实验。','提出环境自证、预防性Checker或Assertion。']
+ },
+ templates:[
+  {title:'Debug证据链',content:'首次可观察异常：\n最终失败：\n时间差：\nDUT候选：\nSpec候选：\nModel候选：\n环境候选：\n时序/仿真假设候选：\n已排除：\n未排除：\n当前最强证据：'},
+  {title:'最小实验矩阵',content:'| 实验 | 只改变什么 | 保持什么不变 | 候选A预期 | 候选B预期 | 观察点 | 停止条件 | 结果解释 |\n|---|---|---|---|---|---|---|---|'},
+  {title:'环境可信度清单',content:'输入是否可控：\n输出是否独立可见：\nReference Model是否独立：\nClock/Reset时间基准是否一致：\nScoreboard/Monitor reset行为：\nforce/release生命周期：\n随机seed与复现条件：\nX和warning处理策略：\n环境自检结果：'},
+  {title:'预防性机制',content:'问题类别：\n更早检查点：\nChecker/Assertion/环境自检：\n触发条件：\n避免误报的边界：\nRegression加入方式：\n是否需要Spec修订：'}
+ ],
+ answerGuide:{
+  checkpoints:['busy异常早于串行X约20周期，串行X更可能是传播结果而不是首次异常。','固定source clock不复现支持时钟切换相关候选，但不能单独证明DUT有bug。','Spec未定义无毛刺切换条件，可能是Spec缺口、测试非法或设计鲁棒性问题，必须先确认契约。','Scoreboard未清pending可制造环境假失败，但无法解释MUX输出缺脉冲，需要分别验证是否存在双根因。','Model延迟初始化可能解释部分X，但应通过绕开Model或使用独立观察点区分。','位宽warning位于状态回读路径，应检查但不能因为存在warning就认定它解释时钟缺脉冲。'],
+  mistakes:['从最终X开始反向猜测，忽略首次异常。','一次只保留一个根因候选，过早收敛。','同时修改多个条件，导致实验无法区分假设。','发现环境问题后就停止，不再检查DUT是否还有独立问题。']
+ },
+ rubric:[
+  {score:1,label:'现象追踪',criteria:'只能描述波形和最终错误。'},
+  {score:2,label:'多候选',criteria:'能列多个候选，但实验同时改变多个变量。'},
+  {score:3,label:'证据链',criteria:'能识别首次异常并设计基本最小实验。'},
+  {score:4,label:'环境自证',criteria:'能分别证明或推翻DUT、Spec、Model和环境候选，并处理双根因。'},
+  {score:5,label:'预防与迁移',criteria:'能形成更早检测机制，并在陌生时钟/Reset/X场景中稳定复用方法。'}
+ ],
+ retest:{due:'2026-08-16前',variant:'新案例中时钟稳定，但soft reset后第二次启动失败；DUT状态已清零，Monitor丢失reset事件，Reference Model保留上次累计值，同时存在一个真实W1C竞争问题。识别双根因并设计最小实验。',pass:'必须同时保留环境和DUT候选，并证明两个问题如何独立影响结果。'},
+ aiPrompt:'你是高级验证Debug Reviewer。请基于随机时钟切换Starter Case，让我先陈述首次异常、五类候选和Top 3实验。一次只问一题，不允许我直接跳到根因。重点追问实验是否只改变一个变量、证据是否能区分候选、是否存在双根因。最后按1—5分Rubric评分。'
+};
+</script>
+<script data-source="curriculum/v46-learning-pack-ui.js">
+window.addEventListener('load',()=>{try{installLearningPackV46()}catch(e){console.error('Learning Pack V4.6 failed',e)}},{once:true});
+function installLearningPackV46(){
+ migrateAbilityModelV46();
+ S.learningPackV46=S.learningPackV46||{modeByWeek:{},checklist:{},selfScore:{},calibration:{},retest:{}};
+ injectLearningPackV46();injectLearningPackStylesV46();
+ const oldAnalysis=renderPersonalAnalysisV45;renderPersonalAnalysisV45=function(){oldAnalysis();renderAbilityCandidatesV46()};
+ const oldAll=renderAll;renderAll=function(){oldAll();renderAbilityCandidatesV46();renderLearningPackV46()};
+ const content=document.getElementById('weekContent');if(content)new MutationObserver(()=>renderLearningPackV46()).observe(content,{childList:true,subtree:true});
+ document.getElementById('weekTabs')?.addEventListener('click',()=>setTimeout(renderLearningPackV46,80));
+ document.title='Jett · Career OS V4.6';const side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V4.6';renderAll()
+}
+function migrateAbilityModelV46(){
+ const base={
+  soc:{level:2,status:'初步理解',signal:'能够理解单个IP行为，跨模块数据、控制、异常与恢复路径仍需系统训练。',next:'完成DMA、Interrupt、Reset与Power综合案例，并在陌生场景中独立画出系统路径。',opportunity:'主干课程持续训练；真实项目机会需要主动识别'},
+  verification:{level:3,status:'能够在提示下完成',signal:'能够从功能走向风险与检查，但Coverage、Regression和Sign-off尚未形成完整闭环。',next:'独立完成一个抽象子系统的Testplan、Checker、Assertion、Coverage与Sign-off方案。',opportunity:'工作中可迁移，课外用综合案例补齐'},
+  debug:{level:3,status:'能够在提示下完成',signal:'可以追踪现象并排查，候选假设、最小实验和证据强度仍需稳定化。',next:'连续两次在陌生或真实问题中形成可复现的证据链。',opportunity:'工作日志提供诊断，AI案例用于迁移测试'},
+  productivity:{level:2,status:'初步理解',signal:'具备SystemVerilog、UVM和脚本基础，但工具使用尚未形成稳定工作流。',next:'完成UVM环境机制梳理和一个可运行的Regression结果分析脚本。',opportunity:'个人电脑可练Python与开源工具；公司环境只做脱敏观察'},
+  ownership:{level:3,status:'能够在提示下完成',signal:'能够完成明确任务，正在建立风险判断、状态同步与Review习惯。',next:'完成一个有依据的Sign-off判断，并用5分钟向主管说明风险与建议。',opportunity:'每周15分钟反馈与真实工作均可练习'},
+  lowpower:{level:1,status:'尚未展开',signal:'作为第二技术标签保留，目前缺少Power state、Isolation、Retention和恢复的系统框架。',next:'完成Power domain图、状态表和低功耗验证场景矩阵。',opportunity:'先用抽象系统学习，等待合适项目迁移'},
+  industry:{level:1,status:'尚未展开',signal:'已有技术学习基础，但尚未形成不同芯片产品、验证层级与商业约束之间的判断框架。',next:'完成四次有输出的行业分析，而不是零散阅读新闻。',opportunity:'每个Cycle一次结构化输出'}
+ };
+ const candidates=arr(window.CURRICULUM_ABILITY_CANDIDATES);let changed=false;
+ S.abilities=arr(S.abilities).map(a=>{const c=candidates.find(x=>x.id===a.id),b=base[a.id];if(!c||!b)return a;const looksAuto=Number(a.level)===Number(c.candidateLevel)&&a.status===c.candidateStatus&&!a.confirmedByReview&&!a.confirmedAt;if(!looksAuto)return a;changed=true;return{...a,...b}});
+ S.abilityCandidates=candidates.map(x=>({...x,date:'2026-07-14',status:'candidate'}));S.abilityModelVersion='confirmed-plus-candidate-v46';if(changed||!S.abilityModelVersion)save();else save()
+}
+function injectLearningPackV46(){
+ if(!document.getElementById('learning-pack-v46')){const content=document.getElementById('weekContent');content?.insertAdjacentHTML('afterend','<section class="learning-pack-v46" id="learning-pack-v46"><div id="learningPackBodyV46"></div></section>')}
+}
+function renderAbilityCandidatesV46(){
+ const host=document.getElementById('personalAnalysisBodyV45');if(!host)return;host.querySelector('#ability-candidates-v46')?.remove();
+ const confirmed=Object.fromEntries(arr(S.abilities).map(x=>[x.id,x]));const candidates=arr(S.abilityCandidates);
+ host.insertAdjacentHTML('beforeend',`<article class="card ability-candidates-v46" id="ability-candidates-v46"><div class="section-title compact-title-v46"><div><div class="eyebrow">CONFIRMED VS CANDIDATE</div><h3>能力等级不再自动上调</h3><p>左侧是正式等级；右侧是基于近期工作的候选等级。只有满足确认门槛并经过Review，才更新正式等级。</p></div></div><div class="ability-candidate-grid-v46">${candidates.map(c=>{const a=confirmed[c.id]||{};return `<details><summary><span><b>${esc(c.name)}</b><small>正式 L${Number(a.level||0)} · ${esc(a.status||'未设置')}</small></span><strong>候选 L${Number(c.candidateLevel)} </strong></summary><p>${esc(c.signal)}</p><div class="confirm-gate-v46"><small>确认门槛</small><b>${esc(c.confirm)}</b></div></details>`}).join('')}</div></article>`)
+}
+function renderLearningPackV46(){
+ const box=document.getElementById('learningPackBodyV46');if(!box)return;const week=currentWeek(),pack=window.LEARNING_PACKS_V46?.[week.id];
+ if(!pack){box.innerHTML=`<div class="section-title"><div class="eyebrow">LEARNING PACK</div><h2>${esc(week.title)} · 材料待校准</h2><p>后12周的任务大纲已经保留。先执行前4周并收集实际时间、完成率、口试分数、疲劳与工作迁移，再由ChatGPT生成下一批材料，避免一次性制作64份不适合你的内容。</p></div>`;return}
+ const state=S.learningPackV46,mode=state.modeByWeek[week.id]||'normal',cal=state.calibration[week.id]||{},checks=state.checklist[week.id]||{},score=state.selfScore[week.id]||'';
+ box.innerHTML=`<div class="section-title split-title"><div><div class="eyebrow">V4.6 · EXECUTABLE LEARNING PACK</div><h2>${esc(pack.title)}</h2><p>${esc(pack.objective)}</p></div><button class="secondary small-btn" id="copyPackDataV46">复制四周校准数据</button></div>
+ <section class="load-modes-v46">${Object.entries(pack.modes).map(([id,m])=>`<button data-pack-mode="${id}" class="${mode===id?'active':''}"><b>${esc(m.label)}</b><span>${esc(m.hours)}</span><small>${m.items.map(x=>esc(x)).join(' · ')}</small></button>`).join('')}</section>
+ <section class="pack-progress-v46"><label><input type="checkbox" data-pack-check="materials" ${checks.materials?'checked':''}> 材料已阅读</label><label><input type="checkbox" data-pack-check="starter" ${checks.starter?'checked':''}> Starter Case已分析</label><label><input type="checkbox" data-pack-check="output" ${checks.output?'checked':''}> 核心输出已完成</label><label><input type="checkbox" data-pack-check="review" ${checks.review?'checked':''}> 已完成口试/Review</label><label><input type="checkbox" data-pack-check="retest" ${checks.retest?'checked':''}> 变式复测已完成</label></section>
+ <div class="pack-grid-v46"><article class="card"><div class="eyebrow">MATERIALS</div><h3>学习材料</h3><div class="material-list-v46">${pack.materials.map(m=>`<a href="${m.url}" target="_blank" rel="noopener"><header><b>${esc(m.title)}</b><span class="tag ${m.required?'learn':''}">${m.required?'必读':'参考'}</span></header><small>${esc(m.source)}</small><p>${esc(m.scope)}</p><footer>${esc(m.use)}</footer></a>`).join('')}</div></article>
+ <article class="card starter-v46"><div class="eyebrow">STARTER CASE</div><h3>${esc(pack.starter.title)}</h3><p>${esc(pack.starter.background)}</p><b>已知事实</b><ul>${pack.starter.facts.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><b>你要完成</b><ol>${pack.starter.questions.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></article></div>
+ <article class="card templates-v46"><div class="eyebrow">TEMPLATES</div><h3>可直接复制的输出模板</h3><div class="template-grid-v46">${pack.templates.map((t,i)=>`<details><summary>${esc(t.title)}</summary><pre>${esc(t.content)}</pre><button class="secondary small-btn" data-copy-template="${i}">复制模板</button></details>`).join('')}</div></article>
+ <div class="pack-grid-v46"><details class="card answer-guide-v46"><summary><span><div class="eyebrow">ANSWER GUIDE</div><h3>完成后再看：答案检查点</h3></span></summary><b>必须覆盖</b><ul>${pack.answerGuide.checkpoints.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><b>常见误区</b><ul>${pack.answerGuide.mistakes.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>
+ <article class="card rubric-v46"><div class="eyebrow">RUBRIC</div><h3>统一1—5分标准</h3>${pack.rubric.map(r=>`<div><b>${r.score} · ${esc(r.label)}</b><p>${esc(r.criteria)}</p></div>`).join('')}<label>本周自评<select id="packSelfScoreV46"><option value="">未评分</option>${[1,2,3,4,5].map(x=>`<option value="${x}" ${String(score)===String(x)?'selected':''}>${x}分</option>`).join('')}</select></label></article></div>
+ <article class="card retest-v46"><div class="eyebrow">DELAYED RETEST</div><h3>一周后变式复测 · ${esc(pack.retest.due)}</h3><p>${esc(pack.retest.variant)}</p><b>通过标准</b><p>${esc(pack.retest.pass)}</p><button class="secondary small-btn" id="copyRetestV46">复制复测题</button></article>
+ <article class="card ai-prompt-v46"><div class="eyebrow">CHATGPT PROMPT</div><h3>本周口试Prompt</h3><p>${esc(pack.aiPrompt)}</p><button class="primary small-btn" id="copyAiPromptV46">复制给ChatGPT</button></article>
+ <article class="card calibration-v46"><div class="eyebrow">4-WEEK CALIBRATION</div><h3>记录真实负荷，不把50/30/20当定论</h3><div class="calibration-form-v46"><label>实际投入小时<input id="actualHoursV46" type="number" step="0.5" value="${num(cal.actualHours)}"></label><label>本周精力<select id="energyV46"><option value="">未记录</option>${['高压','偏低','正常','充足'].map(x=>`<option ${cal.energy===x?'selected':''}>${x}</option>`).join('')}</select></label><label>口试/Review分数<input id="oralScoreV46" type="number" min="1" max="5" step="0.5" value="${cal.oralScore||''}"></label><label>工作迁移次数<input id="transferV46" type="number" min="0" value="${num(cal.transferCount)}"></label></div><textarea id="calibrationNotesV46" placeholder="哪些任务过难、重复、材料不足或真正有用">${esc(cal.notes||'')}</textarea><button class="secondary small-btn" id="saveCalibrationV46">保存校准数据</button></article>`;
+ bindLearningPackV46(week.id,pack)
+}
+function bindLearningPackV46(weekId,pack){
+ document.querySelectorAll('[data-pack-mode]').forEach(b=>b.onclick=()=>{S.learningPackV46.modeByWeek[weekId]=b.dataset.packMode;save();renderLearningPackV46()});
+ document.querySelectorAll('[data-pack-check]').forEach(i=>i.onchange=()=>{S.learningPackV46.checklist[weekId]=S.learningPackV46.checklist[weekId]||{};S.learningPackV46.checklist[weekId][i.dataset.packCheck]=i.checked;save()});
+ document.querySelectorAll('[data-copy-template]').forEach(b=>b.onclick=()=>copyPackTextV46(pack.templates[Number(b.dataset.copyTemplate)].content,'模板已复制'));
+ document.getElementById('copyAiPromptV46')?.addEventListener('click',()=>copyPackTextV46(pack.aiPrompt,'口试Prompt已复制'));
+ document.getElementById('copyRetestV46')?.addEventListener('click',()=>copyPackTextV46(`复测截止：${pack.retest.due}\n\n变式：${pack.retest.variant}\n\n通过标准：${pack.retest.pass}`,'复测题已复制'));
+ document.getElementById('packSelfScoreV46')?.addEventListener('change',e=>{S.learningPackV46.selfScore[weekId]=e.target.value;save()});
+ document.getElementById('saveCalibrationV46')?.addEventListener('click',()=>{S.learningPackV46.calibration[weekId]={mode:S.learningPackV46.modeByWeek[weekId]||'normal',actualHours:num(document.getElementById('actualHoursV46').value),energy:document.getElementById('energyV46').value,oralScore:num(document.getElementById('oralScoreV46').value),transferCount:num(document.getElementById('transferV46').value),notes:document.getElementById('calibrationNotesV46').value.trim(),updatedAt:localISO()};save();toast('本周校准数据已保存')});
+ document.getElementById('copyPackDataV46')?.addEventListener('click',()=>copyPackTextV46(JSON.stringify({schemaVersion:'career-os-learning-calibration-v46',curriculum:S.curriculumVersion,modeByWeek:S.learningPackV46.modeByWeek,checklist:S.learningPackV46.checklist,selfScore:S.learningPackV46.selfScore,calibration:S.learningPackV46.calibration},null,2),'四周校准数据已复制'))
+}
+function copyPackTextV46(text,message){navigator.clipboard?.writeText(text).then(()=>toast(message)).catch(()=>{const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();toast(message)})}
+function injectLearningPackStylesV46(){if(document.getElementById('v46-learning-style'))return;const s=document.createElement('style');s.id='v46-learning-style';s.textContent=`.learning-pack-v46{margin-top:22px}.load-modes-v46{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:10px}.load-modes-v46 button{text-align:left;padding:14px;border:1px solid var(--line);border-radius:10px;background:#081721;color:var(--text);cursor:pointer}.load-modes-v46 button.active{border-color:var(--cyan);background:rgba(53,214,232,.08)}.load-modes-v46 b,.load-modes-v46 span,.load-modes-v46 small{display:block}.load-modes-v46 span{color:var(--cyan);margin:5px 0}.load-modes-v46 small{color:var(--muted);line-height:1.55}.pack-progress-v46{display:flex;gap:8px;flex-wrap:wrap;padding:12px;border:1px solid var(--line2);border-radius:10px;margin-bottom:10px}.pack-progress-v46 label{font-size:10px;color:var(--muted)}.pack-grid-v46{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.material-list-v46{display:grid;gap:8px}.material-list-v46 a{display:block;padding:12px;border:1px solid var(--line2);border-radius:9px;text-decoration:none;color:var(--text);background:#07141e}.material-list-v46 header{display:flex;justify-content:space-between;gap:8px}.material-list-v46 small,.material-list-v46 p,.material-list-v46 footer,.starter-v46 li,.answer-guide-v46 li,.retest-v46 p,.ai-prompt-v46 p{color:var(--muted);line-height:1.65}.material-list-v46 footer{font-size:10px;border-top:1px solid var(--line2);padding-top:7px}.template-grid-v46{display:grid;grid-template-columns:1fr 1fr;gap:8px}.template-grid-v46 details{border:1px solid var(--line2);border-radius:9px;padding:12px}.template-grid-v46 summary{cursor:pointer;font-weight:700}.template-grid-v46 pre{white-space:pre-wrap;color:#a9bac2;font-size:10px;line-height:1.55;background:#06111a;padding:10px;border-radius:7px}.answer-guide-v46 summary{cursor:pointer}.answer-guide-v46 summary h3{display:inline}.rubric-v46>div{border-top:1px solid var(--line2);padding:8px 0}.rubric-v46 p{margin:3px 0;color:var(--muted);font-size:10px;line-height:1.55}.rubric-v46 select,.calibration-form-v46 input,.calibration-form-v46 select,.calibration-v46 textarea{background:#06111a;border:1px solid #294858;color:white;border-radius:8px;padding:9px}.retest-v46,.ai-prompt-v46,.calibration-v46{margin-bottom:10px}.calibration-form-v46{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.calibration-form-v46 label{display:grid;gap:5px;color:var(--muted);font-size:10px}.calibration-v46 textarea{width:100%;min-height:80px;margin:10px 0}.ability-candidate-grid-v46{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ability-candidate-grid-v46 details{border:1px solid var(--line2);border-radius:9px;padding:11px}.ability-candidate-grid-v46 summary{display:flex;justify-content:space-between;gap:10px;cursor:pointer}.ability-candidate-grid-v46 summary span{display:grid}.ability-candidate-grid-v46 small,.ability-candidate-grid-v46 p{color:var(--muted);line-height:1.55}.ability-candidate-grid-v46 strong{color:var(--amber)}.confirm-gate-v46{display:grid;border-top:1px solid var(--line2);padding-top:8px}.compact-title-v46{margin-top:0}@media(max-width:900px){.pack-grid-v46,.template-grid-v46,.ability-candidate-grid-v46{grid-template-columns:1fr}.calibration-form-v46{grid-template-columns:1fr 1fr}}@media(max-width:620px){.load-modes-v46,.calibration-form-v46{grid-template-columns:1fr}}`;document.head.appendChild(s)}
+
+</script>
 </body>
 </html>
