@@ -1,0 +1,108 @@
+name: Career OS Learning Pack V4.6 Smoke
+
+on:
+  pull_request:
+    paths:
+      - 'career-roadmap/**'
+      - '.github/workflows/career-os-learning-v46-smoke.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  learning-pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+      - run: |
+          python3 -m http.server 8000 --directory . >/tmp/career-http.log 2>&1 &
+          sleep 2
+      - name: Validate V4.6 learning packs
+        run: |
+          cat > learning-v46-smoke.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const errors=[];const checks={};let browser;
+          try{
+            browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:1440,height:1100}});
+            page.setDefaultTimeout(8000);
+            page.on('pageerror',e=>errors.push(`pageerror: ${e.message}`));
+            page.on('console',m=>{if(m.type()==='error')errors.push(`console: ${m.text()}`)});
+            const response=await page.goto('http://127.0.0.1:8000/career-roadmap/index.html',{waitUntil:'domcontentloaded'});
+            checks.httpStatus=response?.status()||0;await page.waitForTimeout(3000);
+            Object.assign(checks,await page.evaluate(()=>({
+              title:document.title.includes('Career OS V4.6'),
+              weeks:window.CURRICULUM_WEEKS.length,
+              tasks:window.CURRICULUM_WEEKS.flatMap(w=>w.tasks||[]).length,
+              packs:Object.keys(window.LEARNING_PACKS_V46||{}),
+              abilityModel:S.abilityModelVersion,
+              confirmed:Object.fromEntries(S.abilities.map(x=>[x.id,{level:x.level,status:x.status}])),
+              candidates:Object.fromEntries(S.abilityCandidates.map(x=>[x.id,{level:x.candidateLevel,status:x.candidateStatus,confirm:x.confirm}])),
+              confidenceUntouched:S.careerModel.filter(x=>['diag-sim-timing-debug','diag-ate-interface-knowledge','diag-lowpower-intent-judgment'].includes(x.diagnosisId)).every(x=>Number(x.diagnosisConfidence)===0),
+              daily:S.patchHistory.some(x=>x.patchId==='2026-07-13-a7f3'),
+              portfolio:S.resume?.projects?.length||0,
+              finance:Boolean(S.resources?.snapshot)
+            })));
+            await page.click('[data-view="growth"]');await page.waitForTimeout(250);
+            checks.candidateCards=await page.locator('#ability-candidates-v46 details').count();
+            checks.packSection=await page.locator('#learning-pack-v46').count();
+            checks.loadModes=await page.locator('[data-pack-mode]').count();
+            checks.materials=await page.locator('.material-list-v46 a').count();
+            checks.templates=await page.locator('[data-copy-template]').count();
+            checks.rubrics=await page.locator('.rubric-v46>div').count();
+            checks.checklist=await page.locator('[data-pack-check]').count();
+            checks.w1Text=(await page.locator('#learningPackBodyV46').innerText()).includes('AMON双通道自适应监控IP');
+            await page.click('[data-pack-mode="high"]');
+            await page.locator('[data-pack-check="materials"]').check();
+            await page.locator('#packSelfScoreV46').selectOption('3');
+            await page.locator('#actualHoursV46').fill('2.5');
+            await page.locator('#energyV46').selectOption('高压');
+            await page.locator('#oralScoreV46').fill('3.5');
+            await page.locator('#transferV46').fill('1');
+            await page.locator('#calibrationNotesV46').fill('材料可执行，时间合适');
+            await page.click('#saveCalibrationV46');await page.waitForTimeout(120);
+            Object.assign(checks,await page.evaluate(()=>({
+              modeSaved:S.learningPackV46.modeByWeek.w1,
+              materialChecked:S.learningPackV46.checklist.w1?.materials,
+              selfScore:S.learningPackV46.selfScore.w1,
+              actualHours:S.learningPackV46.calibration.w1?.actualHours,
+              oralScore:S.learningPackV46.calibration.w1?.oralScore,
+              transfer:S.learningPackV46.calibration.w1?.transferCount
+            })));
+            await page.locator('#weekTabs button').nth(1).click();await page.waitForTimeout(180);
+            checks.w2Text=(await page.locator('#learningPackBodyV46').innerText()).includes('PMON-Lite验证规划与资源评估');
+            await page.locator('#weekTabs button').nth(2).click();await page.waitForTimeout(180);
+            checks.w3Text=(await page.locator('#learningPackBodyV46').innerText()).includes('FDD快速跌落检测Feature');
+            await page.locator('#weekTabs button').nth(3).click();await page.waitForTimeout(180);
+            checks.w4Text=(await page.locator('#learningPackBodyV46').innerText()).includes('随机时钟切换后的超时与X传播');
+            await page.locator('#weekTabs button').nth(4).click();await page.waitForTimeout(180);
+            checks.laterCalibration=(await page.locator('#learningPackBodyV46').innerText()).includes('材料待校准');
+            checks.migration=await page.evaluate(()=>{
+              const a=S.abilities.find(x=>x.id==='verification');a.level=4;a.status='接近独立IP Owner';delete a.confirmedAt;delete a.confirmedByReview;migrateAbilityModelV46();const r=S.abilities.find(x=>x.id==='verification');return r.level===3&&r.status==='能够在提示下完成';
+            });
+            await page.click('[data-view="resume"]');checks.portfolioView=await page.locator('.portfolio-hero').count();
+            await page.click('[data-view="career"]');checks.financeView=await page.locator('.finance-hero-v44').count();
+          }catch(e){errors.push(e?.stack||String(e))}finally{await browser?.close()}
+          const c=checks.confirmed||{},a=checks.candidates||{};
+          const passed=errors.length===0&&checks.httpStatus===200&&checks.title&&checks.weeks===16&&checks.tasks===64&&checks.packs.join(',')==='w1,w2,w3,w4'&&checks.abilityModel==='confirmed-plus-candidate-v46'&&c.soc?.level===2&&c.verification?.level===3&&c.debug?.level===3&&c.productivity?.level===2&&c.lowpower?.level===1&&a.soc?.level===3&&a.verification?.level===4&&a.debug?.level===4&&a.lowpower?.level===2&&Boolean(a.verification?.confirm)&&checks.confidenceUntouched&&checks.daily&&checks.portfolio>=7&&checks.finance&&checks.candidateCards===7&&checks.packSection===1&&checks.loadModes===3&&checks.materials===3&&checks.templates===4&&checks.rubrics===5&&checks.checklist===5&&checks.w1Text&&checks.modeSaved==='high'&&checks.materialChecked===true&&checks.selfScore==='3'&&checks.actualHours===2.5&&checks.oralScore===3.5&&checks.transfer===1&&checks.w2Text&&checks.w3Text&&checks.w4Text&&checks.laterCalibration&&checks.migration&&checks.portfolioView===1&&checks.financeView===1;
+          const result={passed,checks,errors};fs.writeFileSync('/tmp/learning-v46-result.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
+          EOF
+          node learning-v46-smoke.mjs
+      - name: Publish diagnostic
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### Career OS V4.6 learning pack diagnostic'; echo '```json'; cat /tmp/learning-v46-result.json; echo '```'; } >/tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
+      - name: Enforce test
+        run: node -e "const r=require('/tmp/learning-v46-result.json'); if(!r.passed)process.exit(1)"
