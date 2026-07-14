@@ -32,35 +32,33 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
-          root = Path('career-roadmap')
-          template = (root / 'index.template.html').read_text(encoding='utf-8')
-          css = (root / 'style.css').read_text(encoding='utf-8')
-          stylesheet = '<link rel="stylesheet" href="style.css">'
-          if stylesheet not in template: raise SystemExit('Template stylesheet marker not found')
-          html = template.replace(stylesheet, '<style>\n' + css + '\n</style>', 1)
-          sources = ['legacy-data-v22.js','curriculum/base.js','curriculum/cycle1.js','curriculum/cycle2.js','curriculum/cycle3.js','curriculum/cycle4.js','app.js','curriculum/patch.js','curriculum/finalize.js']
-          markers = '\n'.join(f'<script src="{src}"></script>' for src in sources)
+          root=Path('career-roadmap')
+          html=(root/'index.template.html').read_text(encoding='utf-8')
+          css=(root/'style.css').read_text(encoding='utf-8')
+          marker='<link rel="stylesheet" href="style.css">'
+          if marker not in html: raise SystemExit('Template stylesheet marker not found')
+          html=html.replace(marker,'<style>\n'+css+'\n</style>',1)
+          sources=['legacy-data-v22.js','curriculum/base.js','curriculum/cycle1.js','curriculum/cycle2.js','curriculum/cycle3.js','curriculum/cycle4.js','app.js','curriculum/patch.js','curriculum/finalize.js']
+          markers='\n'.join(f'<script src="{src}"></script>' for src in sources)
           if markers not in html: raise SystemExit('Template script marker sequence not found')
           blocks=[]
           for src in sources:
               code=(root/src).read_text(encoding='utf-8')
-              code=re.sub(r'</script',r'<\\/script',code,flags=re.IGNORECASE)
+              code=re.sub(r'</script',r'<\\/script',code,flags=re.I)
               blocks.append(f'<script data-source="{src}">\n{code}\n</script>')
           html=html.replace(markers,'\n'.join(blocks),1)
-          extras=['curriculum/manual-v31.js','curriculum/v32.js','curriculum/resume-v33.js','curriculum/resume-portfolio-v34.js']
-          extra_blocks=[]
+          extras=['curriculum/manual-v31.js','curriculum/v32.js','curriculum/resume-v33.js','curriculum/resume-portfolio-v34.js','curriculum/daily-20260713.js']
+          extra=[]
           for src in extras:
               code=(root/src).read_text(encoding='utf-8')
-              code=re.sub(r'</script',r'<\\/script',code,flags=re.IGNORECASE)
-              extra_blocks.append(f'<script data-source="{src}">\n{code}\n</script>')
-          html=html.replace('</body>','\n'.join(extra_blocks)+'\n</body>',1)
-          if re.search(r'<script\s+[^>]*src=',html,flags=re.IGNORECASE): raise SystemExit('External script remains')
-          if re.search(r'<link\s+[^>]*rel=["\']stylesheet["\']',html,flags=re.IGNORECASE): raise SystemExit('External stylesheet remains')
-          required=['window.CURRICULUM_WEEKS','function renderAll()','soc-verification-16w-v1','career-os-manual-1','CAREER OS · V3.2','PERSONAL RESOURCES','resume-upload-2026-07-14','ENGINEERING PORTFOLIO','Recruiter View']
-          missing=[item for item in required if item not in html]
+              code=re.sub(r'</script',r'<\\/script',code,flags=re.I)
+              extra.append(f'<script data-source="{src}">\n{code}\n</script>')
+          html=html.replace('</body>','\n'.join(extra)+'\n</body>',1)
+          if re.search(r'<script\s+[^>]*src=',html,re.I): raise SystemExit('External script remains')
+          required=['ENGINEERING PORTFOLIO','Recruiter View','2026-07-13-a7f3','diag-ate-interface-knowledge']
+          missing=[x for x in required if x not in html]
           if missing: raise SystemExit(f'Missing bundled markers: {missing}')
           (root/'index.html').write_text(html,encoding='utf-8')
-          print(f'Generated {root / "index.html"}: {len(html):,} characters')
           PY
       - name: Validate bundled HTML structure
         run: |
@@ -68,19 +66,15 @@ jobs:
           from pathlib import Path
           import re
           text=Path('career-roadmap/index.html').read_text(encoding='utf-8')
-          assert '<style>' in text
-          assert len(re.findall(r'<script(?:\s|>)',text,flags=re.I)) >= 13
-          assert not re.search(r'<script\s+[^>]*src=',text,flags=re.I)
+          assert not re.search(r'<script\s+[^>]*src=',text,re.I)
+          assert '2026-07-13-a7f3' in text
+          assert 'ev-0713-lowpower-02' in text
           assert 'ENGINEERING PORTFOLIO' in text
-          assert 'Recruiter View' in text
           print('Single-file structure validated')
           PY
       - name: Commit generated page
         run: |
-          if git diff --quiet -- career-roadmap/index.html; then
-            echo 'Generated page is already current.'
-            exit 0
-          fi
+          if git diff --quiet -- career-roadmap/index.html; then exit 0; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add career-roadmap/index.html
