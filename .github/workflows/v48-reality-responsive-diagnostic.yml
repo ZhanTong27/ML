@@ -1,0 +1,35 @@
+name: V4.8 Reality Responsive Diagnostic
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v48-reality-responsive-diagnostic.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - run: |
+          cat > check.mjs <<'EOF'
+          import {chromium} from 'playwright';
+          const b=await chromium.launch({headless:true});const e=[];const c={};
+          async function inspect(width,height){const p=await b.newPage({viewport:{width,height}});p.on('pageerror',x=>e.push(`${width}: ${x.message}`));await p.goto('http://127.0.0.1:8000/career-roadmap/index.html');await p.waitForTimeout(2600);const data={title:(await p.title()).includes('V4.8'),bodyWidth:await p.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth})),candidate:await p.evaluate(()=>Object.fromEntries(S.abilityCandidates.filter(x=>['soc','verification','debug','productivity','ownership','industry'].includes(x.id)).map(x=>[x.id,x.candidateLevel])))};await p.click('[data-view="career"]');await p.waitForTimeout(100);data.decision=await p.locator('#decisionRows').innerText();data.headers=await p.locator('#career-decisions thead').innerText();data.states=await p.locator('.gate-state').allTextContents();data.gateOverflow=await p.evaluate(()=>[...document.querySelectorAll('.gate-row')].some(x=>x.scrollWidth>x.clientWidth+1));await p.click('[data-view="resume"]');await p.waitForTimeout(100);data.roles=await p.locator('.portfolio-project header .tag.work').allTextContents();data.roleShape=await p.locator('.portfolio-project header .tag.work').first().evaluate(x=>{const s=getComputedStyle(x);return{w:x.getBoundingClientRect().width,h:x.getBoundingClientRect().height,r:s.borderRadius,pos:s.position}});data.projectCols=await p.locator('#projectGrid').evaluate(x=>getComputedStyle(x).gridTemplateColumns);data.projectOverflow=await p.evaluate(()=>[...document.querySelectorAll('.portfolio-project')].some(x=>x.scrollWidth>x.clientWidth+1));data.numbers=await p.locator('.portfolio-project .project-number').first().evaluate(x=>{const s=getComputedStyle(x);return{display:s.display,border:s.borderStyle,r:s.borderRadius}});data.crg=await p.locator('.portfolio-project').filter({hasText:'时钟复位模块'}).first().innerText();await p.close();return data}
+          c.desktop=await inspect(1440,1000);c.narrow=await inspect(1024,900);c.mobile=await inspect(390,844);await b.close();
+          const d=c.desktop,n=c.narrow,m=c.mobile;const bad=['连续两年责任范围没有实质扩大','只承担执行，没有决策和协调机会','责任持续扩大但回报长期不匹配'];
+          const ok=!e.length&&d.title&&d.headers.includes('当前积极信号')&&d.headers.includes('仍需验证')&&bad.every(x=>!d.decision.includes(x))&&d.decision.includes('入职早期')&&d.states.join(',')==='进行中,开始出现,待确认,进行中,开始出现'&&!d.gateOverflow&&d.roles.slice(0,4).join(',')==='模块验证工程师,模块验证与环境适配,模块验证与方法接入,验证规划与估算参与'&&d.roles.every(x=>!x.includes('Owner')&&!x.includes('负责人'))&&d.roleShape.w<180&&d.roleShape.h<45&&d.numbers.border==='none'&&d.crg.includes('2026.07—至今')&&d.candidate.soc===2&&d.candidate.verification===3&&d.candidate.debug===3&&d.candidate.productivity===2&&d.candidate.ownership===3&&d.candidate.industry===1&&!d.projectOverflow&&!n.projectOverflow&&!m.projectOverflow&&!n.gateOverflow&&!m.gateOverflow&&n.projectCols.split(' ').length===1&&m.projectCols.split(' ').length===1&&m.numbers.display==='none'&&[d,n,m].every(x=>x.bodyWidth.scroll<=x.bodyWidth.client+1);
+          console.log(JSON.stringify({ok,c,e},null,2));if(!ok)process.exit(1);
+          EOF
+          node check.mjs
