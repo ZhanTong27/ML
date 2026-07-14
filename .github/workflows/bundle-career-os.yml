@@ -47,7 +47,7 @@ jobs:
               code=re.sub(r'</script',r'<\\/script',code,flags=re.I)
               blocks.append(f'<script data-source="{src}">\n{code}\n</script>')
           html=html.replace(markers,'\n'.join(blocks),1)
-          extras=['curriculum/manual-v31.js','curriculum/v32.js','curriculum/resume-v33.js','curriculum/resume-portfolio-v34.js','curriculum/daily-20260713.js','curriculum/v40-career-model.js','curriculum/v40-reviews.js','curriculum/v41-explorer.js']
+          extras=['curriculum/manual-v31.js','curriculum/v32.js','curriculum/resume-v33.js','curriculum/resume-portfolio-v34.js','curriculum/daily-20260713.js','curriculum/v40-career-model.js','curriculum/v40-reviews.js','curriculum/v41-explorer.js','curriculum/v42-demo.js']
           extra=[]
           for src in extras:
               code=(root/src).read_text(encoding='utf-8')
@@ -55,7 +55,7 @@ jobs:
               extra.append(f'<script data-source="{src}">\n{code}\n</script>')
           html=html.replace('</body>','\n'.join(extra)+'\n</body>',1)
           if re.search(r'<script\s+[^>]*src=',html,re.I): raise SystemExit('External script remains')
-          required=['ENGINEERING PORTFOLIO','Recruiter View','2026-07-13-a7f3','DIAGNOSIS LIFECYCLE','career-os-v4-weekly-1','career-os-v4-monthly-1','REVIEW ARCHIVE','evidenceControlsV41']
+          required=['ENGINEERING PORTFOLIO','Recruiter View','2026-07-13-a7f3','DIAGNOSIS LIFECYCLE','career-os-v4-weekly-1','career-os-v4-monthly-1','REVIEW ARCHIVE','evidenceControlsV41','5分钟看懂 Career OS','openUsageDemo']
           missing=[x for x in required if x not in html]
           if missing: raise SystemExit(f'Missing bundled markers: {missing}')
           (root/'index.html').write_text(html,encoding='utf-8')
@@ -74,6 +74,8 @@ jobs:
           assert 'REVIEW ARCHIVE' in text
           assert 'evidenceControlsV41' in text
           assert 'ENGINEERING PORTFOLIO' in text
+          assert '5分钟看懂 Career OS' in text
+          assert 'openUsageDemo' in text
           print('Single-file structure validated')
           PY
       - name: Commit generated page
