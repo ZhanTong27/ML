@@ -43,7 +43,7 @@ jobs:
             checks.title=(await page.title()).includes('Career OS V4.2');
             checks.demoButton=await page.locator('#openUsageDemo').count();
             checks.beforeState=await page.evaluate(()=>JSON.stringify({logs:S.dailyLogs.length,facts:S.facts.length,evidence:S.evidence.length,weekly:S.weeklyReviewRecords.length,monthly:S.monthlyReviewRecords.length}));
-            await page.click('#openUsageDemo');
+            await page.click('#openUsageDemo');await page.waitForTimeout(150);
             checks.open=await page.locator('#usageDemoV42').evaluate(el=>el.classList.contains('open'));
             checks.stepOne=(await page.locator('#demoTitleV42').innerText()).includes('5分钟看懂');
             for(let i=0;i<4;i++){await page.click('#demoNextV42');await page.waitForTimeout(120)}
