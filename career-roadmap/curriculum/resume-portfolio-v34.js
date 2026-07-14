@@ -1,0 +1,72 @@
+window.addEventListener('load',()=>{try{installResumePortfolioV34()}catch(e){console.error('Resume portfolio V3.4 failed',e)}},{once:true});
+
+function installResumePortfolioV34(){
+  const oldRenderResume=renderResume;
+  renderResume=function(){renderEngineeringPortfolio()};
+  injectResumePortfolioStyles();
+  renderResume();
+}
+
+function renderEngineeringPortfolio(){
+  const r=S.resume||{};
+  const root=document.getElementById('resume');if(!root)return;
+  const top=root.querySelector('.view-head');
+  if(top){
+    top.innerHTML=`<div><div class="eyebrow">ENGINEERING PORTFOLIO</div><h1>芯片验证履历</h1><p>面向 SoC / 数字IC验证岗位的公开工程档案，突出实际贡献、技术栈和可验证结果。</p></div><div class="head-actions"><button class="secondary" id="toggleRecruiterMode">Recruiter View</button><button class="primary" data-quick="resume">更新履历</button></div>`;
+    top.querySelector('[data-quick]')?.addEventListener('click',e=>openQuick(e.currentTarget.dataset.quick));
+    top.querySelector('#toggleRecruiterMode')?.addEventListener('click',toggleRecruiterMode);
+  }
+  const index=root.querySelector('.page-index');
+  if(index)index.innerHTML='<button data-scroll="resume-profile" class="active">Profile</button><button data-scroll="experience-timeline">Experience</button><button data-scroll="project-archive">Projects</button><button data-scroll="skill-matrix">Skills</button><button data-scroll="resume-versions">Versions</button>';
+
+  const profile=document.getElementById('resume-profile');
+  if(profile){
+    profile.querySelector('.section-title')?.remove();
+    profile.innerHTML=`<section class="portfolio-hero"><div class="portfolio-intro"><div class="eyebrow">ABOUT</div><h2>Jett Zhan</h2><h3>SoC / Digital IC Verification Engineer</h3><p>${esc(shortProfile(r.summary))}</p><div class="tag-row portfolio-focus"><span class="tag work">SystemVerilog / UVM</span><span class="tag">FPGA Validation</span><span class="tag learn">SoC Integration</span><span class="tag">Automation</span></div></div><div class="portfolio-meta"><article><small>当前方向</small><b>${esc(r.target||'SoC / 数字IC验证')}</b></article><article><small>核心经验</small><b>RTL → UVM → FPGA → PnR</b></article><article><small>当前版本</small><b>v2026.07</b></article><article><small>最后更新</small><b>2026-07-14</b></article></div></section><section class="portfolio-section"><div class="section-title"><div><div class="eyebrow">EDUCATION</div><h2>教育背景</h2></div></div><div class="education-grid">${arr(r.education).map(e=>`<article class="card education-card"><time>${esc(e.time)}</time><h3>${esc(e.title)}</h3><p>${esc(e.detail)}</p></article>`).join('')}</div></section>`;
+  }
+
+  const timeline=document.getElementById('experienceTimeline');
+  if(timeline){
+    const experiences=[...arr(r.experiences)].sort((a,b)=>(b.time||'').localeCompare(a.time||''));
+    timeline.innerHTML=experiences.map((x,i)=>`<article class="career-step"><div class="career-marker"><b>${i+1}</b></div><div class="card"><div class="career-step-head"><div><div class="eyebrow">PROFESSIONAL EXPERIENCE</div><h3>${esc(x.title)}</h3></div><time>${esc(x.time)}</time></div><ul class="achievement-list">${experienceBullets(x).map(v=>`<li>${esc(v)}</li>`).join('')}</ul><div class="tag-row">${arr(x.abilities).map(a=>`<span class="tag">${esc(a)}</span>`).join('')}</div></div></article>`).join('');
+  }
+
+  const projects=document.getElementById('projectGrid');
+  if(projects){projects.innerHTML=arr(r.projects).map((x,i)=>`<article class="card portfolio-project"><div class="project-number">0${i+1}</div><header><div><div class="eyebrow">${esc(x.time||'PROJECT')}</div><h3>${esc(x.title)}</h3></div><span class="tag work">${esc(x.role||'项目成员')}</span></header><div class="project-columns"><div><h4>Contribution</h4><ul>${contributionBullets(x).map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div><div><h4>Outcome</h4><p>${esc(x.result||'结果待补充')}</p><h4>Tech Stack</h4><div class="tag-row">${arr(x.abilities).map(a=>`<span class="tag">${esc(a)}</span>`).join('')}</div></div></div><details><summary>查看工程背景与方法</summary><p><b>背景：</b>${esc(x.background||'')}</p><p><b>核心挑战：</b>${esc(x.challenge||'')}</p><p><b>实现与验证：</b>${esc(x.process||'')}</p><p><b>公开边界：</b>${esc(x.publicBoundary||'待确认')}</p></details></article>`).join('')}
+
+  const skills=document.getElementById('skill-matrix');
+  if(skills){
+    const title=skills.querySelector('.section-title');if(title)title.innerHTML='<div><div class="eyebrow">SKILL MATRIX</div><h2>工程技能矩阵</h2><p>按真实项目使用场景归类，不使用缺乏证据的星级自评。</p></div>';
+    skills.querySelector('#resumeDisplay')?.remove();
+    let grid=skills.querySelector('#resumeTags');
+    if(!grid){grid=document.createElement('div');grid.id='resumeTags';skills.appendChild(grid)}
+    grid.className='skill-matrix-grid';
+    grid.innerHTML=skillGroups().map(g=>`<article class="card skill-group"><div class="skill-icon">${g.icon}</div><h3>${g.title}</h3><p>${g.context}</p><div class="tag-row">${g.items.map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div></article>`).join('');
+  }
+
+  const candidates=document.getElementById('candidateFeed');
+  if(candidates)candidates.innerHTML=`<article class="entry portfolio-note"><header><span>AI RESUME REVIEW</span><span class="tag learn">持续更新</span></header><h3>下一版最值得补充的证据</h3><ul><li>当前FPGA验证工作的具体交付范围与可公开结果</li><li>能够证明独立Debug、环境复用或验证策略能力的案例</li><li>真实回归效率、缺陷发现或SDK复用的量化影响</li></ul><p class="muted">在证据不足前，不把日常任务包装成正式简历成果。</p></article>`;
+
+  const versions=document.getElementById('versionGrid');
+  if(versions)versions.innerHTML=arr(r.versions).map(x=>`<article class="card version-card"><div class="eyebrow">${esc(x.date||'VERSION')}</div><h3>${esc(x.name)}</h3><p><b>目标：</b>${esc(x.target||'')}</p><p>${esc(x.changes||'')}</p></article>`).join('');
+
+  root.querySelectorAll('.page-index button').forEach(b=>b.onclick=()=>{document.getElementById(b.dataset.scroll)?.scrollIntoView({behavior:'smooth'});root.querySelectorAll('.page-index button').forEach(x=>x.classList.toggle('active',x===b))});
+}
+
+function shortProfile(summary){return '具备RTL开发、UVM验证、FPGA寄存器级验证、验证自动化及数字后端实践，项目覆盖RISC-V SoC、CNN加速器、数字滤波器和GPU应用验证。当前聚焦SoC系统理解、验证环境与Debug方法的持续深化。'}
+function experienceBullets(x){
+  if((x.title||'').includes('民华'))return ['基于Kintex-7平台开展GPIO、PWM、UART等外设寄存器级功能验证与波形观测','通过Vivado JTAG核对硬件行为与设计文档','将寄存器操作封装为可复用的裸机C SDK接口，支持主控程序快速调用'];
+  if((x.title||'').includes('英特尔'))return ['完成多类生成式AI模型在Arc GPU上的INT8/FP16量化部署与场景验证','使用Python构建多线程自动化测试工具，覆盖监控、冷启动和多轮性能报告','参与GPU基准、游戏性能、稳定性和散热测试，并协助需求迭代'];
+  return [x.detail||'经历内容待补充']
+}
+function contributionBullets(x){return String(x.scope||'').split(/；|。/).map(v=>v.trim()).filter(Boolean).slice(0,5)}
+function skillGroups(){return [
+  {icon:'01',title:'Verification',context:'在课程项目和验证任务中实际使用',items:['SystemVerilog','UVM','VCS','ModelSim','Coverage','DPI-C','UVM TLM']},
+  {icon:'02',title:'RTL & FPGA',context:'设计、综合、寄存器级验证与板级调试',items:['Verilog','Vivado','Quartus','Kintex-7','JTAG','裸机C']},
+  {icon:'03',title:'SoC & Protocol',context:'围绕数据通路、外设和系统集成开展实践',items:['RISC-V SoC','AXI','AMBA3-APB','DMA','FIFO','UART','I²C','SPI','GPIO','PWM']},
+  {icon:'04',title:'Automation',context:'仿真、回归、测试和报告自动化',items:['Python','Tcl','Bash','Makefile','C/C++','Linux']},
+  {icon:'05',title:'Digital Implementation',context:'完成综合、Floorplan、CTS、PnR和时序收敛实践',items:['Cadence Genus','Cadence Innovus','SDC','65nm Flow']},
+  {icon:'06',title:'Modeling & Analysis',context:'算法建模、信号处理与工程分析',items:['MATLAB','Simulink','COMSOL','OpenVINO','IPEX']}
+]}
+function toggleRecruiterMode(){document.body.classList.toggle('recruiter-mode');const on=document.body.classList.contains('recruiter-mode');const btn=document.getElementById('toggleRecruiterMode');if(btn)btn.textContent=on?'退出 Recruiter View':'Recruiter View';if(on){switchView('resume');window.scrollTo({top:0,behavior:'smooth'})}}
+function injectResumePortfolioStyles(){if(document.getElementById('resume-portfolio-v34-style'))return;const s=document.createElement('style');s.id='resume-portfolio-v34-style';s.textContent=`.portfolio-hero{display:grid;grid-template-columns:1.45fr .85fr;gap:18px;padding:26px;border:1px solid #2b5360;border-radius:16px;background:linear-gradient(145deg,#0b202c,#07141c);margin-bottom:24px}.portfolio-intro h2{font-size:38px;margin:6px 0}.portfolio-intro h3{color:var(--cyan);margin:0 0 14px}.portfolio-intro p{max-width:760px;color:var(--muted);line-height:1.8}.portfolio-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px}.portfolio-meta article{padding:13px;border:1px solid var(--line2);border-radius:10px;background:rgba(255,255,255,.025)}.portfolio-meta small{display:block;color:var(--muted);margin-bottom:6px}.portfolio-meta b{font-size:12px}.education-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.education-card time{color:var(--cyan)}.career-step{display:grid;grid-template-columns:38px 1fr;gap:12px;margin-bottom:14px}.career-marker{display:flex;justify-content:center;position:relative}.career-marker:after{content:'';position:absolute;top:34px;bottom:-18px;width:1px;background:var(--line)}.career-marker b{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#12303e;color:var(--cyan);border:1px solid #2f6975}.career-step-head{display:flex;justify-content:space-between;gap:15px}.career-step time{color:var(--muted)}.achievement-list{line-height:1.8;color:var(--muted)}.portfolio-project{position:relative;overflow:hidden}.portfolio-project .project-number{position:absolute;right:12px;top:4px;font-size:48px;font-weight:800;color:rgba(53,214,232,.08)}.portfolio-project header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.project-columns{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;margin:16px 0}.project-columns h4{color:var(--cyan);margin:8px 0}.project-columns ul{padding-left:18px;color:var(--muted);line-height:1.8}.skill-matrix-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.skill-group{position:relative}.skill-icon{font-size:26px;font-weight:800;color:rgba(53,214,232,.35)}.skill-group p{color:var(--muted);min-height:34px}.portfolio-note li{margin:8px 0}.recruiter-mode .side,.recruiter-mode .top,.recruiter-mode .privacy{display:none!important}.recruiter-mode .shell{display:block}.recruiter-mode .main{max-width:1180px;margin:0 auto;padding:24px}.recruiter-mode .view:not(#resume){display:none!important}.recruiter-mode #resume{display:block!important}.recruiter-mode #resume .page-index{position:sticky;top:0;z-index:5;background:rgba(6,17,24,.95);padding:10px}.recruiter-mode #resume [data-quick="resume"]{display:none}@media(max-width:900px){.portfolio-hero,.project-columns{grid-template-columns:1fr}.portfolio-meta,.education-grid{grid-template-columns:1fr 1fr}.skill-matrix-grid{grid-template-columns:1fr 1fr}}@media(max-width:620px){.portfolio-meta,.education-grid,.skill-matrix-grid{grid-template-columns:1fr}.career-step-head{flex-direction:column}.portfolio-intro h2{font-size:30px}}`;document.head.appendChild(s)}
