@@ -28,7 +28,7 @@ jobs:
         run: |
           python3 -m http.server 8000 --directory . >/tmp/career-http.log 2>&1 &
           sleep 2
-      - name: Render V4.1 site in Chromium
+      - name: Render V4.2 site in Chromium
         run: |
           cat > smoke.mjs <<'EOF'
           import { chromium } from 'playwright';
@@ -42,7 +42,7 @@ jobs:
             page.on('console',m=>{if(m.type()==='error')errors.push(`console: ${m.text()}`)});
             const response=await page.goto('http://127.0.0.1:8000/career-roadmap/index.html',{waitUntil:'domcontentloaded',timeout:15000});
             checks.httpStatus=response?.status()||0;await page.waitForTimeout(2500);
-            Object.assign(checks,await page.evaluate(()=>({title:document.title.includes('Career OS V4.1'),staticViews:document.querySelectorAll('.nav button').length,weekCount:document.querySelectorAll('#weekTabs button').length,decisionCards:document.querySelectorAll('#decisionCockpit article').length,externalScripts:document.querySelectorAll('script[src]').length,dailyPatch:S.patchHistory.some(x=>x.patchId==='2026-07-13-a7f3'),dailyDate:S.selectedDate,dailyWorkItems:S.dailyLogs.find(x=>x.patchId==='2026-07-13-a7f3')?.workItems?.length||0,facts0713:S.facts.filter(x=>x.patchId==='2026-07-13-a7f3').length,evidence0713:S.evidence.filter(x=>x.patchId==='2026-07-13-a7f3').length,pending0713:S.pendingConfidence.filter(x=>x.patchId==='2026-07-13-a7f3').length,formalConfidenceUntouched:S.careerModel.filter(x=>['diag-sim-timing-debug','diag-ate-interface-knowledge','diag-lowpower-intent-judgment'].includes(x.diagnosisId)).every(x=>Number(x.diagnosisConfidence)===0)})));
+            Object.assign(checks,await page.evaluate(()=>({title:document.title.includes('Career OS V4.2'),staticViews:document.querySelectorAll('.nav button').length,weekCount:document.querySelectorAll('#weekTabs button').length,decisionCards:document.querySelectorAll('#decisionCockpit article').length,externalScripts:document.querySelectorAll('script[src]').length,dailyPatch:S.patchHistory.some(x=>x.patchId==='2026-07-13-a7f3'),dailyDate:S.selectedDate,dailyWorkItems:S.dailyLogs.find(x=>x.patchId==='2026-07-13-a7f3')?.workItems?.length||0,facts0713:S.facts.filter(x=>x.patchId==='2026-07-13-a7f3').length,evidence0713:S.evidence.filter(x=>x.patchId==='2026-07-13-a7f3').length,pending0713:S.pendingConfidence.filter(x=>x.patchId==='2026-07-13-a7f3').length,formalConfidenceUntouched:S.careerModel.filter(x=>['diag-sim-timing-debug','diag-ate-interface-knowledge','diag-lowpower-intent-judgment'].includes(x.diagnosisId)).every(x=>Number(x.diagnosisConfidence)===0)})));
             await page.click('[data-view="today"]');const impactText=await page.locator('#dailyCareerImpact').innerText();checks.dailyImpact=await page.locator('#dailyCareerImpact .impact-flow article').count()===5&&impactText.includes('Evidence');
             await page.click('[data-view="growth"]');
             checks.evidenceControls=await page.locator('#evidenceControlsV41').count();checks.evidenceSummary=await page.locator('#evidenceSummaryV41 article').count();checks.lifecycleControls=await page.locator('#diagnosisControlsV41').count();checks.reviewArchive=await page.locator('#reviewArchiveV41').count();
@@ -66,7 +66,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          { echo '### Career OS V4.1 browser diagnostic'; echo '```json'; cat /tmp/smoke-result.json; echo '```'; } >/tmp/comment.md
+          { echo '### Career OS V4.2 browser diagnostic'; echo '```json'; cat /tmp/smoke-result.json; echo '```'; } >/tmp/comment.md
           gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
       - name: Enforce browser smoke test
         run: node -e "const r=require('/tmp/smoke-result.json'); if(!r.passed)process.exit(1)"
