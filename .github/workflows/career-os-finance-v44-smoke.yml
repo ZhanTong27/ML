@@ -1,0 +1,78 @@
+name: Career OS Finance V4.4 Smoke
+
+on:
+  pull_request:
+    paths:
+      - 'career-roadmap/**'
+      - '.github/workflows/career-os-finance-v44-smoke.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  finance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+      - run: |
+          python3 -m http.server 8000 --directory . >/tmp/career-http.log 2>&1 &
+          sleep 2
+      - name: Validate simplified finance
+        run: |
+          cat > finance-smoke.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const errors=[];const checks={};let browser;
+          try{
+            browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:1440,height:1000}});
+            page.setDefaultTimeout(7000);
+            page.on('pageerror',e=>errors.push(`pageerror: ${e.message}`));
+            page.on('console',m=>{if(m.type()==='error')errors.push(`console: ${m.text()}`)});
+            const response=await page.goto('http://127.0.0.1:8000/career-roadmap/index.html',{waitUntil:'domcontentloaded'});
+            checks.httpStatus=response?.status()||0;await page.waitForTimeout(2500);
+            checks.title=(await page.title()).includes('Career OS V4.4');
+            await page.click('[data-view="career"]');
+            checks.hero=await page.locator('.finance-hero-v44').count();
+            checks.fiveInputs=await page.locator('[data-fin44]').count();
+            checks.assetCollapsed=!(await page.locator('.asset-details-v44').getAttribute('open'));
+            await page.locator('[data-fin44="takeHomeIncome"]').fill('22000');
+            await page.locator('[data-fin44="monthlyExpense"]').fill('6500');
+            await page.locator('[data-fin44="monthlyInvestment"]').fill('3000');
+            await page.locator('[data-fin44="housingFundAdded"]').fill('2400');
+            await page.locator('[data-fin44="passiveIncome"]').fill('500');
+            await page.click('#saveFinanceMonthlyV44');await page.waitForTimeout(150);
+            await page.locator('.asset-details-v44 summary').click();
+            await page.locator('[data-asset44="cash"]').fill('100000');
+            await page.locator('[data-asset44="investments"]').fill('50000');
+            await page.locator('[data-asset44="housingFund"]').fill('30000');
+            await page.locator('[data-asset44="debt"]').fill('10000');
+            await page.click('#saveFinanceAssetsV44');await page.waitForTimeout(150);
+            Object.assign(checks,await page.evaluate(()=>({takeHome:S.resources.snapshot.takeHomeIncome,expense:S.resources.snapshot.monthlyExpense,invested:S.resources.snapshot.monthlyInvestment,housingFund:S.resources.snapshot.housingFund,housingFundAdded:S.resources.snapshot.housingFundAdded,monthRows:S.resources.months.length,net:S.resources.snapshot.cash+S.resources.snapshot.investments+S.resources.snapshot.housingFund-S.resources.snapshot.debt})));
+            const text=await page.locator('#resourceDashboard').innerText();
+            checks.labels=text.includes('实际到账')&&text.includes('公积金余额')&&text.includes('本月只填5个数字');
+            checks.noOldIncome=!text.includes('月收入');
+            checks.wealthMix=text.includes('公积金');
+            await page.click('[data-view="resume"]');checks.portfolio=await page.locator('.portfolio-hero').count();
+          }catch(e){errors.push(e?.stack||String(e))}finally{await browser?.close()}
+          const passed=errors.length===0&&checks.httpStatus===200&&checks.title&&checks.hero===1&&checks.fiveInputs===5&&checks.assetCollapsed&&checks.takeHome===22000&&checks.expense===6500&&checks.invested===3000&&checks.housingFund===30000&&checks.housingFundAdded===2400&&checks.monthRows===1&&checks.net===170000&&checks.labels&&checks.noOldIncome&&checks.wealthMix&&checks.portfolio===1;
+          const result={passed,checks,errors};fs.writeFileSync('/tmp/finance-result.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
+          EOF
+          node finance-smoke.mjs
+      - name: Publish diagnostic
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### Career OS V4.4 finance diagnostic'; echo '```json'; cat /tmp/finance-result.json; echo '```'; } >/tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
+      - name: Enforce test
+        run: node -e "const r=require('/tmp/finance-result.json'); if(!r.passed)process.exit(1)"
