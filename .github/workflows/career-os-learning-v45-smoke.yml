@@ -26,6 +26,7 @@ jobs:
           sleep 2
       - name: Validate personalized learning and profile
         run: |
+          # V4.5 validation trigger
           cat > learning-smoke.mjs <<'EOF'
           import { chromium } from 'playwright';
           import fs from 'node:fs';
