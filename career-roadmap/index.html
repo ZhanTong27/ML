@@ -1888,7 +1888,7 @@ function updateIdentityDataV49(){
  if(!r.education.some(x=>String(x.title||'').includes('Lund University')))r.education.unshift({time:'2024.09—2026.06',title:'Lund University · Electronic Design（电子设计）硕士',detail:'Degree of Master of Science (120 credits)；Main Field of Study: Electronic Design；学业于2026年6月5日完成。'});
  r.summary='Electronic Design（电子设计）硕士背景，当前从事SoC与数字IC验证，项目覆盖模块级和系统级验证、UT/ST、FPV、数据混仿、IPTEST及验证规划。能够结合规格、RTL、寄存器模型、日志与波形推进问题分析，并严格区分本人贡献、已有平台能力和待确认事实。';
  r.sourceVersion='career-assets-v49-identity-education-2026-07-14';r.version='2026年7月 Identity & Education Correction';
- r.versions=[{name:'2026年7月 Identity & Education Correction',date:'2026-07-14',target:'SoC / 数字IC验证方向',changes:'姓名统一为Zhantong；硕士专业依据正式学位证改为Electronic Design（电子设计）；移除民华微电子FPGA验证经历。'},...arr(r.versions).filter(x=>x.name!=='2026年7月 Identity & Education Correction')];
+ r.versions=[{name:'2026年7月 Identity & Education Correction',date:'2026-07-14',target:'SoC / 数字IC验证方向',changes:'姓名统一为Zhantong；硕士专业依据正式学位证改为Electronic Design（电子设计）；清理不保留的旧FPGA经历。'},...arr(r.versions).filter(x=>x.name!=='2026年7月 Identity & Education Correction')];
  S.resume=r;S.identityV49={displayName:'Zhantong',officialDegreeName:'Tong Zhan',degree:'Degree of Master of Science (120 credits)',mainField:'Electronic Design',educationCompleted:'2026-06-05',source:'Lund University degree certificate'}
 }
 function applyIdentityUiV49(){
