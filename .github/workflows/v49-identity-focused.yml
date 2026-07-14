@@ -1,0 +1,44 @@
+name: V4.9 Identity Focused
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v49-identity-focused.yml'
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - run: |
+          cat > check.mjs <<'EOF'
+          import {chromium} from 'playwright';import fs from 'fs';
+          const b=await chromium.launch({headless:true});const p=await b.newPage({viewport:{width:1280,height:900}});const errors=[];p.on('pageerror',e=>errors.push(e.message));
+          const url='http://127.0.0.1:8000/career-roadmap/index.html';
+          async function snap(){await p.click('[data-view="resume"]');await p.waitForTimeout(100);return p.evaluate(()=>({title:document.title,logo:document.querySelector('.logo')?.textContent.trim(),top:document.querySelector('.top>div:first-child b')?.textContent.trim(),portfolio:document.querySelector('.portfolio-intro h2')?.textContent.trim(),bodyJett:document.body.innerText.includes('Jett'),bodyMinhua:document.body.innerText.includes('民华微电子'),experiences:S.resume.experiences.map(x=>x.title),education:S.resume.education.map(x=>x.title+' | '+x.detail),source:S.resume.sourceVersion,identity:S.identityV49,canonical:!!localStorage.getItem('zhantong-career-os-v22'),legacy:!!localStorage.getItem('jett-career-os-v22'),overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+1}))}
+          await p.goto(url);await p.waitForTimeout(2600);const fresh=await snap();
+          await p.evaluate(()=>{const old=structuredClone(S);old.resume.experiences.push({title:'民华微电子科技有限公司 · FPGA验证工程师'});old.resume.education=old.resume.education.map(x=>String(x.title).includes('Lund University')?{time:x.time,title:'Lund University · 嵌入式电子工程 硕士',detail:'Embedded Electronics Engineering'}:x);localStorage.setItem('jett-career-os-v22',JSON.stringify(old));localStorage.removeItem('zhantong-career-os-v22')});await p.reload();await p.waitForTimeout(2600);const migrated=await snap();await b.close();
+          function checks(x){return{name:x.title==='Zhantong · Career OS V4.9'&&x.logo==='ZT'&&x.top==='Zhantong'&&x.portfolio==='Zhantong'&&!x.bodyJett,removed:!x.bodyMinhua&&x.experiences.every(t=>!t.includes('民华微电子')),kept:x.experiences.some(t=>t.includes('DJI'))&&x.experiences.some(t=>t.includes('英特尔')),degree:x.education.some(t=>t.includes('Electronic Design（电子设计）硕士')&&t.includes('Degree of Master of Science (120 credits)')&&t.includes('2026年6月5日'))&&x.education.every(t=>!t.includes('Embedded Electronics Engineering')&&!t.includes('嵌入式电子工程')),source:x.source==='career-assets-v49-identity-education-2026-07-14',identity:x.identity?.displayName==='Zhantong'&&x.identity?.mainField==='Electronic Design',storage:x.canonical&&x.legacy,noOverflow:!x.overflow}}
+          const result={fresh:{data:fresh,checks:checks(fresh)},migrated:{data:migrated,checks:checks(migrated)},errors};result.passed=!errors.length&&Object.values(result.fresh.checks).every(Boolean)&&Object.values(result.migrated.checks).every(Boolean);fs.writeFileSync('/tmp/v49-result.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
+          EOF
+          node check.mjs
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### V4.9 focused diagnostic'; echo '```json'; cat /tmp/v49-result.json; echo '```'; } >/tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
+      - run: node -e "const r=require('/tmp/v49-result.json');if(!r.passed)process.exit(1)"
