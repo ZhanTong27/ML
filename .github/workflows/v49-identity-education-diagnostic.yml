@@ -1,0 +1,39 @@
+name: V4.9 Identity Education Diagnostic
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v49-identity-education-diagnostic.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - run: |
+          cat > check.mjs <<'EOF'
+          import {chromium} from 'playwright';
+          const b=await chromium.launch({headless:true});const p=await b.newPage({viewport:{width:1280,height:900}});const errors=[];
+          p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+          const url='http://127.0.0.1:8000/career-roadmap/index.html';await p.goto(url);await p.waitForTimeout(2800);
+          async function inspect(){await p.click('[data-view="resume"]');await p.waitForTimeout(120);return p.evaluate(()=>({title:document.title,logo:document.querySelector('.logo')?.textContent.trim(),top:document.querySelector('.top>div:first-child b')?.textContent.trim(),portfolio:document.querySelector('.portfolio-intro h2')?.textContent.trim(),body:document.body.innerText,experiences:S.resume.experiences.map(x=>x.title),education:S.resume.education.map(x=>({title:x.title,detail:x.detail})),source:S.resume.sourceVersion,identity:S.identityV49,canonical:JSON.parse(localStorage.getItem('zhantong-career-os-v22')||'null'),legacy:JSON.parse(localStorage.getItem('jett-career-os-v22')||'null'),timeline:document.querySelector('#experienceTimeline')?.innerText||'',educationUi:document.querySelector('.education-grid')?.innerText||'',width:{scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}}))}
+          const fresh=await inspect();
+          await p.evaluate(()=>{const old=structuredClone(S);old.resume.experiences.push({time:'2025.07—至今',title:'民华微电子科技有限公司 · FPGA验证工程师',detail:'旧缓存测试'});old.resume.education=old.resume.education.map(x=>String(x.title||'').includes('Lund University')?{time:x.time,title:'Lund University · 嵌入式电子工程 硕士',detail:'Embedded Electronics Engineering'}:x);localStorage.setItem('jett-career-os-v22',JSON.stringify(old));localStorage.removeItem('zhantong-career-os-v22')});
+          await p.reload();await p.waitForTimeout(2800);const migrated=await inspect();await b.close();
+          const valid=x=>x.title==='Zhantong · Career OS V4.9'&&x.logo==='ZT'&&x.top==='Zhantong'&&x.portfolio==='Zhantong'&&!x.body.includes('Jett')&&!x.body.includes('民华微电子')&&!x.timeline.includes('民华微电子')&&x.experiences.every(t=>!t.includes('民华微电子'))&&x.experiences.some(t=>t.includes('DJI'))&&x.experiences.some(t=>t.includes('英特尔'))&&x.education.some(e=>e.title.includes('Electronic Design（电子设计）硕士')&&e.detail.includes('Degree of Master of Science (120 credits)')&&e.detail.includes('2026年6月5日'))&&!x.educationUi.includes('Embedded Electronics Engineering')&&!x.educationUi.includes('嵌入式电子工程')&&x.source==='career-assets-v49-identity-education-2026-07-14'&&x.identity?.displayName==='Zhantong'&&x.identity?.mainField==='Electronic Design'&&x.canonical&&x.legacy&&x.width.scroll<=x.width.client+1;
+          const ok=!errors.length&&valid(fresh)&&valid(migrated)&&migrated.canonical.resume.experiences.every(x=>!String(x.title||'').includes('民华微电子'));
+          console.log(JSON.stringify({ok,fresh:{title:fresh.title,experiences:fresh.experiences,education:fresh.education,storage:[!!fresh.canonical,!!fresh.legacy]},migrated:{title:migrated.title,experiences:migrated.experiences,education:migrated.education,storage:[!!migrated.canonical,!!migrated.legacy]},errors},null,2));if(!ok)process.exit(1);
+          EOF
+          node check.mjs
