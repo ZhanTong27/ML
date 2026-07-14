@@ -1,0 +1,40 @@
+name: V4.7 AI Overlay Diagnostic
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v47-ai-overlay-diagnostic.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - run: |
+          cat > check.mjs <<'EOF'
+          import {chromium} from 'playwright';
+          const b=await chromium.launch({headless:true});const p=await b.newPage({viewport:{width:1440,height:1100}});const e=[];
+          p.on('pageerror',x=>e.push(x.message));p.on('console',m=>{if(m.type()==='error')e.push(m.text())});await p.goto('http://127.0.0.1:8000/career-roadmap/index.html');await p.waitForTimeout(2800);
+          const c={title:(await p.title()).includes('V4.7'),abilities:await p.evaluate(()=>({formal:S.abilities.find(x=>x.id==='aiVerification'),candidate:S.abilityCandidates.find(x=>x.id==='aiVerification'),confidence:S.careerModel.every(x=>Number(x.diagnosisConfidence||0)===0)}))};
+          await p.click('[data-view="growth"]');c.overlay=await p.locator('#ai-native-overlay-v47').count();c.cycles=await p.locator('.ai-cycle-grid-v47 article').count();c.mission=(await p.locator('.ai-mission-v47').innerText()).includes('AI风险提取基准');c.pack=await p.locator('#learning-pack-v46').count();c.candidates=await p.locator('#ability-candidates-v46 details').count();
+          await p.locator('.ai-record-v47 summary').click();await p.locator('#aiBoundaryV47').selectOption('sanitized');await p.locator('#aiDecisionV47').selectOption('revised');await p.click('#saveAiRecordV47');await p.waitForTimeout(100);c.blocked=await p.evaluate(()=>!S.aiVerificationV47.records.w1);
+          for(const id of ['manual','traceable','validated','reproducible','safe','owned'])await p.locator(`[data-ai-check="${id}"]`).check();await p.locator('#aiTimeSavedV47').fill('35');await p.locator('#aiEvidenceV47').fill('使用独立Review和正反案例验证');await p.locator('#aiLearningV47').fill('AI遗漏了低频错序风险');await p.click('#saveAiRecordV47');await p.waitForTimeout(120);
+          c.saved=await p.evaluate(()=>S.aiVerificationV47.records.w1);c.formalAfter=await p.evaluate(()=>S.abilities.find(x=>x.id==='aiVerification').level);
+          await p.locator('#weekTabs button').nth(1).click();await p.waitForTimeout(160);c.w2=(await p.locator('.ai-mission-v47').innerText()).includes('AI估算挑战');
+          await p.click('[data-view="resume"]');c.portfolio=await p.locator('.portfolio-hero').count();await p.click('[data-view="career"]');c.finance=await p.locator('.finance-hero-v44').count();await b.close();
+          const ok=!e.length&&c.title&&c.abilities.formal.level===1&&c.abilities.candidate.candidateLevel===2&&Boolean(c.abilities.candidate.confirm)&&c.abilities.confidence&&c.overlay===1&&c.cycles===4&&c.mission&&c.pack===1&&c.candidates===8&&c.blocked&&c.saved.score===6&&c.saved.boundary==='sanitized'&&c.saved.decision==='revised'&&c.saved.timeSaved===35&&c.formalAfter===1&&c.w2&&c.portfolio===1&&c.finance===1;
+          console.log(JSON.stringify({ok,c,e},null,2));if(!ok)process.exit(1);
+          EOF
+          node check.mjs
