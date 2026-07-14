@@ -1,9 +1,14 @@
 window.addEventListener('load',()=>{try{installIdentityEducationV49()}catch(e){console.error('Identity Education V4.9 failed',e)}},{once:true});
 function installIdentityEducationV49(){
- updateIdentityDataV49();
+ migrateIdentityStorageV49();updateIdentityDataV49();
  const oldResume=renderResume;renderResume=function(){oldResume();applyIdentityUiV49()};
  const oldAll=renderAll;renderAll=function(){oldAll();applyIdentityUiV49()};
  document.title='Zhantong · Career OS V4.9';const side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V4.9';save();renderAll();applyIdentityUiV49()
+}
+function migrateIdentityStorageV49(){
+ const canonicalKey='zhantong-career-os-v22',legacyKey='jett-career-os-v22';
+ try{const canonical=JSON.parse(localStorage.getItem(canonicalKey)||'null');if(canonical)S=normalizeState(canonical);else localStorage.setItem(canonicalKey,JSON.stringify(S))}catch{}
+ save=function(){try{const value=JSON.stringify(S);localStorage.setItem(canonicalKey,value);localStorage.setItem(legacyKey,value)}catch{}}
 }
 function updateIdentityDataV49(){
  const r=S.resume||{};
