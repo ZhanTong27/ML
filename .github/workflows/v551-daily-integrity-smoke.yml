@@ -56,13 +56,26 @@ jobs:
             const page=await browser.newPage({viewport:{width:390,height:844}});
             page.on('pageerror',e=>result.errors.push(`pageerror: ${e.message}`));
             page.on('console',m=>{if(m.type()==='error')result.errors.push(`console: ${m.text()}`)});
-            await page.addInitScript(()=>{
-              const stale={version:'5.5',selectedDate:'2026-07-13',calendarMonth:'2026-07',week:'w1',checks:{},dailyLogs:[{date:'2026-07-13',summary:'stale 13',work:[]},{date:'2026-07-14',summary:'stale 14',workItems:[]}],problemLogs:[],weeklyReviews:[],schedule:[],abilities:[],cycleArchives:[],resume:{education:[],experiences:[],projects:[],skills:[],awards:[],versions:[],candidates:[]},customLearning:[],settings:{lastView:'today'}};
-              localStorage.setItem('zhantong-career-os-v5',JSON.stringify(stale));
-            });
-            await page.goto('http://127.0.0.1:8000/career-roadmap/index.test.html',{waitUntil:'load'});
+            const url='http://127.0.0.1:8000/career-roadmap/index.test.html';
+            await page.goto(url,{waitUntil:'load'});
             await page.waitForFunction(()=>Boolean(window.CAREER_OS_V551),null,{timeout:15000});
-            Object.assign(result.checks,await page.evaluate(()=>({title:document.title,counts:window.CAREER_OS_V551?.dailyCounts||{},backup:Boolean(localStorage.getItem('zhantong-career-os-v5-pre-v551-backup')),dates:[...document.querySelectorAll('[data-history-date]')].map(x=>x.dataset.historyDate),overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,selectedDate:window.S?.selectedDate||null})));
+            await page.evaluate(()=>{
+              const key='zhantong-career-os-v5';
+              const stale=JSON.parse(localStorage.getItem(key));
+              stale.selectedDate='2026-07-13';
+              stale.calendarMonth='2026-07';
+              stale.dailyLogs=[
+                {date:'2026-07-13',summary:'stale 13',work:[]},
+                {date:'2026-07-14',summary:'stale 14',workItems:[]}
+              ];
+              delete stale.dailyIntegrityV551;
+              localStorage.setItem(key,JSON.stringify(stale));
+              localStorage.removeItem('zhantong-career-os-v5-pre-v551-backup');
+            });
+            result.errors=[];
+            await page.reload({waitUntil:'load'});
+            await page.waitForFunction(()=>Boolean(window.CAREER_OS_V551),null,{timeout:15000});
+            Object.assign(result.checks,await page.evaluate(()=>({title:document.title,counts:window.CAREER_OS_V551?.dailyCounts||{},backup:Boolean(localStorage.getItem('zhantong-career-os-v5-pre-v551-backup')),dates:[...document.querySelectorAll('[data-history-date]')].map(x=>x.dataset.historyDate),overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,selectedDate:typeof S!=='undefined'?S.selectedDate:null})));
             result.checks.details={};
             for(const date of ['2026-07-13','2026-07-14','2026-07-15']){
               const cell=page.locator(`#calendarGrid [data-date="${date}"]`);
