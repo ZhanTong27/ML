@@ -1,0 +1,120 @@
+name: V5.3 Daily History Smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v53-daily-history-smoke.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - name: Validate Daily archive and usage flow
+        run: |
+          cat > smoke.mjs <<'EOF'
+          import {chromium} from 'playwright';
+          import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:1440,height:1100}});
+          const errors=[];
+          page.on('pageerror',e=>errors.push(e.message));
+          page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+          await page.goto('http://127.0.0.1:8000/career-roadmap/index.html');
+          await page.waitForTimeout(3400);
+          const r={};
+          r.base=await page.evaluate(()=>({
+            title:document.title,
+            version:S.version,
+            dates:S.dailyLogs.map(x=>x.date).sort(),
+            closures:S.dailyClosures?.length||0,
+            promptTitle:PROMPTS.daily?.title,
+            demoTitles:typeof DEMO_STEPS_V42==='undefined'?[]:DEMO_STEPS_V42.map(x=>x.title),
+            demoMeta:window.CAREER_OS_DEMO_V53||null
+          }));
+          r.history={
+            section:await page.locator('#daily-history-v53').count(),
+            buttons:await page.locator('[data-history-date]').count(),
+            dates:await page.locator('[data-history-date]').evaluateAll(xs=>xs.map(x=>x.getAttribute('data-history-date')))
+          };
+          await page.locator('[data-history-date="2026-07-13"]').click();
+          await page.waitForTimeout(180);
+          r.july13={
+            selected:await page.evaluate(()=>S.selectedDate),
+            detail:await page.locator('#dailyHistoryDetailV53').innerText(),
+            learningCards:await page.locator('.learning-response-card').count()
+          };
+          await page.locator('[data-history-date="2026-07-14"]').click();
+          await page.waitForTimeout(180);
+          r.july14={
+            selected:await page.evaluate(()=>S.selectedDate),
+            detail:await page.locator('#dailyHistoryDetailV53').innerText(),
+            learningCards:await page.locator('.learning-response-card').count(),
+            oldClosureSection:await page.locator('#daily-closure-v51').count(),
+            closureControls:await page.locator('[data-closure-status]').count()
+          };
+          await page.locator('#openUsageDemo').click();
+          await page.waitForTimeout(150);
+          r.demo={
+            open:await page.locator('#usageDemoV42.open').count(),
+            title:await page.locator('#demoTitleV42').innerText(),
+            steps:await page.evaluate(()=>typeof DEMO_STEPS_V42==='undefined'?0:DEMO_STEPS_V42.length),
+            allText:await page.evaluate(()=>typeof DEMO_STEPS_V42==='undefined'?'':JSON.stringify(DEMO_STEPS_V42))
+          };
+          await page.locator('#closeDemoV42').click();
+          await page.reload();
+          await page.waitForTimeout(2800);
+          r.reload=await page.evaluate(()=>({
+            title:document.title,
+            version:S.version,
+            dates:S.dailyLogs.map(x=>x.date).sort(),
+            selectedDate:S.selectedDate,
+            learning13:S.learningResponses.filter(x=>x.date==='2026-07-13').length,
+            learning14:S.learningResponses.filter(x=>x.date==='2026-07-14').length,
+            demoMeta:window.CAREER_OS_DEMO_V53||null
+          }));
+          const mobile=await browser.newPage({viewport:{width:390,height:844}});
+          await mobile.goto('http://127.0.0.1:8000/career-roadmap/index.html');
+          await mobile.waitForTimeout(2400);
+          r.mobile={
+            overflow:await mobile.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth),
+            historySection:await mobile.locator('#daily-history-v53').count()
+          };
+          await browser.close();
+          const has13=r.base.dates.includes('2026-07-13');
+          const has14=r.base.dates.includes('2026-07-14');
+          const demoCorrect=r.demo.allText.includes('自然语言口述')||r.demo.allText.includes('自然口述');
+          const pass=!errors.length&&
+            r.base.title==='Zhantong · Career OS V5.3'&&r.base.version==='5.3'&&has13&&has14&&r.base.closures===0&&
+            r.base.promptTitle==='每日记录与能力补足Prompt'&&r.base.demoMeta?.steps===6&&
+            r.history.section===1&&r.history.buttons>=2&&r.history.dates.includes('2026-07-13')&&r.history.dates.includes('2026-07-14')&&
+            r.july13.selected==='2026-07-13'&&r.july13.detail.includes('单元测试用例失败定位')&&r.july13.detail.includes('ATE测试交付文件输出')&&r.july13.learningCards===3&&
+            r.july14.selected==='2026-07-14'&&r.july14.detail.includes('功能用例调试与信号追踪')&&r.july14.detail.includes('强制状态未释放根因确认')&&r.july14.learningCards===4&&r.july14.oldClosureSection===0&&r.july14.closureControls===0&&
+            r.demo.open===1&&r.demo.title.includes('Career OS V5.3')&&r.demo.steps===6&&demoCorrect&&
+            r.reload.title==='Zhantong · Career OS V5.3'&&r.reload.version==='5.3'&&r.reload.dates.includes('2026-07-13')&&r.reload.dates.includes('2026-07-14')&&r.reload.learning13===3&&r.reload.learning14===4&&r.reload.demoMeta?.steps===6&&
+            !r.mobile.overflow&&r.mobile.historySection===1;
+          fs.writeFileSync('/tmp/result.json',JSON.stringify({pass,r,errors},null,2));
+          EOF
+          node smoke.mjs
+      - name: Publish result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### V5.3 Daily History smoke'; echo '```json'; cat /tmp/result.json; echo '```'; } >/tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
+      - name: Enforce
+        run: node -e "const x=require('/tmp/result.json');if(!x.pass)process.exit(1)"
