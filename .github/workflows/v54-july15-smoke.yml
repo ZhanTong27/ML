@@ -1,0 +1,100 @@
+name: V5.4 July 15 Smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v54-july15-smoke.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - name: Validate July 15 record and learning
+        run: |
+          cat > smoke.mjs <<'EOF'
+          import {chromium} from 'playwright';
+          import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:1440,height:1200}});
+          const errors=[];
+          page.on('pageerror',e=>errors.push(e.message));
+          page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+          await page.goto('http://127.0.0.1:8000/career-roadmap/index.html');
+          await page.waitForTimeout(3800);
+          const r={};
+          r.base=await page.evaluate(()=>({
+            title:document.title,
+            version:S.version,
+            dates:S.dailyLogs.map(x=>x.date).sort(),
+            selected:S.selectedDate,
+            closures:S.dailyClosures?.length||0,
+            prompt:PROMPTS.daily?.title,
+            record:S.dailyLogs.find(x=>x.date==='2026-07-15'),
+            learning:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>({id:x.id,title:x.title,materials:x.materials.length,selfCheck:x.selfCheck.length,prompt:!!x.aiPrompt})),
+            meta:window.CAREER_OS_V54||null
+          }));
+          await page.locator('[data-history-date="2026-07-15"]').click();
+          await page.waitForTimeout(220);
+          r.history={
+            section:await page.locator('#daily-history-v53').count(),
+            detail:await page.locator('#dailyHistoryDetailV53').innerText(),
+            buttons:await page.locator('[data-history-date]').count(),
+            learningCards:await page.locator('.learning-response-card').count(),
+            learningText:await page.locator('#problem-learning-v52').innerText(),
+            oldClosure:await page.locator('#daily-closure-v51').count(),
+            closureControls:await page.locator('[data-closure-status]').count()
+          };
+          r.cards=await page.locator('.learning-response-card').evaluateAll(cards=>cards.map(c=>({title:c.querySelector('h3')?.textContent||'',text:c.textContent||'',links:c.querySelectorAll('a').length,copy:c.querySelectorAll('[data-copy-learning]').length})));
+          await page.reload();
+          await page.waitForTimeout(3000);
+          r.reload=await page.evaluate(()=>({
+            title:document.title,
+            version:S.version,
+            dates:S.dailyLogs.map(x=>x.date).sort(),
+            work:S.dailyLogs.find(x=>x.date==='2026-07-15')?.work?.length||0,
+            diagnoses:S.dailyLogs.find(x=>x.date==='2026-07-15')?.diagnoses?.length||0,
+            learning:S.learningResponses.filter(x=>x.date==='2026-07-15').length,
+            closures:S.dailyClosures?.length||0
+          }));
+          const mobile=await browser.newPage({viewport:{width:390,height:844}});
+          await mobile.goto('http://127.0.0.1:8000/career-roadmap/index.html');
+          await mobile.waitForTimeout(2600);
+          r.mobile={overflow:await mobile.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth),history:await mobile.locator('#daily-history-v53').count(),learning:await mobile.locator('#problem-learning-v52').count()};
+          await browser.close();
+          const ids=new Set(r.base.learning.map(x=>x.id));
+          const required=['learn-2026-07-15-waveform-rollover','learn-2026-07-15-clock-switch-bounds','learn-2026-07-15-hierarchical-wave-review','learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep'];
+          const rich=r.base.learning.every(x=>x.materials>0&&x.selfCheck>=5&&x.prompt);
+          const pass=!errors.length&&
+            r.base.title==='Zhantong · Career OS V5.4'&&r.base.version==='5.4'&&r.base.dates.includes('2026-07-15')&&r.base.selected==='2026-07-15'&&r.base.closures===0&&r.base.prompt==='每日记录与能力补足Prompt'&&r.base.record?.work?.length===4&&r.base.record?.diagnoses?.length===4&&r.base.meta?.daily==='2026-07-15'&&
+            required.every(x=>ids.has(x))&&r.base.learning.length===5&&rich&&
+            r.history.section===1&&r.history.buttons>=3&&r.history.detail.includes('低频时钟切换回归失败定位')&&r.history.detail.includes('波形文件回卷问题识别')&&r.history.detail.includes('数模混合电源模块任务拆分')&&r.history.detail.includes('波形数据管理')&&r.history.learningCards===5&&
+            r.history.learningText.includes('波形回卷、分段与容量规划')&&r.history.learningText.includes('规格驱动的时钟切换有界延迟检查')&&r.history.learningText.includes('先进数模混合验证的多层抽象与相关性策略')&&r.history.learningText.includes('片上LDO类模块的数模混合验证准备')&&r.history.learningText.includes('不追踪工作状态')&&r.history.oldClosure===0&&r.history.closureControls===0&&
+            r.cards.length===5&&r.cards.every(x=>x.copy===1)&&
+            r.reload.title==='Zhantong · Career OS V5.4'&&r.reload.version==='5.4'&&r.reload.dates.includes('2026-07-15')&&r.reload.work===4&&r.reload.diagnoses===4&&r.reload.learning===5&&r.reload.closures===0&&
+            !r.mobile.overflow&&r.mobile.history===1&&r.mobile.learning===1;
+          fs.writeFileSync('/tmp/result.json',JSON.stringify({pass,r,errors},null,2));
+          EOF
+          node smoke.mjs
+      - name: Publish result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### V5.4 July 15 smoke'; echo '```json'; cat /tmp/result.json; echo '```'; } >/tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
+      - name: Enforce
+        run: node -e "const x=require('/tmp/result.json');if(!x.pass)process.exit(1)"
