@@ -1,0 +1,52 @@
+name: V5.5 AMS Frontier Checklist
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v55-ams-frontier-checklist.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - name: Run compact checklist
+        run: |
+          cat > check.mjs <<'EOF'
+          import {chromium} from 'playwright';import fs from 'node:fs';
+          const checks={},details={},errors=[];let browser;
+          try{
+            browser=await chromium.launch({headless:true});const p=await browser.newPage({viewport:{width:1440,height:1200}});p.on('pageerror',e=>errors.push(e.message));
+            await p.goto('http://127.0.0.1:8000/career-roadmap/index.html');await p.waitForTimeout(3500);
+            const s=await p.evaluate(()=>({title:document.title,version:S.version,daily:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>x.id),old:S.learningResponses.some(x=>['learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep'].includes(x.id)),counts:[AMS_FRONTIER_V55.maturity.length,AMS_FRONTIER_V55.readings.length,AMS_FRONTIER_V55.ocldo.papers.length],lab:currentFrontierLabV50()?.id,meta:CAREER_OS_V55?.frontier}));
+            await p.evaluate(()=>{switchView('growth');document.getElementById('growth-library-v50').open=true;renderAll()});await p.waitForTimeout(180);
+            const u=await p.evaluate(()=>{const b=document.getElementById('frontierBodyV50'),t=b?.textContent||'';return{visible:!!b?.getClientRects().length,terms:Object.fromEntries(['从当前任务脱钩','不决定学习边界','UVM-MS 1.0','SystemVerilog Mixed-Signal Interface Types','连续空间Coverage与智能Corner搜索','Federated Simulation','AnalogTester','Output-Capacitorless LDO','P.K.T. Mok'].map(x=>[x,t.includes(x)])),counts:[document.querySelectorAll('.ams-maturity-grid-v55>article').length,document.querySelectorAll('.ams-reading-v55').length,document.querySelectorAll('.ocldo-paper-list-v55>article').length,document.querySelectorAll('#frontierBodyV50 a').length,document.querySelectorAll('[data-ams-chapter]').length,document.querySelectorAll('#frontierStatusV50').length],weekly:document.querySelector('#weekly-command-v50 .frontier-highlight-v50')?.textContent||''}});
+            await p.evaluate(()=>{S.amsFrontierV55.reading['r-uvmms-standard']=true;S.amsFrontierV55.chapters['c1']=true;S.amsFrontierV55.note='persist-test';save()});await p.reload();await p.waitForTimeout(2800);
+            const q=await p.evaluate(()=>({reading:S.amsFrontierV55.reading['r-uvmms-standard'],chapter:S.amsFrontierV55.chapters['c1'],note:S.amsFrontierV55.note,lab:currentFrontierLabV50()?.id,daily:S.learningResponses.filter(x=>x.date==='2026-07-15').length,old:S.learningResponses.some(x=>['learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep'].includes(x.id))}));
+            const m=await browser.newPage({viewport:{width:390,height:844}});await m.goto('http://127.0.0.1:8000/career-roadmap/index.html');await m.waitForTimeout(2400);await m.evaluate(()=>{switchView('growth');document.getElementById('growth-library-v50').open=true;renderAll()});await m.waitForTimeout(120);const mm=await m.evaluate(()=>({overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth,visible:!!document.getElementById('frontierBodyV50')?.getClientRects().length,width:[document.documentElement.scrollWidth,document.documentElement.clientWidth]}));
+            const req=['learn-2026-07-15-waveform-rollover','learn-2026-07-15-clock-switch-bounds','learn-2026-07-15-hierarchical-wave-review'];
+            Object.assign(checks,{identity:s.title==='Zhantong · Career OS V5.5'&&s.version==='5.5',stateCounts:JSON.stringify(s.counts)===JSON.stringify([7,10,4]),independent:s.lab==='ams-cognition'&&s.meta==='independent-ams-verification',daily:req.every(x=>s.daily.includes(x))&&s.daily.length===3&&!s.old,visible:u.visible,terms:Object.values(u.terms).every(Boolean),uiCounts:JSON.stringify(u.counts)===JSON.stringify([7,10,4,21,5,0]),weekly:u.weekly.includes('AMS Verification Frontier Track')&&u.weekly.includes('不由当前工作任务决定'),persist:q.reading===true&&q.chapter===true&&q.note==='persist-test'&&q.lab==='ams-cognition'&&q.daily===3&&!q.old,mobile:!mm.overflow&&mm.visible});
+            Object.assign(details,{state:s,termChecks:u.terms,uiCounts:u.counts,weekly:u.weekly,persist:q,mobile:mm});
+          }catch(e){errors.push(e.stack||e.message)}finally{if(browser)await browser.close().catch(()=>{});const pass=!errors.length&&Object.values(checks).every(Boolean);fs.writeFileSync('/tmp/result.json',JSON.stringify({pass,checks,details,errors},null,2))}
+          EOF
+          node check.mjs
+      - name: Comment result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### V5.5 compact checklist'; echo '```json'; cat /tmp/result.json; echo '```'; } >/tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
