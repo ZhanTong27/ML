@@ -28,25 +28,35 @@ jobs:
           cat > smoke.mjs <<'EOF'
           import {chromium} from 'playwright';
           import fs from 'node:fs';
-          const out={pass:false,r:{},errors:[]};let browser;
+          const out={pass:false,checks:{},facts:{},errors:[]};let browser;
           try{
             browser=await chromium.launch({headless:true});
             const page=await browser.newPage({viewport:{width:1440,height:1200}});
             page.on('pageerror',e=>out.errors.push(`pageerror:${e.message}`));
             page.on('console',m=>{if(m.type()==='error')out.errors.push(`console:${m.text()}`)});
             await page.goto('http://127.0.0.1:8000/career-roadmap/index.html');await page.waitForTimeout(3600);
-            const r=out.r;
-            r.state=await page.evaluate(()=>({title:document.title,version:S.version,daily15:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>x.id),oldWorkAMS:S.learningResponses.some(x=>['learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep'].includes(x.id)),frontierData:{maturity:AMS_FRONTIER_V55.maturity.length,readings:AMS_FRONTIER_V55.readings.length,papers:AMS_FRONTIER_V55.ocldo.papers.length},lab:currentFrontierLabV50(),meta:window.CAREER_OS_V55||null}));
+            const state=await page.evaluate(()=>({title:document.title,version:S.version,daily15:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>x.id),oldWorkAMS:S.learningResponses.some(x=>['learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep'].includes(x.id)),frontierData:{maturity:AMS_FRONTIER_V55.maturity.length,readings:AMS_FRONTIER_V55.readings.length,papers:AMS_FRONTIER_V55.ocldo.papers.length},lab:currentFrontierLabV50(),meta:window.CAREER_OS_V55||null}));
             await page.evaluate(()=>{switchView('growth');const d=document.getElementById('growth-library-v50');if(d)d.open=true;renderAll()});await page.waitForTimeout(180);
-            r.ui=await page.evaluate(()=>{const b=document.getElementById('frontierBodyV50');return{visible:!!b&&!!(b.offsetWidth||b.offsetHeight||b.getClientRects().length),text:b?.textContent||'',maturity:document.querySelectorAll('.ams-maturity-grid-v55>article').length,readings:document.querySelectorAll('.ams-reading-v55').length,papers:document.querySelectorAll('.ocldo-paper-list-v55>article').length,links:document.querySelectorAll('#frontierBodyV50 a').length,chapters:document.querySelectorAll('[data-ams-chapter]').length,oldStatus:document.querySelectorAll('#frontierStatusV50').length,weekly:document.querySelector('#weekly-command-v50 .frontier-highlight-v50')?.textContent||''}});
+            const ui=await page.evaluate(()=>{const b=document.getElementById('frontierBodyV50'),text=b?.textContent||'';return{visible:!!b&&!!(b.offsetWidth||b.offsetHeight||b.getClientRects().length),content:Object.fromEntries(['从当前任务脱钩','不由当前任务决定学习上限','UVM-MS 1.0','SystemVerilog Mixed-Signal Interface Types','连续空间Coverage与智能Corner搜索','Federated Simulation','AnalogTester','Output-Capacitorless LDO','P.K.T. Mok'].map(x=>[x,text.includes(x)])),maturity:document.querySelectorAll('.ams-maturity-grid-v55>article').length,readings:document.querySelectorAll('.ams-reading-v55').length,papers:document.querySelectorAll('.ocldo-paper-list-v55>article').length,links:document.querySelectorAll('#frontierBodyV50 a').length,chapters:document.querySelectorAll('[data-ams-chapter]').length,oldStatus:document.querySelectorAll('#frontierStatusV50').length,weekly:document.querySelector('#weekly-command-v50 .frontier-highlight-v50')?.textContent||''}});
             await page.evaluate(()=>{S.amsFrontierV55.reading['r-uvmms-standard']=true;S.amsFrontierV55.chapters['c1']=true;S.amsFrontierV55.note='UVM-MS统一验证组件，但不替代连续时间求解。';save()});
             await page.reload();await page.waitForTimeout(2900);
-            r.reload=await page.evaluate(()=>({title:document.title,version:S.version,reading:S.amsFrontierV55.reading['r-uvmms-standard'],chapter:S.amsFrontierV55.chapters['c1'],note:S.amsFrontierV55.note,daily15:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>x.id),oldWorkAMS:S.learningResponses.some(x=>['learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep'].includes(x.id)),lab:currentFrontierLabV50()}));
-            const mobile=await browser.newPage({viewport:{width:390,height:844}});await mobile.goto('http://127.0.0.1:8000/career-roadmap/index.html');await mobile.waitForTimeout(2500);await mobile.evaluate(()=>{switchView('growth');const d=document.getElementById('growth-library-v50');if(d)d.open=true;renderAll()});await mobile.waitForTimeout(120);r.mobile=await mobile.evaluate(()=>({overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth,visible:!!document.getElementById('frontierBodyV50')?.getClientRects().length}));
+            const reload=await page.evaluate(()=>({title:document.title,version:S.version,reading:S.amsFrontierV55.reading['r-uvmms-standard'],chapter:S.amsFrontierV55.chapters['c1'],note:S.amsFrontierV55.note,daily15:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>x.id),oldWorkAMS:S.learningResponses.some(x=>['learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep'].includes(x.id)),lab:currentFrontierLabV50()}));
+            const mobile=await browser.newPage({viewport:{width:390,height:844}});await mobile.goto('http://127.0.0.1:8000/career-roadmap/index.html');await mobile.waitForTimeout(2500);await mobile.evaluate(()=>{switchView('growth');const d=document.getElementById('growth-library-v50');if(d)d.open=true;renderAll()});await mobile.waitForTimeout(120);const mobileState=await mobile.evaluate(()=>({overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth,visible:!!document.getElementById('frontierBodyV50')?.getClientRects().length}));
             const req=['learn-2026-07-15-waveform-rollover','learn-2026-07-15-clock-switch-bounds','learn-2026-07-15-hierarchical-wave-review'];
-            const t=r.ui.text;
-            const content=['从当前任务脱钩','不由当前任务决定学习上限','UVM-MS 1.0','SystemVerilog Mixed-Signal Interface Types','连续空间Coverage与智能Corner搜索','Federated Simulation','AnalogTester','Output-Capacitorless LDO','P.K.T. Mok'].every(x=>t.includes(x));
-            out.pass=!out.errors.length&&r.state.title==='Zhantong · Career OS V5.5'&&r.state.version==='5.5'&&r.state.frontierData.maturity===7&&r.state.frontierData.readings===10&&r.state.frontierData.papers===4&&r.state.lab?.id==='ams-cognition'&&r.state.meta?.frontier==='independent-ams-verification'&&req.every(x=>r.state.daily15.includes(x))&&r.state.daily15.length===3&&!r.state.oldWorkAMS&&r.ui.visible&&content&&r.ui.maturity===7&&r.ui.readings===10&&r.ui.papers===4&&r.ui.links>=20&&r.ui.chapters===5&&r.ui.oldStatus===0&&r.ui.weekly.includes('AMS Verification Frontier Track')&&r.ui.weekly.includes('不由当前工作任务决定')&&r.reload.title==='Zhantong · Career OS V5.5'&&r.reload.version==='5.5'&&r.reload.reading===true&&r.reload.chapter===true&&r.reload.note.includes('不替代连续时间求解')&&r.reload.daily15.length===3&&!r.reload.oldWorkAMS&&r.reload.lab?.id==='ams-cognition'&&!r.mobile.overflow&&r.mobile.visible;
+            out.checks={
+              identity:state.title==='Zhantong · Career OS V5.5'&&state.version==='5.5',
+              dataCounts:state.frontierData.maturity===7&&state.frontierData.readings===10&&state.frontierData.papers===4,
+              independentLab:state.lab?.id==='ams-cognition'&&state.meta?.frontier==='independent-ams-verification',
+              dailySeparated:req.every(x=>state.daily15.includes(x))&&state.daily15.length===3&&!state.oldWorkAMS,
+              frontierVisible:ui.visible,
+              allContent:Object.values(ui.content).every(Boolean),
+              uiCounts:ui.maturity===7&&ui.readings===10&&ui.papers===4&&ui.links>=20&&ui.chapters===5&&ui.oldStatus===0,
+              weeklyCard:ui.weekly.includes('AMS Verification Frontier Track')&&ui.weekly.includes('不由当前工作任务决定'),
+              persistence:reload.title==='Zhantong · Career OS V5.5'&&reload.version==='5.5'&&reload.reading===true&&reload.chapter===true&&reload.note.includes('不替代连续时间求解')&&reload.daily15.length===3&&!reload.oldWorkAMS&&reload.lab?.id==='ams-cognition',
+              mobile:!mobileState.overflow&&mobileState.visible
+            };
+            out.facts={daily15:state.daily15,content:ui.content,uiCounts:{maturity:ui.maturity,readings:ui.readings,papers:ui.papers,links:ui.links,chapters:ui.chapters,oldStatus:ui.oldStatus},weekly:ui.weekly,reload:{reading:reload.reading,chapter:reload.chapter,note:reload.note,lab:reload.lab?.id},mobile:mobileState};
+            out.pass=!out.errors.length&&Object.values(out.checks).every(Boolean);
           }catch(e){out.errors.push(`exception:${e.stack||e.message}`)}finally{if(browser)await browser.close().catch(()=>{});fs.writeFileSync('/tmp/result.json',JSON.stringify(out,null,2))}
           EOF
           node smoke.mjs
