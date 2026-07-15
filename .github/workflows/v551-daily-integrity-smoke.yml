@@ -76,6 +76,7 @@ jobs:
             await page.reload({waitUntil:'load'});
             await page.waitForFunction(()=>Boolean(window.CAREER_OS_V551),null,{timeout:15000});
             Object.assign(result.checks,await page.evaluate(()=>({title:document.title,counts:window.CAREER_OS_V551?.dailyCounts||{},backup:Boolean(localStorage.getItem('zhantong-career-os-v5-pre-v551-backup')),dates:[...document.querySelectorAll('[data-history-date]')].map(x=>x.dataset.historyDate),overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,selectedDate:typeof S!=='undefined'?S.selectedDate:null})));
+            await page.evaluate(()=>{const grid=document.querySelector('#calendarGrid');const disclosure=grid?.closest('details');if(disclosure)disclosure.open=true;grid?.scrollIntoView({block:'center'})});
             result.checks.details={};
             for(const date of ['2026-07-13','2026-07-14','2026-07-15']){
               const cell=page.locator(`#calendarGrid [data-date="${date}"]`);
