@@ -1,0 +1,116 @@
+name: Career OS V5.5.1 Daily Integrity Smoke
+
+on:
+  pull_request:
+    paths:
+      - 'career-roadmap/**'
+      - '.github/workflows/bundle-career-os.yml'
+      - '.github/workflows/v551-daily-integrity-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build branch single-file page
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root=Path('career-roadmap')
+          html=(root/'index.template.html').read_text(encoding='utf-8')
+          css=(root/'style.css').read_text(encoding='utf-8')
+          html=html.replace('<link rel="stylesheet" href="style.css">','<style>\n'+css+'\n</style>',1)
+          sources=['legacy-data-v22.js','curriculum/base.js','curriculum/cycle1.js','curriculum/cycle2.js','curriculum/cycle3.js','curriculum/cycle4.js','app.js','curriculum/patch.js','curriculum/finalize.js']
+          markers='\n'.join(f'<script src="{src}"></script>' for src in sources)
+          extras=['curriculum/v50-storage-bootstrap.js']+sources+['curriculum/manual-v31.js','curriculum/v32.js','curriculum/resume-v33.js','curriculum/resume-portfolio-v34.js','curriculum/daily-20260713.js','curriculum/daily-20260714-core.js','curriculum/daily-20260714-analysis.js','curriculum/daily-20260714.js','curriculum/daily-20260715-record.js','curriculum/daily-20260715-analysis.js','curriculum/daily-20260715.js','curriculum/v40-career-model.js','curriculum/v40-reviews.js','curriculum/v41-explorer.js','curriculum/v42-demo.js','curriculum/v43-dji-assets.js','curriculum/v44-finance-simple.js','curriculum/v45-personalized-learning.js','curriculum/v46-pack-w1.js','curriculum/v46-pack-w2.js','curriculum/v46-pack-w3.js','curriculum/v46-pack-w4.js','curriculum/v46-learning-pack-ui.js','curriculum/v47-ai-native-overlay.js','curriculum/v48-reality-responsive.js','curriculum/v49-identity-education.js','curriculum/v50-profile-source.js','curriculum/v50-frontier-methods.js','curriculum/v50-frontier-labs.js','curriculum/v50-frontier-ui.js','curriculum/v50-asset-system.js','curriculum/v50-simplicity-core.js','curriculum/v50-frontier-kickoff.js','curriculum/v50-finalize.js','curriculum/v51-daily-closure-loop.js','curriculum/v51-daily-closure-fixes.js','curriculum/v52-learning-seeds-a.js','curriculum/v52-learning-seeds-b.js','curriculum/v52-problem-learning-ui.js','curriculum/v52-problem-learning-core.js','curriculum/v53-daily-history-demo.js','curriculum/v53-demo-fix.js','curriculum/v54-learning-seeds-0715-a.js','curriculum/v54-learning-seeds-0715-b.js','curriculum/v54-finalize.js','curriculum/v55-ams-frontier-data.js','curriculum/v55-source-corrections.js','curriculum/v55-ams-frontier-ui.js','curriculum/v55-frontier-integration-fix.js','curriculum/v55-finalize.js','curriculum/v551-daily-integrity-hotfix.js']
+          blocks=[]
+          for src in extras:
+              code=(root/src).read_text(encoding='utf-8')
+              code=re.sub(r'</script',r'<\\/script',code,flags=re.I)
+              blocks.append(f'<script data-source="{src}">\n{code}\n</script>')
+          html=html.replace(markers,'\n'.join(blocks[:len(sources)+1]),1)
+          html=html.replace('</body>','\n'.join(blocks[len(sources)+1:])+'\n</body>',1)
+          (root/'index.test.html').write_text(html,encoding='utf-8')
+          PY
+      - name: Install Chromium
+        run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+      - name: Run browser checks
+        continue-on-error: true
+        run: |
+          python3 -m http.server 8000 --directory . >/tmp/career-os-http.log 2>&1 &
+          cat > smoke.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          const result={passed:false,checks:{},errors:[]};
+          let browser;
+          try{
+            browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:390,height:844}});
+            page.on('pageerror',e=>result.errors.push(`pageerror: ${e.message}`));
+            page.on('console',m=>{if(m.type()==='error')result.errors.push(`console: ${m.text()}`)});
+            const url='http://127.0.0.1:8000/career-roadmap/index.test.html';
+            await page.goto(url,{waitUntil:'load'});
+            await page.waitForFunction(()=>Boolean(window.CAREER_OS_V551),null,{timeout:15000});
+            await page.evaluate(()=>{
+              const key='zhantong-career-os-v5';
+              const stale=JSON.parse(localStorage.getItem(key));
+              stale.selectedDate='2026-07-13';
+              stale.calendarMonth='2026-07';
+              stale.dailyLogs=[
+                {date:'2026-07-13',summary:'stale 13',work:[]},
+                {date:'2026-07-14',summary:'stale 14',workItems:[]}
+              ];
+              delete stale.dailyIntegrityV551;
+              localStorage.setItem(key,JSON.stringify(stale));
+              localStorage.removeItem('zhantong-career-os-v5-pre-v551-backup');
+            });
+            result.errors=[];
+            await page.reload({waitUntil:'load'});
+            await page.waitForFunction(()=>Boolean(window.CAREER_OS_V551),null,{timeout:15000});
+            Object.assign(result.checks,await page.evaluate(()=>({title:document.title,counts:window.CAREER_OS_V551?.dailyCounts||{},backup:Boolean(localStorage.getItem('zhantong-career-os-v5-pre-v551-backup')),dates:[...document.querySelectorAll('[data-history-date]')].map(x=>x.dataset.historyDate),overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,selectedDate:typeof S!=='undefined'?S.selectedDate:null})));
+            await page.evaluate(()=>{const grid=document.querySelector('#calendarGrid');const disclosure=grid?.closest('details');if(disclosure)disclosure.open=true;grid?.scrollIntoView({block:'center'})});
+            result.checks.details={};
+            for(const date of ['2026-07-13','2026-07-14','2026-07-15']){
+              const cell=page.locator(`#calendarGrid [data-date="${date}"]`);
+              if(await cell.count()!==1){result.errors.push(`${date} calendar cell missing`);continue}
+              await cell.click();
+              const detail=await page.locator('#calendarDayDetail').innerText();
+              result.checks.details[date]=detail.slice(0,300);
+              if(detail.includes('当天没有工作记录'))result.errors.push(`${date} missing in calendar detail`)
+            }
+            await page.evaluate(()=>renderTools('data'));
+            result.checks.backupUi=await page.locator('#exportAll').count()===1&&await page.locator('#importAll').count()===1;
+            result.passed=result.errors.length===0&&result.checks.title.includes('V5.5.1')&&JSON.stringify(result.checks.counts)===JSON.stringify({'2026-07-13':3,'2026-07-14':4,'2026-07-15':4})&&result.checks.backup&&result.checks.backupUi&&['2026-07-13','2026-07-14','2026-07-15'].every(x=>result.checks.dates.includes(x))&&result.checks.overflow<=1;
+          }catch(e){result.errors.push(e?.stack||String(e))}finally{await browser?.close()}
+          await (await import('node:fs/promises')).writeFile('/tmp/v551-result.json',JSON.stringify(result,null,2));
+          console.log(JSON.stringify(result,null,2));
+          EOF
+          node smoke.mjs
+      - name: Upload diagnostic artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v551-daily-integrity-result
+          path: /tmp/v551-result.json
+      - name: Publish diagnostic
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo '### Career OS V5.5.1 Daily integrity diagnostic'
+            echo '```json'
+            cat /tmp/v551-result.json
+            echo '```'
+          } >/tmp/v551-comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/v551-comment.md
+      - name: Enforce browser checks
+        run: node -e "const r=require('/tmp/v551-result.json');if(!r.passed)process.exit(1)"
