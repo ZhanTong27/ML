@@ -1,0 +1,112 @@
+name: V5.5 AMS Frontier Smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v55-ams-frontier-smoke.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - name: Validate independent AMS cognition track
+        run: |
+          cat > smoke.mjs <<'EOF'
+          import {chromium} from 'playwright';
+          import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:1440,height:1200}});
+          const errors=[];
+          page.on('pageerror',e=>errors.push(e.message));
+          page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+          await page.goto('http://127.0.0.1:8000/career-roadmap/index.html');
+          await page.waitForTimeout(4000);
+          const r={};
+          r.base=await page.evaluate(()=>({
+            title:document.title,
+            version:S.version,
+            dates:S.dailyLogs.map(x=>x.date).sort(),
+            dailyWork:S.dailyLogs.find(x=>x.date==='2026-07-15')?.work?.length||0,
+            dailyDiagnoses:S.dailyLogs.find(x=>x.date==='2026-07-15')?.diagnoses?.length||0,
+            learning:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>x.id),
+            closures:S.dailyClosures?.length||0,
+            meta:window.CAREER_OS_V55||null,
+            demo:typeof DEMO_STEPS_V42==='undefined'?[]:DEMO_STEPS_V42.map(x=>({view:x.view,title:x.title,text:x.text}))
+          }));
+          const frontier=page.locator('#frontier-radar-v50');
+          r.ui={
+            frontier:await frontier.count(),
+            text:await frontier.innerText(),
+            methods:await page.locator('.ams-maturity-grid-v55>article').count(),
+            readings:await page.locator('[data-ams-reading]').count(),
+            chapters:await page.locator('[data-ams-chapter]').count(),
+            papers:await page.locator('.ocldo-paper-list-v55 article').count(),
+            links:await page.locator('#frontier-radar-v50 a').count(),
+            note:await page.locator('#amsFrontierNoteV55').count(),
+            oldCurrentLab:await page.locator('.frontier-current-v50').count(),
+            oldClosure:await page.locator('#daily-closure-v51').count(),
+            closureControls:await page.locator('[data-closure-status]').count()
+          };
+          await page.locator('[data-ams-chapter="c1"]').check();
+          await page.locator('[data-ams-reading="r-uvmms-standard"]').check();
+          await page.locator('#amsFrontierNoteV55').fill('UVM-MS统一验证组件与环境连接；模型精度仍需Golden相关性证明。');
+          await page.locator('#saveAMSFrontierV55').click();
+          await page.waitForTimeout(120);
+          await page.reload();
+          await page.waitForTimeout(3200);
+          r.reload=await page.evaluate(()=>({
+            title:document.title,
+            version:S.version,
+            learning:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>x.id),
+            chapter:S.amsFrontierV55?.chapters?.c1,
+            reading:S.amsFrontierV55?.reading?.['r-uvmms-standard'],
+            note:S.amsFrontierV55?.note,
+            closures:S.dailyClosures?.length||0
+          }));
+          const mobile=await browser.newPage({viewport:{width:390,height:844}});
+          await mobile.goto('http://127.0.0.1:8000/career-roadmap/index.html');
+          await mobile.waitForTimeout(2700);
+          r.mobile={
+            overflow:await mobile.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth),
+            frontier:await mobile.locator('#frontier-radar-v50').count(),
+            methods:await mobile.locator('.ams-maturity-grid-v55>article').count()
+          };
+          await browser.close();
+          const requiredLearning=['learn-2026-07-15-waveform-rollover','learn-2026-07-15-clock-switch-bounds','learn-2026-07-15-hierarchical-wave-review'];
+          const removed=['learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep'];
+          const requiredText=['AMS VERIFICATION FRONTIER TRACK','从当前任务脱钩，建立数模混合验证的行业认知','UVM-MS 1.0','SystemVerilog Mixed-Signal Interface Types','多精度模型与相关性闭环','Bayesian Optimization','非线性与Hybrid-System形式验证','Federated Simulation','AI辅助AMS设计与验证','AnalogTester','Output-Capacitorless LDO / OCL-LDO','P.K.T. Mok','A Capacitor-Free CMOS Low-Dropout Regulator'];
+          const forbiddenText=['直接对应当前数模混合模型职责争议','当前数模混合模型职责争议','工作关联：'];
+          const demoCorrect=r.base.demo.some(x=>x.view==='growth'&&x.title==='固定课程与独立Frontier Track并行'&&x.text.includes('不由当前任务决定学习上限'));
+          const pass=!errors.length&&
+            r.base.title==='Zhantong · Career OS V5.5'&&r.base.version==='5.5'&&r.base.dates.includes('2026-07-15')&&r.base.dailyWork===4&&r.base.dailyDiagnoses===4&&r.base.closures===0&&r.base.meta?.frontier==='independent-ams-verification'&&
+            r.base.learning.length===3&&requiredLearning.every(x=>r.base.learning.includes(x))&&removed.every(x=>!r.base.learning.includes(x))&&r.base.meta?.dailyLearningCount===3&&demoCorrect&&
+            r.ui.frontier===1&&r.ui.methods===7&&r.ui.readings===10&&r.ui.chapters===5&&r.ui.papers===4&&r.ui.links>=10&&r.ui.note===1&&r.ui.oldCurrentLab===0&&r.ui.oldClosure===0&&r.ui.closureControls===0&&
+            requiredText.every(x=>r.ui.text.includes(x))&&forbiddenText.every(x=>!r.ui.text.includes(x))&&
+            r.reload.title==='Zhantong · Career OS V5.5'&&r.reload.version==='5.5'&&r.reload.learning.length===3&&removed.every(x=>!r.reload.learning.includes(x))&&r.reload.chapter===true&&r.reload.reading===true&&r.reload.note.includes('模型精度仍需Golden相关性证明')&&r.reload.closures===0&&
+            !r.mobile.overflow&&r.mobile.frontier===1&&r.mobile.methods===7;
+          fs.writeFileSync('/tmp/result.json',JSON.stringify({pass,r,errors},null,2));
+          EOF
+          node smoke.mjs
+      - name: Publish result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### V5.5 AMS Frontier smoke'; echo '```json'; cat /tmp/result.json; echo '```'; } >/tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
+      - name: Enforce
+        run: node -e "const x=require('/tmp/result.json');if(!x.pass)process.exit(1)"
