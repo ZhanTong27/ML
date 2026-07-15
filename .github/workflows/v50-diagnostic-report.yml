@@ -1,0 +1,50 @@
+name: V5.0 Diagnostic Report
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v50-diagnostic-report.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - name: Run concise diagnostic
+        run: |
+          cat > report.mjs <<'EOF'
+          import {chromium} from 'playwright';import fs from 'node:fs';
+          const b=await chromium.launch({headless:true}),p=await b.newPage({viewport:{width:1440,height:1100}}),errors=[];p.on('pageerror',x=>errors.push(x.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+          await p.addInitScript(()=>localStorage.clear());await p.goto('http://127.0.0.1:8000/career-roadmap/index.html');await p.waitForTimeout(3000);const c={};
+          c.base=await p.evaluate(()=>({title:document.title,name:document.querySelector('.top b')?.textContent,version:S.version,key:S.storageV50?.canonicalKey,source:S.resume?.sourceVersion,experiences:S.resume?.experiences?.map(x=>x.title),education:S.resume?.education?.map(x=>x.title)}));
+          await p.click('[data-view="growth"]');c.growth={direct:await p.locator('#growth>section.content-section').count(),library:await p.locator('#growth-library-v50').count(),closed:!(await p.locator('#growth-library-v50').getAttribute('open')),command:await p.locator('.weekly-command-grid-v50 article').count(),lab:await p.locator('.frontier-highlight-v50 h3').innerText()};
+          await p.click('#openFrontierV50');await p.waitForTimeout(120);c.frontier={methods:await p.locator('.frontier-method-grid-v50 article').count(),links:await p.locator('.frontier-method-grid-v50 a').count()};await p.locator('#frontierStatusV50').selectOption('active');await p.click('#saveFrontierV50');
+          await p.click('[data-view="career"]');c.asset={hero:await p.locator('.asset-hero-v50').count(),tabs:await p.locator('[data-asset-tab]').count()};for(const [k,v] of Object.entries({checking:100000,moneyMarket:10000,termDeposit:0,funds:50000,stocks:20000,housingFund:30000,other:0,debt:10000}))await p.locator(`[data-asset-account="${k}"]`).fill(String(v));await p.click('#saveAssetAccountsV50');await p.click('[data-asset-tab="monthly"]');for(const [k,v] of Object.entries({takeHomeIncome:22000,monthlyExpense:6500,monthlyInvestment:3000,housingFundAdded:2400,passiveIncome:500}))await p.locator(`[data-asset-flow="${k}"]`).fill(String(v));await p.click('#saveAssetFlowV50');c.values=await p.evaluate(()=>({totals:assetTotalsV50(),flow:flowTotalsV50(),row:S.resources.months[0]}));
+          await p.click('[data-asset-tab="goals"]');await p.locator('[data-goal-id="car"][data-goal-field="target"]').fill('250000');await p.click('#saveAssetGoalsV50');await p.reload();await p.waitForTimeout(2500);c.reload=await p.evaluate(()=>({version:S.version,key:S.storageV50?.canonicalKey,net:assetTotalsV50().net,lab:S.frontierV50?.labs?.['mixed-contract']?.status,car:S.assetPlanV50?.goals?.find(x=>x.id==='car')?.target}));
+          const m=await b.newPage({viewport:{width:390,height:844}});await m.goto('http://127.0.0.1:8000/career-roadmap/index.html');await m.waitForTimeout(2200);c.mobile={overflow:await m.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth)};await m.close();await b.close();
+          const pass=c.base.title==='Zhantong · Career OS V5.0'&&c.base.version==='5.0'&&c.base.key==='zhantong-career-os-v5'&&c.base.source==='career-profile-v50-single-source'&&!c.base.experiences.join('|').includes('民华微电子')&&c.growth.direct===3&&c.growth.library===1&&c.growth.closed&&c.growth.command===3&&c.growth.lab.includes('Mixed-Signal')&&c.frontier.methods===7&&c.frontier.links>=6&&c.asset.hero===1&&c.asset.tabs===4&&c.values.totals.net===200000&&c.values.flow.available===16000&&c.values.flow.cashAfter===13000&&c.values.flow.netGrowth===18400&&c.reload.version==='5.0'&&c.reload.key==='zhantong-career-os-v5'&&c.reload.net===200000&&c.reload.lab==='active'&&c.reload.car===250000&&!c.mobile.overflow&&!errors.length;
+          fs.writeFileSync('/tmp/v50-report.json',JSON.stringify({pass,c,errors},null,2));
+          EOF
+          node report.mjs
+      - name: Publish report
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### Career OS V5.0 diagnostic'; echo '```json'; cat /tmp/v50-report.json; echo '```'; } >/tmp/v50-comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/v50-comment.md
+      - name: Enforce report
+        run: node -e "const r=require('/tmp/v50-report.json');if(!r.pass)process.exit(1)"
