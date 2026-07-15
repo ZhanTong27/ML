@@ -30,6 +30,12 @@
     }catch(e){}
   }
 
+  function applyIdentity(){
+    if(typeof S!=='undefined')S.version='5.5.2';
+    document.title='Zhantong · Career OS V5.5.2';
+    var side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.5.2'
+  }
+
   function recover(reason){
     if(running||typeof S==='undefined')return false;
     running=true;
@@ -57,11 +63,9 @@
         if(!selected||usableWork(selected).length===0){S.selectedDate='2026-07-15';S.calendarMonth='2026-07'}
       }
 
-      S.version='5.5.2';
       S.dailyRecoveryV552={version:'5.5.2',reason:reason||'runtime',counts:{'2026-07-13':c13,'2026-07-14':c14,'2026-07-15':c15},complete:complete,updatedAt:(typeof localISO==='function'?localISO():new Date().toISOString().slice(0,10))};
       window.CAREER_OS_V552=S.dailyRecoveryV552;
-      document.title='Zhantong · Career OS V5.5.2';
-      var side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.5.2';
+      applyIdentity();
       if(typeof save==='function')save();
       return complete
     }catch(e){
@@ -74,6 +78,8 @@
   function recoverAndRender(reason){
     var ok=recover(reason);
     try{if(ok&&typeof renderAll==='function')renderAll()}catch(e){console.error('Career OS V5.5.2 render retry failed',e)}
+    applyIdentity();
+    try{if(typeof save==='function')save()}catch(e){}
   }
 
   function schedule(reason){
