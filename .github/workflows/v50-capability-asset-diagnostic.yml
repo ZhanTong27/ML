@@ -1,0 +1,48 @@
+name: V5.0 Capability and Asset Diagnostic
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v50-capability-asset-diagnostic.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - run: |
+          cat > check.mjs <<'EOF'
+          import {chromium} from 'playwright';
+          const b=await chromium.launch({headless:true});const p=await b.newPage({viewport:{width:1440,height:1100}});const e=[];
+          p.on('pageerror',x=>e.push(x.message));p.on('console',m=>{if(m.type()==='error')e.push(m.text())});
+          await p.addInitScript(()=>localStorage.clear());await p.goto('http://127.0.0.1:8000/career-roadmap/index.html');await p.waitForTimeout(3200);
+          const c={title:(await p.title())==='Zhantong · Career OS V5.0',name:await p.locator('.top b').innerText(),nav:await p.locator('.nav [data-view="career"]').innerText(),state:await p.evaluate(()=>({version:S.version,key:S.storageV50?.canonicalKey,source:S.resume?.sourceVersion,education:S.resume?.education,experiences:S.resume?.experiences,hasCanonical:!!localStorage.getItem('zhantong-career-os-v5')}))};
+          await p.click('[data-view="growth"]');c.visibleSections=await p.locator('#growth>section.content-section').count();c.library=await p.locator('#growth-library-v50').count();c.libraryClosed=!(await p.locator('#growth-library-v50').getAttribute('open'));c.command=await p.locator('.weekly-command-grid-v50 article').count();c.currentLab=(await p.locator('.frontier-highlight-v50').innerText()).includes('Mixed-Signal Model Delivery Contract');
+          await p.click('#openFrontierV50');await p.waitForTimeout(150);c.radar=await p.locator('.frontier-method-grid-v50 article').count();c.officialLinks=await p.locator('.frontier-method-grid-v50 a').count();await p.locator('#frontierStatusV50').selectOption('active');await p.locator('[data-frontier-check="0"]').check();await p.locator('#frontierNoteV50').fill('与数模混合模型交付边界直接相关');await p.click('#saveFrontierV50');
+          c.frontierSaved=await p.evaluate(()=>S.frontierV50.labs['mixed-contract']);
+          await p.click('[data-view="career"]');c.assetHero=await p.locator('.asset-hero-v50').count();c.assetTabs=await p.locator('[data-asset-tab]').count();
+          const accounts={checking:'100000',moneyMarket:'10000',termDeposit:'0',funds:'50000',stocks:'20000',housingFund:'30000',other:'0',debt:'10000'};for(const [k,v] of Object.entries(accounts))await p.locator(`[data-asset-account="${k}"]`).fill(v);await p.click('#saveAssetAccountsV50');
+          await p.click('[data-asset-tab="monthly"]');const flows={takeHomeIncome:'22000',monthlyExpense:'6500',monthlyInvestment:'3000',housingFundAdded:'2400',passiveIncome:'500'};for(const [k,v] of Object.entries(flows))await p.locator(`[data-asset-flow="${k}"]`).fill(v);await p.click('#saveAssetFlowV50');
+          c.moneyText=await p.locator('#resourceDashboard').innerText();c.assetState=await p.evaluate(()=>({totals:assetTotalsV50(),flow:flowTotalsV50(),months:S.resources.months,accounts:S.assetPlanV50.accounts}));
+          await p.click('[data-asset-tab="goals"]');await p.locator('[data-goal-id="car"][data-goal-field="target"]').fill('250000');await p.locator('[data-goal-id="car"][data-goal-field="date"]').fill('2029-12-31');await p.click('#saveAssetGoalsV50');
+          await p.click('[data-asset-tab="policy"]');await p.locator('#policyDrawdownV50').selectOption('10%以内');await p.locator('#policyEquityV50').selectOption('longterm');await p.locator('#policyStocksV50').selectOption('limited');await p.locator('#scenarioCarYearV50').fill('2029');await p.locator('#scenarioCarBudgetV50').fill('250000');await p.click('#saveAssetPolicyV50');
+          c.plan=await p.evaluate(()=>({goal:S.assetPlanV50.goals.find(x=>x.id==='car'),policy:S.assetPlanV50.policy,scenario:S.assetPlanV50.scenarios}));
+          await p.reload();await p.waitForTimeout(2800);c.reload=await p.evaluate(()=>({version:S.version,key:S.storageV50?.canonicalKey,net:assetTotalsV50().net,lab:S.frontierV50.labs['mixed-contract']?.status,car:S.assetPlanV50.goals.find(x=>x.id==='car')?.target,education:S.resume.education[0]?.title,companies:S.resume.experiences.map(x=>x.title)}));
+          const m=await b.newPage({viewport:{width:390,height:844}});await m.goto('http://127.0.0.1:8000/career-roadmap/index.html');await m.waitForTimeout(2500);c.mobileOverflow=await m.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth);await m.click('[data-view="growth"]');c.mobileCards=await m.locator('.weekly-command-grid-v50 article').count();await m.close();await b.close();
+          const exp=c.state.experiences.map(x=>x.title).join('|'),edu=c.state.education.map(x=>x.title).join('|');
+          const ok=!e.length&&c.title&&c.name==='Zhantong'&&c.nav.includes('人生与资产')&&c.state.version==='5.0'&&c.state.key==='zhantong-career-os-v5'&&c.state.source==='career-profile-v50-single-source'&&c.state.hasCanonical&&!exp.includes('民华微电子')&&exp.includes('DJI')&&exp.includes('英特尔')&&edu.includes('Electronic Design')&&edu.includes('2020.09')===false&&c.visibleSections===3&&c.library===1&&c.libraryClosed&&c.command===3&&c.currentLab&&c.radar===7&&c.officialLinks>=6&&c.frontierSaved.status==='active'&&c.assetHero===1&&c.assetTabs===4&&c.assetState.totals.net===200000&&c.assetState.flow.available===16000&&c.assetState.flow.cashAfter===13000&&c.assetState.flow.netGrowth===18400&&c.assetState.months[0].availableSurplus===16000&&c.moneyText.includes('可支配结余')&&c.moneyText.includes('月底剩余现金')&&c.plan.goal.target===250000&&c.plan.policy.maxDrawdown==='10%以内'&&c.plan.policy.equityRole==='longterm'&&c.plan.scenario.carBudget===250000&&c.reload.version==='5.0'&&c.reload.key==='zhantong-career-os-v5'&&c.reload.net===200000&&c.reload.lab==='active'&&c.reload.car===250000&&c.reload.education.includes('Electronic Design')&&!c.reload.companies.join('|').includes('民华微电子')&&!c.mobileOverflow&&c.mobileCards===3;
+          console.log(JSON.stringify({ok,c,e},null,2));if(!ok)process.exit(1);
+          EOF
+          node check.mjs
