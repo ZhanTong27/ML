@@ -1,0 +1,23 @@
+window.DAILY_HISTORY_FALLBACK_V53={
+ '2026-07-13':{patchId:'2026-07-13-a7f3',date:'2026-07-13',summary:'完成一项单元测试失败的定位与处理，问题涉及仿真加速时钟毛刺和低速时钟下等待窗口不足；推进面向ATE的测试交付文件并生成第一版，但下游用途和内容标准仍待确认；另一项验证的功能结果正常，同时发现时钟门控可能未生效及一个设计自带检查器异常。',workItems:[
+  {id:'wi-0713-ut-debug',title:'单元测试用例失败定位',goal:'定位并解决某单元测试用例中的检查器报错。',process:['发现仿真加速时钟会引入当前场景不允许的毛刺。','恢复低速时钟后，发现原等待窗口不足，目标状态尚未更新。','延长等待窗口后，当前检查器报错消失。','问题经过多人共同迭代。'],result:'当前检查器报错已经消失。',status:'completed',unresolved:['等待窗口是否具有明确规格依据尚未确认。','其他加速时钟场景是否存在同类毛刺风险尚未确认。'],independence:'assisted'},
+  {id:'wi-0713-ate-output',title:'ATE测试交付文件输出',goal:'生成供ATE环节使用的测试交付文件。',process:['运行仿真并与设计结果核对。','生成第一版较长且结构复杂的交付文件。','当前文件包含部分接口监控内容。','尚不清楚ATE完整用途和交付标准。'],result:'第一版文件已经生成，但是否适合下游使用尚未确认。',status:'in_progress',unresolved:['ATE如何使用该文件。','必须包含哪些信息。','接口监控内容是否需要保留。','是否存在模板和验收标准。'],independence:'unknown'},
+  {id:'wi-0713-lowpower-check',title:'功能验证与低功耗意图核查',goal:'推进功能验证并确认时钟门控设计意图。',process:['功能输出与相关数据目前正常。','观察到预期的时钟门控可能没有实际作用。','设计自带检查器针对延迟相关信号报错。','设计人员暂时不在，相关意图等待确认。'],result:'功能结果目前正常；低功耗意图和检查器报错原因仍未知。',status:'waiting',unresolved:['当前模式是否应启用门控。','现象属于缺陷、模式特例还是预期实现。','检查器触发原因。'],independence:'unknown'}
+ ],workLearning:[
+  {statement:'仿真加速时钟可能引入不满足场景约束的毛刺。',masteryStatus:'understood'},
+  {statement:'切换到更慢时钟后，需要重新评估状态更新时间和检查窗口。',masteryStatus:'applied'},
+  {statement:'ATE交付需要理解下游用途、内容边界和验收方式。',masteryStatus:'exposed'},
+  {statement:'功能正确不等于低功耗意图已经实现。',masteryStatus:'applied'}
+ ],outsideLearning:[],life:[],tomorrow:{work:[],learning:[],life:[]}},
+ '2026-07-14':{patchId:'2026-07-14-k8m4',date:'2026-07-14',summary:'继续推进某功能模块的算法功能扫视，覆盖软硬件模式切换、运行中途配置和随机场景，并开始关注最终结果之外的控制、状态和数据生成路径。前一日异常由设计人员定位为外部入口被强制赋值后未释放。团队讨论了数模混合数字行为模型的职责边界；同时用户成功使用环境生成脚本，并初步识别其他环境失败可能与子系统配置缺失有关。',workItems:[
+  {id:'wi-0714-function-debug',title:'功能场景调试与算法扫视',goal:'验证主要算法行为并覆盖不同控制方式和运行阶段。',process:['继续算法功能整体扫视。','调试软硬件控制模式切换。','调试运行中途修改配置。','调试随机组合场景。','开始追踪结果之外的信号、配置来源和中间生成路径。'],result:'多个场景继续推进，但尚未形成完整覆盖结论。',status:'in_progress',unresolved:['完整覆盖边界尚未明确。','随机场景约束和判断标准尚未说明。','尚未形成固定调试顺序。'],independence:'unknown'},
+  {id:'wi-0714-force-rootcause',title:'前一日异常根因确认',goal:'确认前一日报错的根本原因。',process:['用户此前自行追踪并借助AI分析，但未定位。','设计人员发现外部入口在特定流程中被强制赋值。','后续流程没有释放强制状态。','残留状态使模块保持在非预期控制条件。'],result:'根因已由设计人员解释。',status:'completed',unresolved:['修复方式与回归结果未记录。','相似入口和自动检测机制未确认。'],independence:'assisted'},
+  {id:'wi-0714-mixedsignal-handoff',title:'数模混合模型交付边界协调',goal:'理解数字行为模型的提供、验收和协作方式。',process:['当前方案可能要求验证侧编写并使用模型。','团队认为同一方自建自验不够合理。','提出模拟设计侧应提供模型或等效交付物。','用户尚不清楚模型形式、精度和验收流程。'],result:'问题被识别为职责和交付机制问题，尚未形成最终方案。',status:'in_progress',unresolved:['模型形式、抽象范围和精度。','模型正确性的独立证据。','提供、验收和维护责任。'],independence:'prompted'},
+  {id:'wi-0714-env-generation',title:'环境生成脚本与子系统配置确认',goal:'理解环境生成脚本条件和部分子系统失败原因。',process:['同事反馈脚本无法生成某些环境。','用户使用相关脚本成功生成自己的环境。','初步判断部分子系统未显式加入配置。','对整体组织和脚本布局仍缺少完整认识。'],result:'确认脚本在当前配置下可以使用；其他失败原因尚未完全确认。',status:'in_progress',unresolved:['失败配置是否缺少子系统注册。','脚本完整依赖关系。','整体环境生成架构。'],independence:'independent'}
+ ],workLearning:[
+  {statement:'用例调试需要追踪控制来源、状态变化、数据路径和检查条件。',masteryStatus:'applied'},
+  {statement:'force未释放可能使模块持续处于非预期状态。',masteryStatus:'understood'},
+  {statement:'数模混合行为模型需要明确开发、正确性和验收责任。',masteryStatus:'exposed'},
+  {statement:'环境生成依赖相关子系统正确加入配置。',masteryStatus:'applied'}
+ ],outsideLearning:[],life:[],tomorrow:{work:[],learning:[],life:[]}}
+};
