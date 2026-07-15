@@ -1,0 +1,1 @@
+(function(){try{const canonical='zhantong-career-os-v5',legacy='jett-career-os-v22',current=localStorage.getItem(canonical);if(current)localStorage.setItem(legacy,current)}catch{}})();
