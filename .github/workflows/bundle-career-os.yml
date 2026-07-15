@@ -51,7 +51,7 @@ jobs:
               code=re.sub(r'</script',r'<\\/script',code,flags=re.I)
               blocks.append(f'<script data-source="{src}">\n{code}\n</script>')
           html=html.replace(markers,'\n'.join(blocks),1)
-          extras=['curriculum/manual-v31.js','curriculum/v32.js','curriculum/resume-v33.js','curriculum/resume-portfolio-v34.js','curriculum/daily-20260713.js','curriculum/daily-20260714-core.js','curriculum/daily-20260714-analysis.js','curriculum/daily-20260714.js','curriculum/v40-career-model.js','curriculum/v40-reviews.js','curriculum/v41-explorer.js','curriculum/v42-demo.js','curriculum/v43-dji-assets.js','curriculum/v44-finance-simple.js','curriculum/v45-personalized-learning.js','curriculum/v46-pack-w1.js','curriculum/v46-pack-w2.js','curriculum/v46-pack-w3.js','curriculum/v46-pack-w4.js','curriculum/v46-learning-pack-ui.js','curriculum/v47-ai-native-overlay.js','curriculum/v48-reality-responsive.js','curriculum/v49-identity-education.js','curriculum/v50-profile-source.js','curriculum/v50-frontier-methods.js','curriculum/v50-frontier-labs.js','curriculum/v50-frontier-ui.js','curriculum/v50-asset-system.js','curriculum/v50-simplicity-core.js','curriculum/v50-frontier-kickoff.js','curriculum/v50-finalize.js','curriculum/v51-daily-closure-loop.js','curriculum/v51-daily-closure-fixes.js']
+          extras=['curriculum/manual-v31.js','curriculum/v32.js','curriculum/resume-v33.js','curriculum/resume-portfolio-v34.js','curriculum/daily-20260713.js','curriculum/daily-20260714-core.js','curriculum/daily-20260714-analysis.js','curriculum/daily-20260714.js','curriculum/v40-career-model.js','curriculum/v40-reviews.js','curriculum/v41-explorer.js','curriculum/v42-demo.js','curriculum/v43-dji-assets.js','curriculum/v44-finance-simple.js','curriculum/v45-personalized-learning.js','curriculum/v46-pack-w1.js','curriculum/v46-pack-w2.js','curriculum/v46-pack-w3.js','curriculum/v46-pack-w4.js','curriculum/v46-learning-pack-ui.js','curriculum/v47-ai-native-overlay.js','curriculum/v48-reality-responsive.js','curriculum/v49-identity-education.js','curriculum/v50-profile-source.js','curriculum/v50-frontier-methods.js','curriculum/v50-frontier-labs.js','curriculum/v50-frontier-ui.js','curriculum/v50-asset-system.js','curriculum/v50-simplicity-core.js','curriculum/v50-frontier-kickoff.js','curriculum/v50-finalize.js','curriculum/v51-daily-closure-loop.js','curriculum/v51-daily-closure-fixes.js','curriculum/v52-learning-seeds-a.js','curriculum/v52-learning-seeds-b.js','curriculum/v52-problem-learning-ui.js','curriculum/v52-problem-learning-core.js']
           extra=[]
           for src in extras:
               code=(root/src).read_text(encoding='utf-8')
@@ -59,7 +59,7 @@ jobs:
               extra.append(f'<script data-source="{src}">\n{code}\n</script>')
           html=html.replace('</body>','\n'.join(extra)+'\n</body>',1)
           if re.search(r'<script\s+[^>]*src=',html,re.I): raise SystemExit('External script remains')
-          required=['ENGINEERING PORTFOLIO','Recruiter View','2026-07-13-a7f3','2026-07-14-k8m4','系统化调试方法','数模混合行为模型交付边界','DIAGNOSIS LIFECYCLE','career-os-v4-weekly-1','career-os-v4-monthly-1','REVIEW ARCHIVE','evidenceControlsV41','5分钟看懂 Career OS','openUsageDemo','DJI职业资产库','dji-assets-v43','confirmed-plus-candidate-v46','AI-NATIVE VERIFICATION OVERLAY','career-assets-v48-reality-check-2026-07-14','career-assets-v49-identity-education-2026-07-14','career-profile-v50-single-source','VERIFICATION FRONTIER RADAR','Mixed-Signal Model Delivery Contract','PERSONAL CAPITAL','目标资金桶','zhantong-career-os-v5','THIS WEEK · EXECUTION','v50-storage-bootstrap.js','v50-frontier-kickoff.js','v50-finalize.js','V5.1 · DAILY PROBLEM CLOSURE','每日记录与问题闭环Prompt','技术问题闭环Prompt','closure-2026-07-14-systematic-debug','Zhantong · Career OS V5.1']
+          required=['ENGINEERING PORTFOLIO','Recruiter View','2026-07-13-a7f3','2026-07-14-k8m4','DIAGNOSIS LIFECYCLE','career-profile-v50-single-source','VERIFICATION FRONTIER RADAR','Mixed-Signal Model Delivery Contract','PERSONAL CAPITAL','目标资金桶','zhantong-career-os-v5','THIS WEEK · EXECUTION','V5.2 · PROBLEM-TO-LEARNING BRIDGE','每日记录与能力补足Prompt','工作问题转学习材料Prompt','learn-2026-07-13-clock-checker','learn-2026-07-14-systematic-debug','不追踪工作状态 · 只补能力缺口','Zhantong · Career OS V5.2']
           missing=[x for x in required if x not in html]
           if missing: raise SystemExit(f'Missing bundled markers: {missing}')
           (root/'index.html').write_text(html,encoding='utf-8')
@@ -71,9 +71,9 @@ jobs:
           import re
           text=Path('career-roadmap/index.html').read_text(encoding='utf-8')
           assert not re.search(r'<script\s+[^>]*src=',text,re.I)
-          for marker in ['2026-07-14-k8m4','DIAGNOSIS LIFECYCLE','career-profile-v50-single-source','VERIFICATION FRONTIER RADAR','PERSONAL CAPITAL','zhantong-career-os-v5','V5.1 · DAILY PROBLEM CLOSURE','每日记录与问题闭环Prompt','技术问题闭环Prompt','closure-2026-07-14-systematic-debug','Zhantong · Career OS V5.1']:
+          for marker in ['2026-07-14-k8m4','DIAGNOSIS LIFECYCLE','career-profile-v50-single-source','VERIFICATION FRONTIER RADAR','PERSONAL CAPITAL','zhantong-career-os-v5','V5.2 · PROBLEM-TO-LEARNING BRIDGE','每日记录与能力补足Prompt','工作问题转学习材料Prompt','learn-2026-07-14-systematic-debug','不追踪工作状态 · 只补能力缺口','Zhantong · Career OS V5.2']:
               assert marker in text
-          print('Career OS V5.1 single-file structure validated')
+          print('Career OS V5.2 single-file structure validated')
           PY
       - name: Commit generated page
         run: |
