@@ -6,9 +6,7 @@ function installIdentityEducationV49(){
  document.title='Zhantong · Career OS V4.9';const side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V4.9';save();renderAll();applyIdentityUiV49()
 }
 function migrateIdentityStorageV49(){
- const canonicalKey='zhantong-career-os-v22',legacyKey='jett-career-os-v22';
- try{const canonical=JSON.parse(localStorage.getItem(canonicalKey)||'null');if(canonical)S=normalizeState(canonical);else localStorage.setItem(canonicalKey,JSON.stringify(S))}catch{}
- save=function(){try{const value=JSON.stringify(S);localStorage.setItem(canonicalKey,value);localStorage.setItem(legacyKey,value)}catch{}}
+ try{const legacy=JSON.parse(localStorage.getItem('zhantong-career-os-v22')||'null');if(legacy&&!localStorage.getItem('zhantong-career-os-v5'))S=normalizeState(legacy)}catch{}
 }
 function updateIdentityDataV49(){
  const r=S.resume||{};
