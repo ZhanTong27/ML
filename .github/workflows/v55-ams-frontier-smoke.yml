@@ -28,69 +28,30 @@ jobs:
           cat > smoke.mjs <<'EOF'
           import {chromium} from 'playwright';
           import fs from 'node:fs';
-          const browser=await chromium.launch({headless:true});
-          const page=await browser.newPage({viewport:{width:1440,height:1200}});
-          const errors=[];
-          page.on('pageerror',e=>errors.push(e.message));
-          page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
-          await page.goto('http://127.0.0.1:8000/career-roadmap/index.html');
-          await page.waitForTimeout(3800);
-          const r={};
-          r.base=await page.evaluate(()=>({
-            title:document.title,
-            version:S.version,
-            daily15:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>x.id),
-            oldAms:S.learningResponses.some(x=>['learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep'].includes(x.id)),
-            frontier:!!window.AMS_FRONTIER_V55,
-            maturity:window.AMS_FRONTIER_V55?.maturity?.length||0,
-            readings:window.AMS_FRONTIER_V55?.readings?.length||0,
-            ocldoPapers:window.AMS_FRONTIER_V55?.ocldo?.papers?.length||0,
-            meta:window.CAREER_OS_V55||null
-          }));
-          await page.evaluate(()=>switchView('growth'));
-          await page.waitForTimeout(250);
-          r.ui={
-            section:await page.locator('#frontier-radar-v50').count(),
-            title:await page.locator('#frontierBodyV50 h2').first().innerText(),
-            text:await page.locator('#frontierBodyV50').innerText(),
-            maturityCards:await page.locator('.ams-maturity-grid-v55>article').count(),
-            readingCards:await page.locator('.ams-reading-v55').count(),
-            ocldoPapers:await page.locator('.ocldo-paper-list-v55>article').count(),
-            links:await page.locator('#frontierBodyV50 a').count(),
-            chapters:await page.locator('[data-ams-chapter]').count(),
-            readings:await page.locator('[data-ams-reading]').count(),
-            oldLabStatus:await page.locator('#frontierStatusV50').count(),
-            oldWorkText:await page.locator('#frontierBodyV50').innerText()
-          };
-          await page.locator('[data-ams-reading]').first().check();
-          await page.locator('[data-ams-chapter]').first().check();
-          await page.locator('#amsFrontierNoteV55').fill('UVM-MS负责统一验证组件和桥接，不替代连续时间求解。');
-          await page.locator('#saveAMSFrontierV55').click();
-          await page.waitForTimeout(120);
-          r.saved=await page.evaluate(()=>({reading:Object.values(S.amsFrontierV55.reading).filter(Boolean).length,chapters:Object.values(S.amsFrontierV55.chapters).filter(Boolean).length,note:S.amsFrontierV55.note}));
-          await page.reload();
-          await page.waitForTimeout(3000);
-          await page.evaluate(()=>switchView('growth'));
-          await page.waitForTimeout(180);
-          r.reload=await page.evaluate(()=>({title:document.title,version:S.version,daily15:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>x.id),oldAms:S.learningResponses.some(x=>['learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep'].includes(x.id)),reading:Object.values(S.amsFrontierV55.reading).filter(Boolean).length,chapters:Object.values(S.amsFrontierV55.chapters).filter(Boolean).length,note:S.amsFrontierV55.note}));
-          const mobile=await browser.newPage({viewport:{width:390,height:844}});
-          await mobile.goto('http://127.0.0.1:8000/career-roadmap/index.html');
-          await mobile.waitForTimeout(2600);
-          await mobile.evaluate(()=>switchView('growth'));
-          await mobile.waitForTimeout(150);
-          r.mobile={overflow:await mobile.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth),section:await mobile.locator('#frontier-radar-v50').count()};
-          await browser.close();
-          const requiredDaily=['learn-2026-07-15-waveform-rollover','learn-2026-07-15-clock-switch-bounds','learn-2026-07-15-hierarchical-wave-review'];
-          const independentText=r.ui.text.includes('从当前任务脱钩')&&r.ui.text.includes('不由当前任务决定学习上限')&&r.ui.text.includes('公开标准')&&r.ui.text.includes('论文')&&r.ui.text.includes('AI');
-          const frontierContent=r.ui.text.includes('UVM-MS 1.0')&&r.ui.text.includes('SystemVerilog Mixed-Signal Interface Types')&&r.ui.text.includes('连续空间Coverage与智能Corner搜索')&&r.ui.text.includes('Federated Simulation')&&r.ui.text.includes('AnalogTester')&&r.ui.text.includes('Output-Capacitorless LDO')&&r.ui.text.includes('P.K.T. Mok');
-          const pass=!errors.length&&
-            r.base.title==='Zhantong · Career OS V5.5'&&r.base.version==='5.5'&&r.base.frontier&&r.base.maturity>=6&&r.base.readings>=8&&r.base.ocldoPapers>=4&&r.base.meta?.frontier==='independent-ams-verification'&&
-            requiredDaily.every(x=>r.base.daily15.includes(x))&&r.base.daily15.length===3&&!r.base.oldAms&&
-            r.ui.section===1&&r.ui.title.includes('数模混合验证的行业认知')&&independentText&&frontierContent&&r.ui.maturityCards>=6&&r.ui.readingCards>=8&&r.ui.ocldoPapers>=4&&r.ui.links>=10&&r.ui.chapters===5&&r.ui.readings>=8&&r.ui.oldLabStatus===0&&
-            r.saved.reading===1&&r.saved.chapters===1&&r.saved.note.includes('不替代连续时间求解')&&
-            r.reload.title==='Zhantong · Career OS V5.5'&&r.reload.version==='5.5'&&r.reload.daily15.length===3&&!r.reload.oldAms&&r.reload.reading===1&&r.reload.chapters===1&&r.reload.note.includes('不替代连续时间求解')&&
-            !r.mobile.overflow&&r.mobile.section===1;
-          fs.writeFileSync('/tmp/result.json',JSON.stringify({pass,r,errors},null,2));
+          let browser;const out={pass:false,r:{},errors:[]};
+          try{
+            browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:1440,height:1200}});
+            page.on('pageerror',e=>out.errors.push(`pageerror:${e.message}`));
+            page.on('console',m=>{if(m.type()==='error')out.errors.push(`console:${m.text()}`)});
+            await page.goto('http://127.0.0.1:8000/career-roadmap/index.html');
+            await page.waitForTimeout(3800);
+            const r=out.r;
+            r.base=await page.evaluate(()=>({title:document.title,version:S.version,daily15:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>x.id),oldAms:S.learningResponses.some(x=>['learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep'].includes(x.id)),frontier:!!window.AMS_FRONTIER_V55,maturity:window.AMS_FRONTIER_V55?.maturity?.length||0,readings:window.AMS_FRONTIER_V55?.readings?.length||0,ocldoPapers:window.AMS_FRONTIER_V55?.ocldo?.papers?.length||0,meta:window.CAREER_OS_V55||null}));
+            await page.evaluate(()=>switchView('growth'));await page.waitForTimeout(250);
+            r.ui={section:await page.locator('#frontier-radar-v50').count(),bodyCount:await page.locator('#frontierBodyV50').count(),titleCount:await page.locator('#frontierBodyV50 h2').count(),title:await page.locator('#frontierBodyV50 h2').first().innerText(),text:await page.locator('#frontierBodyV50').innerText(),maturityCards:await page.locator('.ams-maturity-grid-v55>article').count(),readingCards:await page.locator('.ams-reading-v55').count(),ocldoPapers:await page.locator('.ocldo-paper-list-v55>article').count(),links:await page.locator('#frontierBodyV50 a').count(),chapters:await page.locator('[data-ams-chapter]').count(),readings:await page.locator('[data-ams-reading]').count(),oldLabStatus:await page.locator('#frontierStatusV50').count()};
+            const firstReading=page.locator('[data-ams-reading]').first();await firstReading.check();await page.waitForTimeout(80);
+            const firstChapter=page.locator('[data-ams-chapter]').first();await firstChapter.check();await page.waitForTimeout(80);
+            await page.locator('#amsFrontierNoteV55').fill('UVM-MS负责统一验证组件和桥接，不替代连续时间求解。');await page.locator('#saveAMSFrontierV55').click();await page.waitForTimeout(120);
+            r.saved=await page.evaluate(()=>({reading:Object.values(S.amsFrontierV55.reading).filter(Boolean).length,chapters:Object.values(S.amsFrontierV55.chapters).filter(Boolean).length,note:S.amsFrontierV55.note}));
+            await page.reload();await page.waitForTimeout(3000);await page.evaluate(()=>switchView('growth'));await page.waitForTimeout(180);
+            r.reload=await page.evaluate(()=>({title:document.title,version:S.version,daily15:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>x.id),oldAms:S.learningResponses.some(x=>['learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep'].includes(x.id)),reading:Object.values(S.amsFrontierV55.reading).filter(Boolean).length,chapters:Object.values(S.amsFrontierV55.chapters).filter(Boolean).length,note:S.amsFrontierV55.note}));
+            const mobile=await browser.newPage({viewport:{width:390,height:844}});await mobile.goto('http://127.0.0.1:8000/career-roadmap/index.html');await mobile.waitForTimeout(2600);await mobile.evaluate(()=>switchView('growth'));await mobile.waitForTimeout(150);r.mobile={overflow:await mobile.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth),section:await mobile.locator('#frontier-radar-v50').count()};
+            const requiredDaily=['learn-2026-07-15-waveform-rollover','learn-2026-07-15-clock-switch-bounds','learn-2026-07-15-hierarchical-wave-review'];
+            const independentText=r.ui.text.includes('从当前任务脱钩')&&r.ui.text.includes('不由当前任务决定学习上限')&&r.ui.text.includes('公开标准')&&r.ui.text.includes('论文')&&r.ui.text.includes('AI');
+            const frontierContent=r.ui.text.includes('UVM-MS 1.0')&&r.ui.text.includes('SystemVerilog Mixed-Signal Interface Types')&&r.ui.text.includes('连续空间Coverage与智能Corner搜索')&&r.ui.text.includes('Federated Simulation')&&r.ui.text.includes('AnalogTester')&&r.ui.text.includes('Output-Capacitorless LDO')&&r.ui.text.includes('P.K.T. Mok');
+            out.pass=!out.errors.length&&r.base.title==='Zhantong · Career OS V5.5'&&r.base.version==='5.5'&&r.base.frontier&&r.base.maturity>=6&&r.base.readings>=8&&r.base.ocldoPapers>=4&&r.base.meta?.frontier==='independent-ams-verification'&&requiredDaily.every(x=>r.base.daily15.includes(x))&&r.base.daily15.length===3&&!r.base.oldAms&&r.ui.section===1&&r.ui.title.includes('数模混合验证的行业认知')&&independentText&&frontierContent&&r.ui.maturityCards>=6&&r.ui.readingCards>=8&&r.ui.ocldoPapers>=4&&r.ui.links>=10&&r.ui.chapters===5&&r.ui.readings>=8&&r.ui.oldLabStatus===0&&r.saved.reading===1&&r.saved.chapters===1&&r.saved.note.includes('不替代连续时间求解')&&r.reload.title==='Zhantong · Career OS V5.5'&&r.reload.version==='5.5'&&r.reload.daily15.length===3&&!r.reload.oldAms&&r.reload.reading===1&&r.reload.chapters===1&&r.reload.note.includes('不替代连续时间求解')&&!r.mobile.overflow&&r.mobile.section===1;
+          }catch(e){out.errors.push(`exception:${e.stack||e.message}`)}finally{if(browser)await browser.close().catch(()=>{});fs.writeFileSync('/tmp/result.json',JSON.stringify(out,null,2))}
           EOF
           node smoke.mjs
       - name: Publish result
@@ -98,6 +59,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          test -f /tmp/result.json || echo '{"pass":false,"errors":["result file missing"]}' >/tmp/result.json
           { echo '### V5.5 AMS Frontier smoke'; echo '```json'; cat /tmp/result.json; echo '```'; } >/tmp/comment.md
           gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
       - name: Enforce
