@@ -1,0 +1,52 @@
+name: V5.1 Daily Closure Smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v51-daily-closure-smoke.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - name: Run closure flow
+        run: |
+          cat > smoke.mjs <<'EOF'
+          import {chromium} from 'playwright';import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1440,height:1100},acceptDownloads:true}),errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+          await page.goto('http://127.0.0.1:8000/career-roadmap/index.html');await page.waitForTimeout(3300);const r={};
+          r.base=await page.evaluate(()=>({title:document.title,version:S.version,prompt:!!PROMPTS.closure,closures:S.dailyClosures.map(x=>({id:x.id,date:x.date,source:x.sourceWorkItemId,status:x.status,title:x.title,steps:x.recommendedApproach.length,evidence:x.closureEvidence.length,prompt:!!x.aiPrompt})),manualCount:S.manualEntries.length}));
+          await page.locator('#todayDate').fill('2026-07-14');await page.locator('#todayDate').dispatchEvent('change');await page.waitForTimeout(150);r.ui={section:await page.locator('#daily-closure-v51').count(),cards:await page.locator('[data-closure-card]').count(),copyButtons:await page.locator('[data-copy-closure]').count(),metric:await page.locator('.closure-metrics-v51').innerText()};
+          const card=page.locator('[data-closure-card]').first();const cid=await card.getAttribute('data-closure-card');await card.locator('[data-closure-status]').selectOption('resolved');await card.locator('[data-save-closure]').click();await page.waitForTimeout(100);r.blocked=await page.evaluate(id=>S.dailyClosures.find(x=>x.id===id)?.status,cid);
+          await card.locator('[data-closure-evidence="0"]').check();await card.locator('[data-closure-note]').fill('已通过脱敏受控复测并记录Reviewer反馈。');await card.locator('[data-closure-status]').selectOption('resolved');await card.locator('[data-save-closure]').click();await page.waitForTimeout(150);r.resolved=await page.evaluate(id=>S.dailyClosures.find(x=>x.id===id),cid);await page.locator(`[data-closure-card="${cid}"] [data-closure-manual]`).click();r.manual=await page.evaluate(id=>S.manualEntries.some(x=>x.entryId===`manual-from-${id}`),cid);
+          await page.click('#openQuick');await page.waitForTimeout(80);await page.locator('#qDate').fill('2026-07-15');const daily={schemaVersion:'career-os-v51-daily-closure-1',date:'2026-07-15',summary:'测试Daily闭环导入',work:[{id:'wi-test',title:'测试问题',status:'in_progress',problem:'存在一个待验证的配置差异',unknown:'真实原因待确认',next:'完成最小配置对比'}],closureActions:[{id:'closure-2026-07-15-test',sourceWorkItemId:'wi-test',title:'验证配置差异',category:'environment',priority:'medium',problem:'一个配置差异尚未确认是否为根因',solutionMode:'minimum_experiment',recommendedApproach:['对比成功与失败配置'],aiPrompt:'请设计脱敏配置Diff与最小实验。',closureEvidence:['差异被工具结果确认'],owner:'self',status:'open',nextReviewDate:'2026-07-16',courseImpact:'none',safetyNote:'不上传内部配置'}]};await page.locator('#qText').fill(JSON.stringify(daily));await page.locator('#quickContent [data-save]').click();await page.waitForTimeout(150);r.imported=await page.evaluate(()=>({daily:S.dailyLogs.some(x=>x.date==='2026-07-15'),closure:S.dailyClosures.find(x=>x.id==='closure-2026-07-15-test')}));
+          await page.click('#openTools');await page.waitForTimeout(80);await page.locator('[data-tool="data"]').click();const dl=page.waitForEvent('download');await page.locator('#exportWeek').click();const download=await dl;const path=await download.path();const exported=JSON.parse(fs.readFileSync(path,'utf8'));r.exported={schema:exported.schemaVersion,hasClosures:Array.isArray(exported.dailyClosures),closureCount:exported.dailyClosures?.length||0};
+          await page.reload();await page.waitForTimeout(2800);r.reload=await page.evaluate(id=>({version:S.version,resolved:S.dailyClosures.find(x=>x.id===id)?.status,manual:S.manualEntries.some(x=>x.entryId===`manual-from-${id}`),imported:S.dailyClosures.some(x=>x.id==='closure-2026-07-15-test'),duplicates:Object.values(S.dailyClosures.filter(x=>x.date==='2026-07-14'&&x.sourceWorkItemId).reduce((a,x)=>{a[x.sourceWorkItemId]=(a[x.sourceWorkItemId]||0)+1;return a},{}))}),cid);
+          const mobile=await browser.newPage({viewport:{width:390,height:844}});await mobile.goto('http://127.0.0.1:8000/career-roadmap/index.html');await mobile.waitForTimeout(2300);r.mobileOverflow=await mobile.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth);await browser.close();
+          const july=r.base.closures.filter(x=>x.date==='2026-07-14'),unique=new Set(july.filter(x=>x.source).map(x=>x.source));const pass=!errors.length&&r.base.title==='Zhantong · Career OS V5.1'&&r.base.version==='5.1'&&r.base.prompt&&july.length===4&&unique.size===4&&july.every(x=>x.steps>0&&x.evidence>0&&x.prompt)&&r.ui.section===1&&r.ui.cards===4&&r.ui.copyButtons===4&&r.blocked!=='resolved'&&r.resolved.status==='resolved'&&r.resolved.resolution&&r.manual&&r.imported.daily&&r.imported.closure?.status==='open'&&r.exported.schema==='zhantong-week-material-v51'&&r.exported.hasClosures&&r.exported.closureCount>=1&&r.reload.version==='5.1'&&r.reload.resolved==='resolved'&&r.reload.manual&&r.reload.imported&&r.reload.duplicates.every(x=>x===1)&&!r.mobileOverflow;
+          fs.writeFileSync('/tmp/result.json',JSON.stringify({pass,r,errors},null,2));
+          EOF
+          node smoke.mjs
+      - name: Publish result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### V5.1 Daily Closure smoke'; echo '```json'; cat /tmp/result.json; echo '```'; } >/tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
+      - name: Enforce
+        run: node -e "const x=require('/tmp/result.json');if(!x.pass)process.exit(1)"
