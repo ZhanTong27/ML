@@ -1,0 +1,48 @@
+name: V5.0 Final Smoke 2
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v50-final-smoke2.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - name: Run final smoke
+        run: |
+          cat > smoke.mjs <<'EOF'
+          import {chromium} from 'playwright';import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1440,height:1100}}),errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+          await page.addInitScript(()=>localStorage.clear());await page.goto('http://127.0.0.1:8000/career-roadmap/index.html');await page.waitForTimeout(3000);
+          const r={identity:await page.evaluate(()=>({title:document.title,version:S.version,key:S.storageV50?.canonicalKey,source:S.resume?.sourceVersion,legacy:!!localStorage.getItem('jett-career-os-v22'),companies:S.resume.experiences.map(x=>x.title)}))};
+          await page.click('[data-view="growth"]');r.growth={sections:await page.locator('#growth>section.content-section').count(),closed:!(await page.locator('#growth-library-v50').getAttribute('open')),cards:await page.locator('.weekly-command-grid-v50 article').count(),lab:await page.locator('.frontier-highlight-v50 h3').innerText()};await page.click('#openFrontierV50');await page.waitForTimeout(100);r.frontier={methods:await page.locator('.frontier-method-grid-v50 article').count(),links:await page.locator('.frontier-method-grid-v50 a').count()};await page.locator('#frontierStatusV50').selectOption('active');await page.click('#saveFrontierV50');
+          await page.click('[data-view="career"]');r.asset={navs:await page.locator('.asset-tabs-v50').count(),tabs:await page.locator('.asset-tabs-v50 button').count()};for(const [k,v] of Object.entries({checking:100000,moneyMarket:10000,termDeposit:0,funds:50000,stocks:20000,housingFund:30000,other:0,debt:10000}))await page.locator(`[data-asset-account="${k}"]`).fill(String(v));await page.click('#saveAssetAccountsV50');await page.click('[data-asset-tab="monthly"]');for(const [k,v] of Object.entries({takeHomeIncome:22000,monthlyExpense:6500,monthlyInvestment:3000,housingFundAdded:2400,passiveIncome:500}))await page.locator(`[data-asset-flow="${k}"]`).fill(String(v));await page.click('#saveAssetFlowV50');await page.click('[data-asset-tab="goals"]');await page.locator('[data-goal-id="car"][data-goal-field="target"]').fill('250000');await page.click('#saveAssetGoalsV50');r.before=await page.evaluate(()=>({net:assetTotalsV50().net,available:flowTotalsV50().available,cashAfter:flowTotalsV50().cashAfter,netGrowth:flowTotalsV50().netGrowth,car:S.assetPlanV50.goals.find(x=>x.id==='car').target,lab:S.frontierV50.labs['mixed-contract']?.status,stored:!!localStorage.getItem('zhantong-career-os-v5'),legacy:!!localStorage.getItem('jett-career-os-v22')}));
+          await page.reload();await page.waitForTimeout(2800);r.after=await page.evaluate(()=>({net:assetTotalsV50().net,car:S.assetPlanV50.goals.find(x=>x.id==='car').target,lab:S.frontierV50.labs['mixed-contract']?.status,key:S.storageV50?.canonicalKey,legacy:!!localStorage.getItem('jett-career-os-v22')}));const mobile=await browser.newPage({viewport:{width:390,height:844}});await mobile.goto('http://127.0.0.1:8000/career-roadmap/index.html');await mobile.waitForTimeout(2200);r.mobileOverflow=await mobile.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth);await browser.close();
+          const pass=!errors.length&&r.identity.title==='Zhantong · Career OS V5.0'&&r.identity.version==='5.0'&&r.identity.key==='zhantong-career-os-v5'&&r.identity.source==='career-profile-v50-single-source'&&!r.identity.companies.join('|').includes('民华微电子')&&!r.identity.legacy&&r.growth.sections===3&&r.growth.closed&&r.growth.cards===3&&r.growth.lab.includes('Mixed-Signal')&&r.frontier.methods===7&&r.frontier.links===6&&r.asset.navs===1&&r.asset.tabs===4&&r.before.net===200000&&r.before.available===16000&&r.before.cashAfter===13000&&r.before.netGrowth===18400&&r.before.car===250000&&r.before.lab==='active'&&r.before.stored&&!r.before.legacy&&r.after.net===200000&&r.after.car===250000&&r.after.lab==='active'&&r.after.key==='zhantong-career-os-v5'&&!r.after.legacy&&!r.mobileOverflow;
+          fs.writeFileSync('/tmp/result.json',JSON.stringify({pass,r,errors},null,2));
+          EOF
+          node smoke.mjs
+      - name: Publish
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### V5.0 final smoke'; echo '```json'; cat /tmp/result.json; echo '```'; } >/tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
+      - name: Enforce
+        run: node -e "const x=require('/tmp/result.json');if(!x.pass)process.exit(1)"
