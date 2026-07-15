@@ -1,0 +1,50 @@
+name: V5.2 Learning Bridge Smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v52-learning-bridge-smoke.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - name: Run learning bridge flow
+        run: |
+          cat > smoke.mjs <<'EOF'
+          import {chromium} from 'playwright';import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1440,height:1100},acceptDownloads:true}),errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+          await page.goto('http://127.0.0.1:8000/career-roadmap/index.html');await page.waitForTimeout(3400);const r={};
+          r.base=await page.evaluate(()=>({title:document.title,version:S.version,learning:S.learningResponses.map(x=>({id:x.id,date:x.date,materials:x.materials.length,concepts:x.coreConcepts.length,selfCheck:x.selfCheck.length,prompt:!!x.aiPrompt,quick:!!x.improvementPlan.quick,standard:!!x.improvementPlan.standard,deep:!!x.improvementPlan.deep})),closures:S.dailyClosures.length,legacy:Array.isArray(S.legacyDailyClosuresV51),dailyPrompt:PROMPTS.daily.title,gapPrompt:!!PROMPTS.learningGap}));
+          await page.locator('#todayDate').fill('2026-07-14');await page.locator('#todayDate').dispatchEvent('change');await page.waitForTimeout(180);r.ui={section:await page.locator('#problem-learning-v52').count(),cards:await page.locator('.learning-response-card').count(),links:await page.locator('.learning-materials a').count(),copy:await page.locator('[data-copy-learning]').count(),oldClosureSection:await page.locator('#daily-closure-v51').count(),statusSelects:await page.locator('[data-closure-status]').count(),reviewDates:await page.locator('[data-closure-review]').count(),text:await page.locator('#problem-learning-v52').innerText()};
+          await page.click('#openQuick');await page.waitForTimeout(100);const daily={schemaVersion:'career-os-v52-daily-learning-1',date:'2026-07-15',summary:'测试学习补足导入',work:[{id:'wi-new',title:'新工作问题',status:'in_progress',problem:'暴露一个脱敏方法缺口'}],learningResponses:[{id:'learn-2026-07-15-new',sourceWorkItemId:'wi-new',title:'新的方法学习主题',problemSignal:'工作中暴露一个脱敏方法缺口',gapType:'method',whyItMatters:'影响验证判断',learningGoal:'能够建立通用方法',coreConcepts:['假设','证据'],materials:[{title:'自建学习材料',type:'custom_note',url:'',why:'练习结构化分析'}],improvementPlan:{quick:'列事实',standard:'完成练习',deep:'做迁移案例'},aiPrompt:'请进行脱敏方法训练',selfCheck:['如何区分事实和假设？'],transferPractice:'完成一个虚拟案例',courseRelation:'Cycle 1',privacyNote:'不输入内部信息'}]};await page.locator('#qDate').fill('2026-07-15');await page.locator('#qText').fill(JSON.stringify(daily));await page.locator('#quickContent [data-save]').click();await page.waitForTimeout(180);r.imported=await page.evaluate(()=>({daily:S.dailyLogs.some(x=>x.date==='2026-07-15'),learning:S.learningResponses.find(x=>x.id==='learn-2026-07-15-new'),closures:S.dailyClosures.length}));
+          await page.click('#openTools');await page.waitForTimeout(80);await page.locator('[data-tool="data"]').click();const dl=page.waitForEvent('download');await page.locator('#exportWeek').click();const download=await dl;const path=await download.path();const exported=JSON.parse(fs.readFileSync(path,'utf8'));r.exported={schema:exported.schemaVersion,learning:Array.isArray(exported.learningResponses),hasClosures:Object.prototype.hasOwnProperty.call(exported,'dailyClosures')};
+          await page.reload();await page.waitForTimeout(2800);r.reload=await page.evaluate(()=>({version:S.version,learning:S.learningResponses.some(x=>x.id==='learn-2026-07-15-new'),closures:S.dailyClosures.length,title:document.title}));
+          const mobile=await browser.newPage({viewport:{width:390,height:844}});await mobile.goto('http://127.0.0.1:8000/career-roadmap/index.html');await mobile.waitForTimeout(2300);r.mobileOverflow=await mobile.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth);await browser.close();
+          const july13=r.base.learning.filter(x=>x.date==='2026-07-13'),july14=r.base.learning.filter(x=>x.date==='2026-07-14');const allRich=r.base.learning.every(x=>x.materials>0&&x.concepts>0&&x.selfCheck>=5&&x.prompt&&x.quick&&x.standard&&x.deep);const noWorkTracking=!r.ui.text.includes('责任人')&&!r.ui.text.includes('复查日期')&&!r.ui.text.includes('已闭环')&&!r.ui.text.includes('等待他人');const pass=!errors.length&&r.base.title==='Zhantong · Career OS V5.2'&&r.base.version==='5.2'&&r.base.closures===0&&r.base.legacy&&r.base.dailyPrompt==='每日记录与能力补足Prompt'&&r.base.gapPrompt&&july13.length===3&&july14.length===4&&allRich&&r.ui.section===1&&r.ui.cards===4&&r.ui.links>=3&&r.ui.copy===4&&r.ui.oldClosureSection===0&&r.ui.statusSelects===0&&r.ui.reviewDates===0&&noWorkTracking&&r.imported.daily&&r.imported.learning?.materials?.length===1&&r.imported.closures===0&&r.exported.schema==='zhantong-week-material-v52'&&r.exported.learning&&!r.exported.hasClosures&&r.reload.version==='5.2'&&r.reload.learning&&r.reload.closures===0&&r.reload.title==='Zhantong · Career OS V5.2'&&!r.mobileOverflow;
+          fs.writeFileSync('/tmp/result.json',JSON.stringify({pass,r,errors},null,2));
+          EOF
+          node smoke.mjs
+      - name: Publish result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### V5.2 Learning Bridge smoke'; echo '```json'; cat /tmp/result.json; echo '```'; } >/tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
+      - name: Enforce
+        run: node -e "const x=require('/tmp/result.json');if(!x.pass)process.exit(1)"
