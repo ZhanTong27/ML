@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   smoke:
@@ -43,37 +44,53 @@ jobs:
           npm install --no-save --silent playwright@1.54.1
           npx playwright install --with-deps chromium
       - name: Run browser checks
+        continue-on-error: true
         run: |
           python3 -m http.server 8000 --directory . >/tmp/career-os-http.log 2>&1 &
           cat > smoke.mjs <<'EOF'
           import { chromium } from 'playwright';
-          const browser=await chromium.launch({headless:true});
-          const page=await browser.newPage({viewport:{width:390,height:844}});
-          const errors=[];
-          page.on('pageerror',e=>errors.push(e.message));
-          await page.addInitScript(()=>{
-            const stale={version:'5.5',selectedDate:'2026-07-13',calendarMonth:'2026-07',week:'w1',checks:{},dailyLogs:[{date:'2026-07-13',summary:'stale 13',work:[]},{date:'2026-07-14',summary:'stale 14',workItems:[]}],problemLogs:[],weeklyReviews:[],schedule:[],abilities:[],cycleArchives:[],resume:{education:[],experiences:[],projects:[],skills:[],awards:[],versions:[],candidates:[]},customLearning:[],settings:{lastView:'today'}};
-            localStorage.setItem('zhantong-career-os-v5',JSON.stringify(stale));
-          });
-          await page.goto('http://127.0.0.1:8000/career-roadmap/index.test.html',{waitUntil:'load'});
-          await page.waitForFunction(()=>window.CAREER_OS_V551?.dailyCounts?.['2026-07-15']===4);
-          const checks=await page.evaluate(()=>({
-            title:document.title,
-            counts:window.CAREER_OS_V551.dailyCounts,
-            backup:Boolean(localStorage.getItem('zhantong-career-os-v5-pre-v551-backup')),
-            dates:[...document.querySelectorAll('[data-history-date]')].map(x=>x.dataset.historyDate),
-            overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
-          }));
-          for(const date of ['2026-07-13','2026-07-14','2026-07-15']){
-            await page.click(`#calendarGrid [data-date="${date}"]`);
-            const detail=await page.locator('#calendarDayDetail').innerText();
-            if(detail.includes('当天没有工作记录'))errors.push(`${date} missing in calendar detail`);
-          }
-          await page.evaluate(()=>renderTools('data'));
-          checks.backupUi=await page.locator('#exportAll').count()===1&&await page.locator('#importAll').count()===1;
-          const passed=errors.length===0&&checks.title.includes('V5.5.1')&&JSON.stringify(checks.counts)===JSON.stringify({'2026-07-13':3,'2026-07-14':4,'2026-07-15':4})&&checks.backup&&checks.backupUi&&checks.dates.includes('2026-07-13')&&checks.dates.includes('2026-07-14')&&checks.dates.includes('2026-07-15')&&checks.overflow<=1;
-          console.log(JSON.stringify({passed,checks,errors},null,2));
-          await browser.close();
-          if(!passed)process.exit(1);
+          const result={passed:false,checks:{},errors:[]};
+          let browser;
+          try{
+            browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:390,height:844}});
+            page.on('pageerror',e=>result.errors.push(`pageerror: ${e.message}`));
+            page.on('console',m=>{if(m.type()==='error')result.errors.push(`console: ${m.text()}`)});
+            await page.addInitScript(()=>{
+              const stale={version:'5.5',selectedDate:'2026-07-13',calendarMonth:'2026-07',week:'w1',checks:{},dailyLogs:[{date:'2026-07-13',summary:'stale 13',work:[]},{date:'2026-07-14',summary:'stale 14',workItems:[]}],problemLogs:[],weeklyReviews:[],schedule:[],abilities:[],cycleArchives:[],resume:{education:[],experiences:[],projects:[],skills:[],awards:[],versions:[],candidates:[]},customLearning:[],settings:{lastView:'today'}};
+              localStorage.setItem('zhantong-career-os-v5',JSON.stringify(stale));
+            });
+            await page.goto('http://127.0.0.1:8000/career-roadmap/index.test.html',{waitUntil:'load'});
+            await page.waitForFunction(()=>Boolean(window.CAREER_OS_V551),null,{timeout:15000});
+            Object.assign(result.checks,await page.evaluate(()=>({title:document.title,counts:window.CAREER_OS_V551?.dailyCounts||{},backup:Boolean(localStorage.getItem('zhantong-career-os-v5-pre-v551-backup')),dates:[...document.querySelectorAll('[data-history-date]')].map(x=>x.dataset.historyDate),overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,selectedDate:window.S?.selectedDate||null})));
+            result.checks.details={};
+            for(const date of ['2026-07-13','2026-07-14','2026-07-15']){
+              const cell=page.locator(`#calendarGrid [data-date="${date}"]`);
+              if(await cell.count()!==1){result.errors.push(`${date} calendar cell missing`);continue}
+              await cell.click();
+              const detail=await page.locator('#calendarDayDetail').innerText();
+              result.checks.details[date]=detail.slice(0,300);
+              if(detail.includes('当天没有工作记录'))result.errors.push(`${date} missing in calendar detail`)
+            }
+            await page.evaluate(()=>renderTools('data'));
+            result.checks.backupUi=await page.locator('#exportAll').count()===1&&await page.locator('#importAll').count()===1;
+            result.passed=result.errors.length===0&&result.checks.title.includes('V5.5.1')&&JSON.stringify(result.checks.counts)===JSON.stringify({'2026-07-13':3,'2026-07-14':4,'2026-07-15':4})&&result.checks.backup&&result.checks.backupUi&&['2026-07-13','2026-07-14','2026-07-15'].every(x=>result.checks.dates.includes(x))&&result.checks.overflow<=1;
+          }catch(e){result.errors.push(e?.stack||String(e))}finally{await browser?.close()}
+          await (await import('node:fs/promises')).writeFile('/tmp/v551-result.json',JSON.stringify(result,null,2));
+          console.log(JSON.stringify(result,null,2));
           EOF
           node smoke.mjs
+      - name: Publish diagnostic
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo '### Career OS V5.5.1 Daily integrity diagnostic'
+            echo '```json'
+            cat /tmp/v551-result.json
+            echo '```'
+          } >/tmp/v551-comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/v551-comment.md
+      - name: Enforce browser checks
+        run: node -e "const r=require('/tmp/v551-result.json');if(!r.passed)process.exit(1)"
