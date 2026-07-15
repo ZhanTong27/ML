@@ -1,0 +1,1 @@
+window.addEventListener('load',()=>{try{const apply=()=>{document.title='Zhantong · Career OS V5.1';const side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.1';S.version='5.1'};const oldAll=renderAll;renderAll=function(){oldAll();apply()};apply();save();renderAll()}catch(e){console.error('Career OS V5.1 finalize failed',e)}},{once:true});
