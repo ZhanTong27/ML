@@ -61,6 +61,8 @@ jobs:
             oldClosure:await page.locator('#daily-closure-v51').count(),
             closureControls:await page.locator('[data-closure-status]').count()
           };
+          await page.evaluate(()=>switchView('growth'));
+          await page.waitForTimeout(160);
           await page.locator('[data-ams-chapter="c1"]').check();
           await page.locator('[data-ams-reading="r-uvmms-standard"]').check();
           await page.locator('#amsFrontierNoteV55').fill('UVM-MS统一验证组件与环境连接；模型精度仍需Golden相关性证明。');
