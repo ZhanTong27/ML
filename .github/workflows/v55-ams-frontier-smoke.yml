@@ -1,0 +1,53 @@
+name: V5.5 AMS Frontier Smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v55-ams-frontier-smoke.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
+          sleep 2
+      - name: Validate independent AMS frontier
+        run: |
+          cat > smoke.mjs <<'EOF'
+          import {chromium} from 'playwright';import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1440,height:1200}});const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+          await page.goto('http://127.0.0.1:8000/career-roadmap/index.html');await page.waitForTimeout(3800);const r={};
+          r.base=await page.evaluate(()=>({title:document.title,version:S.version,daily15:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>x.id),ams:window.AMS_FRONTIER_V55?{maturity:AMS_FRONTIER_V55.maturity.length,readings:AMS_FRONTIER_V55.readings.length,papers:AMS_FRONTIER_V55.ocldo.papers.length,publicText:AMS_FRONTIER_V55.publicSignal.text,orgs:AMS_FRONTIER_V55.publicSignal.organizations}:null,state:S.amsFrontierV55,meta:window.CAREER_OS_V55||null}));
+          await page.locator('[data-view="growth"]').click();await page.waitForTimeout(250);
+          r.ui={section:await page.locator('#frontier-radar-v50').count(),title:await page.locator('#frontierBodyV50 h2').innerText(),text:await page.locator('#frontierBodyV50').innerText(),maturity:await page.locator('.ams-maturity-grid-v55>article').count(),readings:await page.locator('[data-ams-reading]').count(),chapters:await page.locator('[data-ams-chapter]').count(),papers:await page.locator('.ocldo-paper-list-v55 article').count(),links:await page.locator('#frontierBodyV50 a').count(),legacyLabStatus:await page.locator('#frontierStatusV50').count()};
+          await page.locator('[data-ams-chapter="c1"]').check();await page.locator('[data-ams-reading="r-uvmms-standard"]').check();await page.locator('#amsFrontierNoteV55').fill('UVM-MS解决组件统一；连续Corner搜索需要可验证的目标函数。');await page.locator('#saveAMSFrontierV55').click();await page.waitForTimeout(120);
+          r.saved=await page.evaluate(()=>({chapter:S.amsFrontierV55.chapters.c1,reading:S.amsFrontierV55.reading['r-uvmms-standard'],note:S.amsFrontierV55.note}));
+          await page.reload();await page.waitForTimeout(3000);await page.locator('[data-view="growth"]').click();await page.waitForTimeout(180);
+          r.reload=await page.evaluate(()=>({title:document.title,version:S.version,chapter:S.amsFrontierV55?.chapters?.c1,reading:S.amsFrontierV55?.reading?.['r-uvmms-standard'],note:S.amsFrontierV55?.note,daily15:S.learningResponses.filter(x=>x.date==='2026-07-15').map(x=>x.id)}));
+          const mobile=await browser.newPage({viewport:{width:390,height:844}});await mobile.goto('http://127.0.0.1:8000/career-roadmap/index.html');await mobile.waitForTimeout(2500);await mobile.locator('[data-view="growth"]').click();await mobile.waitForTimeout(150);r.mobile={overflow:await mobile.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth),section:await mobile.locator('#frontier-radar-v50').count()};await browser.close();
+          const dailyExpected=['learn-2026-07-15-waveform-rollover','learn-2026-07-15-clock-switch-bounds','learn-2026-07-15-hierarchical-wave-review'];const noWorkLinked=!r.base.daily15.includes('learn-2026-07-15-ams-strategy')&&!r.base.daily15.includes('learn-2026-07-15-ocldo-prep');const verifiedSignal=r.base.ams.publicText.includes('UVM-MS工作组')&&r.base.ams.publicText.includes('不能据此推断')&&r.base.ams.orgs.some(x=>x.includes('Synopsys'));
+          const pass=!errors.length&&r.base.title==='Zhantong · Career OS V5.5'&&r.base.version==='5.5'&&dailyExpected.every(x=>r.base.daily15.includes(x))&&r.base.daily15.length===3&&noWorkLinked&&r.base.ams.maturity===7&&r.base.ams.readings===10&&r.base.ams.papers===4&&verifiedSignal&&r.base.meta?.frontier==='independent-ams-verification'&&r.ui.section===1&&r.ui.title.includes('从当前任务脱钩')&&r.ui.text.includes('研究行业走到哪里')&&r.ui.text.includes('UVM-MS 1.0')&&r.ui.text.includes('SystemVerilog Mixed-Signal Interface Types')&&r.ui.text.includes('Federated Simulation')&&r.ui.text.includes('Bayesian Optimization')&&r.ui.text.includes('AnalogTester')&&r.ui.text.includes('Output-Capacitorless LDO')&&r.ui.text.includes('P.K.T. Mok')&&r.ui.maturity===7&&r.ui.readings===10&&r.ui.chapters===5&&r.ui.papers===4&&r.ui.links>=18&&r.ui.legacyLabStatus===0&&r.saved.chapter&&r.saved.reading&&r.saved.note.includes('连续Corner')&&r.reload.title==='Zhantong · Career OS V5.5'&&r.reload.version==='5.5'&&r.reload.chapter&&r.reload.reading&&r.reload.note.includes('连续Corner')&&r.reload.daily15.length===3&&!r.mobile.overflow&&r.mobile.section===1;
+          fs.writeFileSync('/tmp/result.json',JSON.stringify({pass,r,errors},null,2));
+          EOF
+          node smoke.mjs
+      - name: Publish result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### V5.5 AMS Frontier smoke'; echo '```json'; cat /tmp/result.json; echo '```'; } >/tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
+      - name: Enforce
+        run: node -e "const x=require('/tmp/result.json');if(!x.pass)process.exit(1)"
