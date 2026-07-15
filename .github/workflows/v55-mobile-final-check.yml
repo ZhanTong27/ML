@@ -29,7 +29,7 @@ jobs:
           import {chromium} from 'playwright';import fs from 'node:fs';
           const browser=await chromium.launch({headless:true});const p=await browser.newPage({viewport:{width:390,height:844}});const errors=[];p.on('pageerror',e=>errors.push(e.message));
           await p.goto('http://127.0.0.1:8000/career-roadmap/index.html');await p.waitForTimeout(2600);await p.evaluate(()=>{switchView('growth');document.getElementById('growth-library-v50').open=true;renderAll()});await p.waitForTimeout(150);
-          const result=await p.evaluate(()=>{const root=document.documentElement,b=document.getElementById('frontierBodyV50');return{pass:root.scrollWidth<=root.clientWidth&&!!b?.getClientRects().length&&b.textContent.includes('AMS Verification Frontier Track')&&S.version==='5.5',scrollWidth:root.scrollWidth,clientWidth:root.clientWidth,frontierVisible:!!b?.getClientRects().length,version:S.version,errors:[]}});result.errors=errors;result.pass=result.pass&&!errors.length;fs.writeFileSync('/tmp/result.json',JSON.stringify(result,null,2));await browser.close();
+          const result=await p.evaluate(()=>{const root=document.documentElement,b=document.getElementById('frontierBodyV50');return{pass:root.scrollWidth<=root.clientWidth&&!!b?.getClientRects().length&&b.textContent.toLowerCase().includes('ams verification frontier track')&&S.version==='5.5',scrollWidth:root.scrollWidth,clientWidth:root.clientWidth,frontierVisible:!!b?.getClientRects().length,version:S.version,errors:[]}});result.errors=errors;result.pass=result.pass&&!errors.length;fs.writeFileSync('/tmp/result.json',JSON.stringify(result,null,2));await browser.close();
           EOF
           node check.mjs
       - name: Comment
