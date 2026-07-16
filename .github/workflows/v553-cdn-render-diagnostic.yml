@@ -1,0 +1,102 @@
+name: Career OS Alternative CDN Render Diagnostic
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v553-cdn-render-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  cdn-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser runtimes
+        run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium webkit
+      - name: Test alternative delivery paths
+        continue-on-error: true
+        run: |
+          cat > cdn-render.mjs <<'EOF'
+          import { chromium, webkit, devices } from 'playwright';
+          import fs from 'node:fs';
+          const commit='6d0650a054c0941dc4beb74e94499c95eecfdd41';
+          const urls={
+            rawcdn:`https://rawcdn.githack.com/ZhanTong27/ML/${commit}/career-roadmap/index.html`,
+            statically:`https://cdn.statically.io/gh/ZhanTong27/ML/${commit}/career-roadmap/index.html`,
+            ghproxy:`https://ghproxy.net/https://raw.githubusercontent.com/ZhanTong27/ML/${commit}/career-roadmap/index.html`,
+            githubRawQuery:`https://github.com/ZhanTong27/ML/raw/${commit}/career-roadmap/index.html?raw=1`
+          };
+          const output={urls,runs:[]};
+          async function run(browserType,browserName,contextOptions){
+            const browser=await browserType.launch({headless:true});
+            try{
+              for(const [source,url] of Object.entries(urls)){
+                const context=await browser.newContext(contextOptions);
+                const page=await context.newPage();
+                const item={source,browser:browserName,url,errors:[]};
+                page.on('pageerror',e=>item.errors.push(`pageerror: ${e.message}`));
+                page.on('console',m=>{if(m.type()==='error')item.errors.push(`console: ${m.text()}`)});
+                try{
+                  const response=await page.goto(url,{waitUntil:'load',timeout:45000});
+                  item.status=response?.status()||0;
+                  item.contentType=response?.headers()?.['content-type']||'';
+                  item.finalUrl=page.url();
+                  await page.waitForTimeout(5000);
+                  item.check=await page.evaluate(()=>{
+                    const work=x=>Array.isArray(x?.work)&&x.work.length?x.work:Array.isArray(x?.workItems)&&x.workItems.length?x.workItems:Array.isArray(x?.dailyRecord?.workItems)?x.dailyRecord.workItems:[];
+                    const byDate=d=>(typeof S!=='undefined'&&Array.isArray(S.dailyLogs))?S.dailyLogs.find(x=>(x.date||x.dailyRecord?.date)===d):null;
+                    return {
+                      title:document.title,
+                      bodyStart:document.body.innerText.slice(0,300),
+                      v552:window.CAREER_OS_V552||null,
+                      counts:{
+                        '2026-07-13':work(byDate('2026-07-13')).length,
+                        '2026-07-14':work(byDate('2026-07-14')).length,
+                        '2026-07-15':work(byDate('2026-07-15')).length
+                      },
+                      todayStatus:document.querySelector('#todayRecordStatus')?.textContent?.trim()||'',
+                      scripts:document.scripts.length
+                    }
+                  });
+                }catch(e){item.navigationError=String(e?.stack||e)}
+                const c=item.check?.counts||{};
+                item.recordsVisible=c['2026-07-13']===3&&c['2026-07-14']===4&&c['2026-07-15']===4;
+                output.runs.push(item);
+                await context.close();
+              }
+            }finally{await browser.close()}
+          }
+          await run(chromium,'chromium-desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
+          await run(webkit,'webkit-iphone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
+          output.summary=Object.fromEntries(Object.keys(urls).map(source=>[source,output.runs.filter(x=>x.source===source).map(x=>({browser:x.browser,status:x.status||0,contentType:x.contentType||'',recordsVisible:x.recordsVisible,title:x.check?.title||'',finalUrl:x.finalUrl||'',navigationError:x.navigationError||null}))]));
+          fs.writeFileSync('/tmp/v553-cdn-render.json',JSON.stringify(output,null,2));
+          console.log(JSON.stringify(output.summary,null,2));
+          EOF
+          node cdn-render.mjs
+      - name: Upload CDN diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v553-cdn-render-result
+          path: /tmp/v553-cdn-render.json
+      - name: Publish concise diagnostic
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY' >/tmp/cdn-comment.md
+          import json
+          data=json.load(open('/tmp/v553-cdn-render.json'))
+          print('### Career OS alternative-CDN diagnostic')
+          print('```json')
+          print(json.dumps(data.get('summary',{}),ensure_ascii=False,indent=2))
+          print('```')
+          PY
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/cdn-comment.md
