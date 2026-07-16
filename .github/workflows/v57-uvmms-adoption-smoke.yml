@@ -1,0 +1,128 @@
+name: Career OS V5.7 UVM-MS Adoption Smoke
+
+on:
+  pull_request:
+    paths:
+      - 'career-roadmap/**'
+      - '.github/workflows/v57-uvmms-adoption-smoke.yml'
+      - '.github/workflows/deploy-career-os-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  uvmms-adoption:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Career OS V5.7
+        run: python3 career-roadmap/build_single_file.py --output index.v57-test.html
+      - name: Install browser runtimes
+        run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium webkit
+      - name: Run desktop and iPhone checks
+        continue-on-error: true
+        run: |
+          python3 -m http.server 8000 --directory . >/tmp/v57-uvmms-http.log 2>&1 &
+          cat > v57-uvmms-smoke.mjs <<'EOF'
+          import { chromium, webkit, devices } from 'playwright';
+          import fs from 'node:fs';
+          const result={passed:false,runs:[]};
+          const url='http://127.0.0.1:8000/career-roadmap/index.v57-test.html';
+          async function inspect(browserType,name,options){
+            const browser=await browserType.launch({headless:true});
+            const context=await browser.newContext(options);
+            const page=await context.newPage();
+            const run={name,errors:[]};
+            page.on('pageerror',e=>run.errors.push(`pageerror: ${e.message}`));
+            page.on('console',m=>{if(m.type()==='error')run.errors.push(`console: ${m.text()}`)});
+            try{
+              await page.goto(url,{waitUntil:'load'});
+              await page.waitForFunction(()=>window.CAREER_OS_V57?.complete===true,null,{timeout:20000});
+              await page.waitForTimeout(2500);
+              run.fresh=await page.evaluate(()=>({
+                title:document.title,
+                marker:window.CAREER_OS_V57,
+                currentGate:S.uvmmsProgramV57?.currentGate||'',
+                decision:S.uvmmsProgramV57?.decision||'',
+                evidenceDone:Object.values(S.uvmmsProgramV57?.evidence||{}).filter(Boolean).length,
+                gates:document.querySelectorAll('[data-uvmms-gate]').length,
+                metrics:document.querySelectorAll('[data-uvmms-metric]').length,
+                evidence:document.querySelectorAll('[data-uvmms-evidence]').length,
+                today:Boolean(document.getElementById('uvmmsTodayV57')),
+                growth:Boolean(document.getElementById('uvmms-adoption-v57')),
+                portfolio:Boolean(document.getElementById('uvmmsPortfolioV57')),
+                frontierBoundary:Boolean(document.getElementById('uvmmsFrontierBoundaryV57')),
+                claim:document.querySelector('.uvmms-claim-v57')?.innerText||'',
+                overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
+              }));
+              await page.locator('#openUVMMSProgramV57').click();
+              await page.waitForFunction(()=>document.getElementById('growth')?.classList.contains('active'));
+              await page.waitForFunction(()=>{const x=document.getElementById('uvmms-adoption-v57');return Boolean(x&&x.offsetParent!==null)});
+              await page.locator('[data-v57-org="sponsor"]').fill('试点 Sponsor');
+              await page.locator('[data-v57-org="sponsor"]').press('Tab');
+              await page.locator('[data-v57-deliverable="g0-problem"]').check();
+              await page.locator('[data-v57-metric="current-first-integration"][data-v57-field="baseline"]').fill('6 人时');
+              await page.locator('[data-v57-metric="current-first-integration"][data-v57-field="baseline"]').press('Tab');
+              await page.locator('[data-v57-metric="current-first-integration"][data-v57-field="pilot"]').fill('待试点');
+              await page.locator('[data-v57-metric="current-first-integration"][data-v57-field="pilot"]').press('Tab');
+              await page.locator('[data-v57-metric="current-first-integration"][data-v57-field="conclusion"]').fill('先建立基线，不预设提效比例');
+              await page.locator('[data-v57-metric="current-first-integration"][data-v57-field="conclusion"]').press('Tab');
+              await page.locator('#uvmmsNoteV57').fill('确认真实工具链后再进入 Gate 1。');
+              await page.locator('#saveUVMMSNoteV57').click();
+              await page.reload({waitUntil:'load'});
+              await page.waitForFunction(()=>window.CAREER_OS_V57?.complete===true,null,{timeout:20000});
+              await page.waitForTimeout(1800);
+              run.persisted=await page.evaluate(()=>({
+                title:document.title,
+                sponsor:S.uvmmsProgramV57.organization.sponsor,
+                deliverable:Boolean(S.uvmmsProgramV57.deliverables['g0-problem']),
+                baseline:S.uvmmsProgramV57.metrics['current-first-integration'].baseline,
+                pilot:S.uvmmsProgramV57.metrics['current-first-integration'].pilot,
+                conclusion:S.uvmmsProgramV57.metrics['current-first-integration'].conclusion,
+                note:S.uvmmsProgramV57.note,
+                currentGate:S.uvmmsProgramV57.currentGate,
+                gateCards:document.querySelectorAll('[data-uvmms-gate]').length,
+                metricRows:document.querySelectorAll('[data-uvmms-metric]').length,
+                evidenceCards:document.querySelectorAll('[data-uvmms-evidence]').length,
+                orgCards:document.querySelectorAll('[data-v57-org]').length,
+                attributionCards:document.querySelectorAll('.uvmms-attribution-grid-v57>article').length,
+                stopItems:document.querySelectorAll('.uvmms-stop-decision-v57 article:first-child li').length,
+                growthIndex:Boolean(document.querySelector('[data-scroll-v50="uvmms-adoption-v57"],[data-scroll="uvmms-adoption-v57"]')),
+                programTopLevel:document.getElementById('uvmms-adoption-v57')?.parentElement?.id==='growth',
+                overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
+              }));
+              await page.evaluate(()=>switchView('resume'));
+              run.portfolioText=await page.locator('#uvmmsPortfolioV57').innerText();
+              const f=run.fresh,p=run.persisted;
+              run.passed=run.errors.length===0&&f.title.includes('V5.7')&&f.currentGate==='gate0'&&f.decision==='evaluating'&&f.evidenceDone===1&&f.gates===4&&f.metrics===8&&f.evidence===5&&f.today&&f.growth&&f.portfolio&&f.frontierBoundary&&f.claim.includes('尚不能声称')&&f.overflow<=1&&p.sponsor==='试点 Sponsor'&&p.deliverable&&p.baseline==='6 人时'&&p.pilot==='待试点'&&p.conclusion==='先建立基线，不预设提效比例'&&p.note==='确认真实工具链后再进入 Gate 1。'&&p.currentGate==='gate0'&&p.gateCards===4&&p.metricRows===8&&p.evidenceCards===5&&p.orgCards===5&&p.attributionCards===3&&p.stopItems===5&&p.growthIndex&&p.programTopLevel&&p.overflow<=1&&run.portfolioText.includes('完成问题识别')&&run.portfolioText.includes('尚不能声称');
+            }catch(e){run.errors.push(e?.stack||String(e));run.passed=false}
+            result.runs.push(run);
+            await browser.close();
+          }
+          await inspect(chromium,'chromium-desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
+          await inspect(webkit,'webkit-iphone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
+          result.passed=result.runs.every(x=>x.passed);
+          fs.writeFileSync('/tmp/v57-uvmms-result.json',JSON.stringify(result,null,2));
+          console.log(JSON.stringify(result,null,2));
+          EOF
+          node v57-uvmms-smoke.mjs
+      - name: Upload diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v57-uvmms-adoption-result
+          path: /tmp/v57-uvmms-result.json
+      - name: Publish diagnostic
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### Career OS V5.7 UVM-MS adoption diagnostic'; echo '```json'; cat /tmp/v57-uvmms-result.json; echo '```'; } >/tmp/v57-uvmms-comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/v57-uvmms-comment.md
+      - name: Enforce checks
+        run: node -e "const r=require('/tmp/v57-uvmms-result.json');if(!r.passed)process.exit(1)"

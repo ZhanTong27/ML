@@ -74,6 +74,9 @@ EXTRA_SOURCES = [
     'curriculum/v551-daily-integrity-hotfix.js',
     'curriculum/v552-safari-daily-recovery.js',
     'curriculum/v56-daily-0716-finalize.js',
+    'curriculum/v57-uvmms-adoption-data.js',
+    'curriculum/v57-uvmms-adoption-ui.js',
+    'curriculum/v57-finalize.js',
 ]
 
 REQUIRED_MARKERS = [
@@ -94,10 +97,13 @@ REQUIRED_MARKERS = [
     'DAILY HISTORY · SOURCE OF TRUTH',
     'AMS Verification Frontier Track',
     'Output-Capacitorless LDO / OCL-LDO',
+    'UVM-MS 方法学引入与数模验证资产复用试点',
+    'METHODOLOGY ADOPTION PROGRAM',
     'CAREER_OS_V551',
     'CAREER_OS_V552',
     'CAREER_OS_V56',
-    'Zhantong · Career OS V5.6',
+    'CAREER_OS_V57',
+    'Zhantong · Career OS V5.7',
 ]
 
 
