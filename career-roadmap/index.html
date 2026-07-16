@@ -1303,6 +1303,101 @@ function seedDaily20260715(){
  S.selectedDate=record.date;save();renderAll()
 }
 </script>
+<script data-source="curriculum/daily-20260716-record.js">
+window.DAILY_20260716_RECORD={
+ id:'daily-20260716',patchId:'2026-07-16-ms7q',date:'2026-07-16',
+ summary:'与设计人员复核前一日功能波形，确认掉电恢复控制和软件模式下硬件控制路径活动两个待改进方向；新增两个时域边界场景并完成另一版本部分网表接入。主动推动片上电源类数模混合任务提前启动，梳理模拟、数字与验证侧可提前获得的接口波形、Verilog-A、代码与网表交付物。完成UVM-MS基础资料学习，并提出以最小试点和量化指标评估组内适用性的设想。',
+ work:[
+  {id:'wi-0716-design-feedback',title:'功能问题与低功耗设计反馈闭环',goal:'与设计人员复核前一日发现的波形问题，并确认是否需要修改设计。',progress:'将前一日反馈波形与设计人员逐项核对。确认模块进入掉电流程时，为避免重新开启后再次同步并产生非预期有效输出，需要切换到软件控制模式；确认进入软件控制模式后，原硬件模式切换路径中的部分门控逻辑不应继续保持活动。验证反馈同时覆盖功能行为和低功耗设计意图。',status:'in_progress',problem:'设计侧和验证侧已确认两个改进方向，但具体修改方案、责任人、修改后输出行为及功能与低功耗回归结果尚未确认。',unresolved:['具体修改方案和责任人。','软件模式下必须停止的硬件控制路径。','是否存在其他旁路路径持续动态翻转。','修改后的功能、时序和低功耗意图回归结果。'],independence:'assisted',feedback:[{source:'设计人员',content:'复核确认掉电恢复行为和软件模式控制逻辑存在两个需要进一步改进的方向。'}],next:['跟踪设计修改。','增加掉电后快速重启及模式切换期间重启场景。','检查软件模式下相关硬件控制路径是否真正停止活动。','完成修改后功能与低功耗意图回归。']},
+  {id:'wi-0716-corner-netlist',title:'时域边界扩展与混合网表接入',goal:'扩大功能验证的时域边界，并验证不同设计表示混合接入后的行为。',progress:'新增两个时域相关边界场景并运行仿真；将另一版本中的部分网表嵌入当前版本验证环境，完成环境接入操作。',status:'in_progress',problem:'新增场景的具体结论、覆盖率增量和混合版本接口及时序兼容性尚未记录，当前配置是否属于后续正式验证配置也未确认。',unresolved:['两个时域边界场景的预期与实际结果。','新增场景的覆盖率增量。','不同版本设计表示之间的接口、参数和时序兼容性。','当前混合配置的正式使用范围。'],independence:'independent',next:['保存混合配置的版本对应关系。','区分设计问题与版本不一致引起的问题。','补充时域场景的预期值、容差和超时边界。','检查相关功能覆盖和错误注入覆盖。']},
+  {id:'wi-0716-ms-project-start',title:'数模混合任务提前启动协调',goal:'在完整设计交付物尚未就绪时，提前启动片上电源类模块的数模混合验证准备。',progress:'主动与项目负责人沟通设计交付节奏，提出先启动模拟行为模型开发。确认当前团队实践中模拟行为模型主要由验证人员编写，并识别验证人员对模拟行为理解有限、初始建模效率较低以及模型校准迭代周期较长的风险。推动设计人员尽快提供支持建模的资料。',status:'in_progress',problem:'行为模型开发是否正式提前启动、模型范围与精度目标、模拟侧行为定义和验证侧实现责任、校准验收方式及正式人力计划尚未确定。',unresolved:['行为模型开发的正式启动时间。','模型范围和精度目标。','模拟侧定义与验证侧实现的责任边界。','与后续Verilog-A和真实网表的相关性机制。','模型开发是否纳入正式项目计划。'],independence:'independent',feedback:[{source:'项目相关人员',content:'提供了当前设计交付和模型责任信息，但尚未形成最终责任矩阵。'}],next:['形成模型开发所需资料清单。','拆分模型开发、模型校准、网表替换和最终签核里程碑。','明确上游交付延期对验证计划的影响。','确认临时模型与最终网表方案的关系。']},
+  {id:'wi-0716-model-deliverables',title:'数模模型交付物梳理',goal:'明确真实网表到位前可用于启动验证和模型开发的上游交付物。',progress:'收集模拟、数字和项目侧交付信息。模拟侧承诺先提供数模接口行为波形并安排进一步沟通，也可在真实网表前提供Verilog-A模型；数字侧代码、手册和详细文档预计较晚提供，数字与模拟仍在进行子模块联合调试，顶层端口、寄存器和代码整合持续推进。用户开始评估Verilog-A对SV-RNM建模和前期验证的作用。',status:'in_progress',problem:'尚未形成完整交付清单，也未建立Verilog-A、SV-RNM和真实网表之间的正式模型合同、有效范围及相关性流程。',unresolved:['Verilog-A覆盖的具体行为和校准状态。','模型有效的输入、负载、模式和corner范围。','接口波形是否包含边界与异常场景。','SV-RNM与Verilog-A的数值和时间容差标准。','真实网表到位后的替换和差异归因流程。'],independence:'assisted',feedback:[{source:'模拟侧',content:'计划提供接口行为波形和Verilog-A模型。'},{source:'数字侧',content:'提供了当前代码、文档、接口整合和联合调试进展。'}],next:['要求Verilog-A交付附带模型说明、参数表、参考testbench和已知限制。','建立SV-RNM、Verilog-A和真实网表的对应关系。','选择关键场景作为三种表示的相关性用例。','将交付延迟和模型开发风险显式反馈到项目计划。']},
+  {id:'wi-0716-uvm-ms-evaluation',title:'UVM-MS学习与方法学试点评估',goal:'评估UVM-MS是否适合解决数模混合验证中的刺激监控、抽象切换和验证资产复用问题。',progress:'完成UVM-MS基础资料学习，识别其与当前SV模型、Verilog-A和真实网表多种表示并存场景的潜在关联；提出组内最小试点及收益量化设想，希望用开发工时、修改代码量、用例复用率、抽象切换成本和调试效率证明是否值得推广。',status:'in_progress',problem:'目前只有机会识别，尚未完成工具兼容性测试、代码试点、现有方案基线、组内需求反馈或量化收益评估。',unresolved:['当前工具版本对UVM-MS结构的支持情况。','现有UVM环境迁移成本。','最适合的最小试点对象。','与现有内部框架和脚本的兼容性。','Bridge、模型和VIP的长期维护责任。','UVM-MS收益与RNM仿真提速的区分。'],independence:'independent',next:['选择单接口、单模型、单代理的最小试点。','记录现有方案的开发工时和代码结构基线。','验证工具兼容性和调试体验。','比较用例复用率、抽象切换成本和环境搭建工时。','依据试点数据决定是否提出组内推广。']}
+ ],
+ workLearning:[
+  {statement:'功能正确并不代表掉电、模式切换和门控逻辑符合低功耗设计意图。',masteryStatus:'transferred',basis:'将此前低功耗观察迁移到新的掉电恢复和软件模式控制问题，并推动设计人员确认改进方向。'},
+  {statement:'时域验证需要从正常场景扩展到边界时刻和模式切换组合。',masteryStatus:'applied',basis:'当天新增两个时域边界场景并运行仿真。'},
+  {statement:'不同版本设计表示可以混合接入验证，但必须控制版本和接口兼容风险。',masteryStatus:'applied',basis:'已完成另一版本部分网表在当前环境中的嵌入。'},
+  {statement:'模拟行为模型即使由验证人员编写，也必须由模拟侧提供行为定义、边界和校准依据。',masteryStatus:'understood',basis:'通过跨团队沟通识别了模型效率和正确性风险。'},
+  {statement:'Verilog-A可以作为真实网表到位前的连续时间行为参考和SV-RNM相关性输入。',masteryStatus:'exposed',basis:'已确认可获得Verilog-A，但尚未实际分析和建模。'},
+  {statement:'UVM-MS的潜在价值主要是标准化UVM与混合信号结构之间的交互和复用。',masteryStatus:'understood',basis:'完成基础资料学习，但尚无代码试点。'},
+  {statement:'方法学推广必须通过试点和量化指标证明价值。',masteryStatus:'exposed',basis:'已提出推广目标，但尚无基线和数据。'}
+ ],
+ outsideLearning:[{title:'UVM-MS基础资料学习',result:'完成基础资料阅读，并识别与当前数模混合任务的潜在关联；尚未完成代码实践。',courseRelation:'none'}],
+ tomorrow:{work:['跟踪两个设计改进点的修改计划。','检查新增时域边界场景和混合网表仿真结果。','获取模拟侧接口波形和Verilog-A交付说明。','输出数模模型输入资料清单和模型合同初稿。','选择UVM-MS最小试点对象。'],learning:['学习Verilog-A模型结构及其与SV-RNM的差异。','深入学习UVM-MS的MS Proxy、MS Bridge和Bridge Core。','建立片上电源类模块的行为模型参数和相关性验证框架。'],life:[]},
+ life:[],energy:'正常'
+};
+
+</script>
+<script data-source="curriculum/daily-20260716-analysis.js">
+window.DAILY_20260716_ANALYSIS={
+ diagnoses:[
+  {id:'diag-lowpower-intent-judgment',topic:'功能行为与低功耗设计意图区分',hypothesis:'目前倾向于认为，用户正在形成将功能结果、模式控制和低功耗设计意图同时纳入判断的能力，并已将此前的观察迁移到新的掉电和软件模式问题。',gapType:'judgment',supportingEvidence:['此前已在功能结果正常时关注时钟门控是否实际生效。','本次追踪了掉电后重新同步有效输出的控制原因。','主动指出软件模式下原硬件控制路径继续活动可能削弱低功耗目标。','相关问题已与设计人员复核并形成两个待改进方向。'],counterEvidence:['尚未看到正式规格或功耗数据。','设计修改尚未完成。','没有修改后的波形和回归结果。','部分判断可能依赖设计人员的实现解释。'],alternativeExplanations:['软件模式下部分控制逻辑可能仍有安全或恢复用途。','重新同步有效输出可能在部分模式下属于预期行为。','问题可能来自模式定义或规格表述不清。'],evidenceStrength:'medium',diagnosisConfidence:0.84,confidenceReason:'存在跨日真实工作迁移和设计人员反馈，但缺少规格、修改产物和回归结果。',trend:'improving',impact:['可能发现功能回归无法直接暴露的低功耗设计问题。','有助于形成低功耗IP验证差异化能力。','缺少规格依据时仍可能误判合理保留的控制逻辑。'],interventionFlag:false,weeklyReviewReason:'当前为正向迁移信号，继续观察能否通过设计修改和回归完成闭环。'},
+  {id:'diag-verification-boundary-expansion',topic:'时域边界与跨表示集成验证',hypothesis:'用户可能正在从基本定向功能验证逐步扩展到时域边界和不同设计表示组合下的集成验证，但尚未形成完整的corner设计方法。',gapType:'skill',supportingEvidence:['当天新增两个时域边界场景并运行仿真。','完成另一版本部分网表在当前环境中的嵌入。','此前已执行模式切换、中途配置和随机场景。','当前验证对象开始包含模式、时间和设计表示组合。'],counterEvidence:['尚未说明新增corner的选择依据。','没有仿真结论或覆盖率增量。','不清楚混合版本是否属于正式配置。','尚未说明是否覆盖最坏相位和异常恢复。'],alternativeExplanations:['新增场景可能来自已有验证计划或他人要求。','网表嵌入可能只是临时环境需求。','当前corner可能仅针对已知问题，而非系统性边界分析。'],evidenceStrength:'medium',diagnosisConfidence:0.69,confidenceReason:'存在真实执行行为，但缺少场景设计依据、结果和覆盖率证据。',trend:'emerging',impact:['可能提前暴露边界时刻和版本组合问题。','缺少版本管理和预期定义时可能产生非设计本身的失败。'],interventionFlag:false,weeklyReviewReason:'继续观察是否形成corner分类、选择依据和覆盖闭环。'},
+  {id:'diag-mixedsignal-delivery-boundary',topic:'数模行为模型合同与交付机制',hypothesis:'目前较强地怀疑，当前数模混合任务的核心风险已经从模型提供方问题发展为模型合同缺失，包括行为定义、接口、有效范围、精度、校准、验收和维护责任尚未完全确定。',gapType:'environment',supportingEvidence:['连续多日讨论行为模型、Verilog-A和真实网表的提供方式。','当前团队实践由验证人员编写模拟行为模型。','用户预计初始建模效率较低且需要较长迭代。','完整网表和数字交付物到位较晚。','模拟侧可以提供波形和Verilog-A，但尚无正式模型合同。','问题已影响任务启动、人力安排和项目节奏。','用户已与项目负责人、模拟设计和数字设计多方沟通。'],counterEvidence:['模拟侧已经同意提供接口波形和Verilog-A。','数字与模拟联合调试正在推进。','当前阶段可能属于设计和验证逐步完善交付物的正常过程。','尚未真正开始SV-RNM开发，无法确认迭代成本。'],alternativeExplanations:['主要瓶颈可能是设计尚未稳定。','Verilog-A可能已包含足够的行为信息。','验证侧可能先开发简化模型并在后续增加精度。','最终只需少量关键行为，不需要复杂模型。'],evidenceStrength:'high',diagnosisConfidence:0.9,confidenceReason:'该问题持续出现，涉及多类实际交付物，并有来自多个项目角色的信息支持。',trend:'repeated',impact:['模型可能与真实电路行为不一致。','验证人员可能反复修改模型而无法区分模型和设计问题。','真实网表到位后可能出现大量相关性差异。','模型开发可能挤占验证计划、用例和覆盖率工作。','清晰模型合同可能改善跨团队协作和后续复用。'],interventionFlag:true,weeklyReviewReason:'问题重复出现且已经影响真实任务启动、人力和交付，需要在周复盘中形成模型合同和责任矩阵行动项。'},
+  {id:'diag-uvm-ms-adoption-opportunity',topic:'UVM-MS方法学试点机会',hypothesis:'UVM-MS可能与当前多抽象模型切换、模拟接口刺激监控和UVM资产复用问题匹配，具有形成组级方法学资产的机会，但目前尚无证据证明能够产生明显提效或组织影响。',gapType:'opportunity',supportingEvidence:['用户完成了基础资料学习并能联系当前项目问题。','当前任务存在SV模型、Verilog-A和真实网表等多种表示。','用户希望复用现有UVM环境。','用户主动提出组内试点和收益量化。','当前接口、模型和验证环境缺少统一方法。'],counterEvidence:['尚未编写UVM-MS代码。','未确认工具版本支持。','未确定迁移成本。','未获得组内或管理者需求反馈。','没有开发工时、仿真速度或复用率基线。','UVM-MS本身不能保证模型准确性和仿真提速。'],alternativeExplanations:['现有内部框架可能已经解决大部分相同问题。','项目数量可能不足以摊薄方法学开发成本。','简单接口和专用封装可能已经足够。','主要效率瓶颈可能来自模型和设计交付。'],evidenceStrength:'low',diagnosisConfidence:0.55,confidenceReason:'当前主要是合理机会判断和用户意愿，没有实际试点、外部反馈或量化数据。',trend:'first_seen',impact:['成功时可能形成跨模型和跨项目的可复用验证接口。','失败时可能增加框架复杂度、维护成本和学习负担。','量化试点结果可能形成方法学贡献证据。'],interventionFlag:false,weeklyReviewReason:'先完成工具验证和最小试点，再决定是否升级为持续干预或推广项目。'}
+ ],
+ weeklyObservations:[
+  {topic:'低功耗设计反馈闭环',reason:'观察两个设计改进点是否完成修改，并能否通过功能、模式和活动路径回归确认。',priority:'high'},
+  {topic:'时域corner设计方法',reason:'用户正在增加时域边界场景，需要观察是否形成分类、选择依据、预期和覆盖闭环。',priority:'medium'},
+  {topic:'数模行为模型合同',reason:'模型交付问题已持续影响任务启动，应形成接口、行为、精度、校准、验收和维护责任矩阵。',priority:'high'},
+  {topic:'Verilog-A到SV-RNM相关性流程',reason:'模拟侧可以提前提供Verilog-A，需要观察用户能否将其转化为模型合同和可复用相关性用例。',priority:'high'},
+  {topic:'UVM-MS最小试点',reason:'当前只存在方法学机会判断，应先完成工具兼容性和单接口试点，再讨论推广。',priority:'medium'},
+  {topic:'跨团队交付推动',reason:'用户已主动收集多方交付信息和推动资料输出，但尚未形成责任矩阵和项目闭环。',priority:'medium'}
+ ],
+ roadmapIntervention:{flag:false,proposalOnly:true,reason:'每日层面不直接修改16周课程。数模模型合同继续进入周复盘；UVM-MS先进行最小试点和证据收集，再决定是否纳入正式训练或组级推广。'},
+ missingInformation:['两个设计改进点的具体修改方案、责任人和完成时间。','设计修改后的功能和低功耗相关回归结果。','新增两个时域边界场景的设计依据和仿真结果。','混合网表接入的版本兼容性和正式使用范围。','模拟侧接口波形和Verilog-A模型的实际内容。','Verilog-A模型的有效范围、校准状态和已知限制。','数字代码、手册和接口交付的最终时间及内容。','SV-RNM模型的范围、精度和开发计划。','模型开发、校准、验收和维护的责任矩阵。','当前工具对UVM-MS 1.0所需结构的支持情况。','现有内部框架与UVM-MS的功能重叠。','UVM-MS试点对象、基线数据和成功标准。','当天是否有其他工作外学习或生活事项。']
+};
+
+</script>
+<script data-source="curriculum/daily-20260716.js">
+window.addEventListener('load',()=>{try{seedDaily20260716()}catch(e){console.error('July 16 daily seed failed',e)}},{once:true});
+function seedDaily20260716(){
+ const record=window.DAILY_20260716_RECORD,analysis=window.DAILY_20260716_ANALYSIS;if(!record||!analysis||typeof S==='undefined')return;
+ S.dailyLogs=arr(S.dailyLogs);S.diagnoses=arr(S.diagnoses);S.facts=arr(S.facts);S.evidence=arr(S.evidence);S.patchHistory=arr(S.patchHistory);S.pendingConfidence=arr(S.pendingConfidence);
+ const log={...record,workItems:record.work,diagnoses:analysis.diagnoses,diagnosisIds:analysis.diagnoses.map(x=>x.id),weeklyObservations:analysis.weeklyObservations,roadmapIntervention:analysis.roadmapIntervention,missingInformation:analysis.missingInformation,candidateConfidenceNote:'Daily Diagnosis confidence is provisional; formal Career Model Confidence remains unchanged until Weekly Review.',sourceVersion:'v56-july16-career-patch'};
+ const li=S.dailyLogs.findIndex(x=>(x.date||x.dailyRecord?.date)===record.date);if(li>=0)S.dailyLogs[li]={...S.dailyLogs[li],...log};else S.dailyLogs.push(log);
+ analysis.diagnoses.forEach(d=>{const i=S.diagnoses.findIndex(x=>x.id===d.id);const item={...d,date:record.date,lastSeen:record.date,firstSeen:i>=0?(S.diagnoses[i].firstSeen||S.diagnoses[i].date||record.date):record.date,lifecycle:i>=0?(S.diagnoses[i].lifecycle||'collecting'):'collecting'};if(i>=0)S.diagnoses[i]={...S.diagnoses[i],...item};else S.diagnoses.push(item)});
+ const facts=[
+  {id:'fact-0716-01',type:'work',statement:'用户与设计人员重新核对了前一日反馈的功能波形。',sourceWorkItemId:'wi-0716-design-feedback'},
+  {id:'fact-0716-02',type:'feedback',statement:'设计复核确认，掉电流程需要调整控制模式，以避免重新开启后再次同步并产生非预期有效输出。',sourceWorkItemId:'wi-0716-design-feedback'},
+  {id:'fact-0716-03',type:'feedback',statement:'设计复核确认，软件控制模式下部分原硬件控制路径不应继续保持活动。',sourceWorkItemId:'wi-0716-design-feedback'},
+  {id:'fact-0716-04',type:'work',statement:'用户新增了两个时域相关的边界场景并运行仿真。',sourceWorkItemId:'wi-0716-corner-netlist'},
+  {id:'fact-0716-05',type:'application',statement:'用户将另一版本中的部分网表嵌入当前验证环境。',sourceWorkItemId:'wi-0716-corner-netlist'},
+  {id:'fact-0716-06',type:'work',statement:'用户主动与项目负责人沟通完整设计交付物到位前提前启动模拟行为模型开发的可能性。',sourceWorkItemId:'wi-0716-ms-project-start'},
+  {id:'fact-0716-07',type:'assessment',statement:'用户确认当前团队实践中模拟行为模型主要由验证人员编写。',sourceWorkItemId:'wi-0716-ms-project-start'},
+  {id:'fact-0716-08',type:'assessment',statement:'用户认为自身对模拟模块行为理解有限，可能导致初始建模效率较低和较长迭代周期。',sourceWorkItemId:'wi-0716-ms-project-start'},
+  {id:'fact-0716-09',type:'work',statement:'用户推动设计人员尽快提供支持模型开发的资料。',sourceWorkItemId:'wi-0716-ms-project-start'},
+  {id:'fact-0716-10',type:'feedback',statement:'模拟侧计划提供数模接口行为波形并安排进一步沟通。',sourceWorkItemId:'wi-0716-model-deliverables'},
+  {id:'fact-0716-11',type:'feedback',statement:'数字侧代码、手册和详细文档预计较晚提供，当前存在延期风险。',sourceWorkItemId:'wi-0716-model-deliverables'},
+  {id:'fact-0716-12',type:'feedback',statement:'数字设计正在与模拟设计进行多个子模块联合调试，并推进顶层接口、寄存器和代码整合。',sourceWorkItemId:'wi-0716-model-deliverables'},
+  {id:'fact-0716-13',type:'feedback',statement:'完整模拟网表预计较晚提供，但模拟侧可以提前提供Verilog-A模型。',sourceWorkItemId:'wi-0716-model-deliverables'},
+  {id:'fact-0716-14',type:'learning',statement:'用户已完成UVM-MS基础资料学习，并认为其与当前工作存在潜在关联。',sourceWorkItemId:'wi-0716-uvm-ms-evaluation'},
+  {id:'fact-0716-15',type:'assessment',statement:'用户提出在组内评估UVM-MS，并希望量化系统级复用、验证效率和验证质量收益。',sourceWorkItemId:'wi-0716-uvm-ms-evaluation'},
+  {id:'fact-0716-16',type:'assessment',statement:'当前尚未开展UVM-MS工具兼容性验证、代码试点或收益基线收集。',sourceWorkItemId:'wi-0716-uvm-ms-evaluation'}
+ ].map(x=>({...x,date:record.date,immutable:true}));facts.forEach(f=>{const i=S.facts.findIndex(x=>x.id===f.id);if(i>=0)S.facts[i]=f;else S.facts.push(f)});
+ const evidence=[
+  {id:'ev-0716-lowpower-01',diagnosisId:'diag-lowpower-intent-judgment',direction:'support',sourceType:'real_work',sourceDate:record.date,sourceFactIds:['fact-0716-01','fact-0716-02','fact-0716-03'],statement:'用户将掉电恢复、模式控制和硬件路径活动与低功耗设计意图联系起来，并通过设计复核形成两个待改进方向。',quality:'high',independence:'assisted',transferLevel:'similar_context',limitations:['尚无正式规格和功耗数据。','尚未完成修改和回归。','结论来自用户对会议结果的口述。']},
+  {id:'ev-0716-lowpower-02',diagnosisId:'diag-lowpower-intent-judgment',direction:'counter',sourceType:'self_report',sourceDate:record.date,sourceFactIds:['fact-0716-02','fact-0716-03'],statement:'当前只有设计讨论结论，尚未通过修改后波形、回归或功耗分析确认。',quality:'medium',independence:'assisted',transferLevel:'same_context',limitations:['缺少设计变更产物。','缺少客观功耗或活动率结果。']},
+  {id:'ev-0716-boundary-01',diagnosisId:'diag-verification-boundary-expansion',direction:'support',sourceType:'real_work',sourceDate:record.date,sourceFactIds:['fact-0716-04','fact-0716-05'],statement:'用户在真实验证任务中新增时域边界场景，并完成不同版本设计表示的混合接入。',quality:'medium',independence:'independent',transferLevel:'same_context',limitations:['未记录场景结果。','未说明选择依据。','未确认混合配置是否正式有效。']},
+  {id:'ev-0716-boundary-02',diagnosisId:'diag-verification-boundary-expansion',direction:'counter',sourceType:'self_report',sourceDate:record.date,sourceFactIds:['fact-0716-04','fact-0716-05'],statement:'当前没有覆盖率增量、仿真结论或跨场景迁移结果，无法判断corner设计的系统性。',quality:'medium',independence:'independent',transferLevel:'none',limitations:['用户口述未包含结果细节。']},
+  {id:'ev-0716-delivery-01',diagnosisId:'diag-mixedsignal-delivery-boundary',direction:'support',sourceType:'real_work',sourceDate:record.date,sourceFactIds:['fact-0716-06','fact-0716-07','fact-0716-08','fact-0716-09'],statement:'用户已因模型开发效率和迭代风险主动与项目负责人及设计侧沟通提前启动和上游资料问题。',quality:'high',independence:'independent',transferLevel:'same_context',limitations:['尚未形成正式项目决策。','尚未开始模型开发。','无法确认实际迭代成本。']},
+  {id:'ev-0716-delivery-02',diagnosisId:'diag-mixedsignal-delivery-boundary',direction:'support',sourceType:'supervisor_feedback',sourceDate:record.date,sourceFactIds:['fact-0716-10','fact-0716-11','fact-0716-12','fact-0716-13'],statement:'来自模拟和数字侧的交付信息显示，接口波形和Verilog-A可提前提供，但完整代码、文档和网表较晚，模型合同和相关性流程尚未建立。',quality:'high',independence:'assisted',transferLevel:'same_context',limitations:['反馈通过用户口述。','交付时间和内容仍可能变化。','尚未检查实际交付物质量。']},
+  {id:'ev-0716-delivery-03',diagnosisId:'diag-mixedsignal-delivery-boundary',direction:'counter',sourceType:'supervisor_feedback',sourceDate:record.date,sourceFactIds:['fact-0716-10','fact-0716-12','fact-0716-13'],statement:'上游团队已经提供部分联合调试进展，并承诺提供接口波形和Verilog-A，因此任务并非完全缺少可启动输入。',quality:'medium',independence:'assisted',transferLevel:'same_context',limitations:['尚未收到实际文件。','无法判断交付内容是否足够。']},
+  {id:'ev-0716-uvmms-01',diagnosisId:'diag-uvm-ms-adoption-opportunity',direction:'support',sourceType:'self_report',sourceDate:record.date,sourceFactIds:['fact-0716-14','fact-0716-15'],statement:'用户已完成基础资料学习，并主动将UVM-MS与当前多模型表示和UVM复用问题联系起来。',quality:'medium',independence:'independent',transferLevel:'none',limitations:['没有代码产物。','没有工具验证。','没有组内反馈或收益数据。']},
+  {id:'ev-0716-uvmms-02',diagnosisId:'diag-uvm-ms-adoption-opportunity',direction:'counter',sourceType:'self_report',sourceDate:record.date,sourceFactIds:['fact-0716-16'],statement:'当前未开展兼容性验证、试点或基线数据收集，因此不能判断UVM-MS是否适合组内推广。',quality:'high',independence:'independent',transferLevel:'none',limitations:['后续试点结果可能改变当前判断。']}
+ ];evidence.forEach(e=>{const i=S.evidence.findIndex(x=>x.id===e.id);if(i>=0)S.evidence[i]=e;else S.evidence.push(e)});
+ const pending=[
+  {diagnosisId:'diag-lowpower-intent-judgment',range:[78,88],reason:'低功耗判断出现跨日迁移并获得设计复核，但仍待规格、修改和回归确认。'},
+  {diagnosisId:'diag-verification-boundary-expansion',range:[60,74],reason:'开始新增时域边界并接入跨版本表示，但缺少选择依据和结果闭环。'},
+  {diagnosisId:'diag-mixedsignal-delivery-boundary',range:[86,94],reason:'模型交付问题继续影响任务启动，并新增模拟、数字和项目侧多源信息。'},
+  {diagnosisId:'diag-uvm-ms-adoption-opportunity',range:[45,62],reason:'存在合理方法学机会，但尚无工具、代码、团队反馈和量化收益证据。'}
+ ];pending.forEach(p=>{S.pendingConfidence=S.pendingConfidence.filter(x=>!(x.diagnosisId===p.diagnosisId&&x.patchId===record.patchId));S.pendingConfidence.push({...p,patchId:record.patchId,date:record.date,requiresWeeklyConfirmation:true})});
+ if(!S.patchHistory.some(x=>x.patchId===record.patchId))S.patchHistory.push({patchId:record.patchId,date:record.date,version:'career-os-v56-daily-0716',summary:'保存7月16日工作事实、Daily Diagnosis、数模模型合同风险和UVM-MS试点机会。'});
+ S.selectedDate=record.date;S.calendarMonth='2026-07';if(typeof normalizeDailyStoreV551==='function')normalizeDailyStoreV551(S);save();renderAll()
+}
+
+</script>
 <script data-source="curriculum/v40-career-model.js">
 window.addEventListener('load',()=>{try{installV40CareerModel()}catch(e){console.error('V4 career model failed',e)}},{once:true});
 function installV40CareerModel(){
@@ -2414,7 +2509,38 @@ window.addEventListener('load',()=>{try{currentFrontierLabV50=function(){return{
 function injectGrowthLibraryMobileFixV55(){if(document.getElementById('v55-growth-library-mobile-fix'))return;const s=document.createElement('style');s.id='v55-growth-library-mobile-fix';s.textContent=`#growth-library-v50,.growth-library-body-v50{box-sizing:border-box;max-width:100%;min-width:0;overflow-x:hidden}.growth-library-body-v50>*{box-sizing:border-box;max-width:100%;min-width:0}.growth-library-body-v50 .content-section,.growth-library-body-v50 .card,.growth-library-body-v50 details,.growth-library-body-v50 section,.growth-library-body-v50 article,.growth-library-body-v50 div{min-width:0;max-width:100%;box-sizing:border-box}.growth-library-body-v50 table{max-width:100%}.growth-library-body-v50 .table-wrap,.growth-library-body-v50 pre,.growth-library-body-v50 code{max-width:100%;overflow-x:auto}.growth-library-body-v50 img,.growth-library-body-v50 svg,.growth-library-body-v50 canvas{max-width:100%;height:auto}@media(max-width:700px){#growth-library-v50>summary{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}.growth-library-body-v50 .grid2,.growth-library-body-v50 .grid3,.growth-library-body-v50 .grid4{grid-template-columns:minmax(0,1fr)!important}.growth-library-body-v50 input,.growth-library-body-v50 select,.growth-library-body-v50 textarea,.growth-library-body-v50 button{max-width:100%}}`;document.head.appendChild(s)}
 </script>
 <script data-source="curriculum/v55-finalize.js">
-window.addEventListener('load',()=>{try{const apply=()=>{document.title='Zhantong · Career OS V5.5';const side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.5';S.version='5.5';if(typeof DEMO_STEPS_V42!=='undefined'){const intro=DEMO_STEPS_V42[0];if(intro){intro.title='4分钟看懂 Career OS V5.5';intro.text='网站保存每日原始记录，把工作暴露的问题转换成针对性补足，同时用独立Frontier Track研究不受当前任务限制的行业方法、论文和AI趋势。'}const frontier=DEMO_STEPS_V42.find(x=>x.view==='growth');if(frontier){frontier.title='固定课程与独立Frontier Track并行';frontier.text='Daily问题转换只解决工作暴露的缺口；AMS Verification Frontier Track独立研究行业标准、论文、AI与OCL-LDO，不由当前任务决定学习上限。';frontier.you='固定课程照常推进，Frontier Track按认知价值阅读。';frontier.ai='解释公开标准和论文，帮助形成方法地图与批判性判断。';frontier.site='把Daily补足与独立行业认知分开保存。'}}window.CAREER_OS_V55={version:'5.5',frontier:'independent-ams-verification',dailyLearningCount:S.learningResponses.filter(x=>x.date==='2026-07-15').length,removedWorkLinkedTopics:['learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep']}};const oldAll=renderAll;renderAll=function(){oldAll();apply()};apply();save();renderAll()}catch(e){console.error('Career OS V5.5 finalize failed',e)}},{once:true});
+window.addEventListener('load',()=>{
+ try{
+  const newerIdentity=()=>typeof seedDaily20260716==='function'||Boolean(window.CAREER_OS_V56)||String(S?.version||'').startsWith('5.6');
+  const apply=()=>{
+   if(!newerIdentity()){
+    document.title='Zhantong · Career OS V5.5';
+    const side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.5';
+    S.version='5.5'
+   }
+   if(typeof DEMO_STEPS_V42!=='undefined'){
+    const intro=DEMO_STEPS_V42[0];
+    if(intro){
+     intro.title='4分钟看懂 Career OS V5.5';
+     intro.text='网站保存每日原始记录，把工作暴露的问题转换成针对性补足，同时用独立Frontier Track研究不受当前任务限制的行业方法、论文和AI趋势。'
+    }
+    const frontier=DEMO_STEPS_V42.find(x=>x.view==='growth');
+    if(frontier){
+     frontier.title='固定课程与独立Frontier Track并行';
+     frontier.text='Daily问题转换只解决工作暴露的缺口；AMS Verification Frontier Track独立研究行业标准、论文、AI与OCL-LDO，不由当前任务决定学习上限。';
+     frontier.you='固定课程照常推进，Frontier Track按认知价值阅读。';
+     frontier.ai='解释公开标准和论文，帮助形成方法地图与批判性判断。';
+     frontier.site='把Daily补足与独立行业认知分开保存。'
+    }
+   }
+   window.CAREER_OS_V55={version:'5.5',frontier:'independent-ams-verification',dailyLearningCount:S.learningResponses.filter(x=>x.date==='2026-07-15').length,removedWorkLinkedTopics:['learn-2026-07-15-ams-strategy','learn-2026-07-15-ocldo-prep']}
+  };
+  const oldAll=renderAll;
+  renderAll=function(){oldAll();apply()};
+  apply();save();renderAll()
+ }catch(e){console.error('Career OS V5.5 finalize failed',e)}
+},{once:true});
+
 </script>
 <script data-source="curriculum/v551-daily-integrity-hotfix.js">
 window.addEventListener('load',()=>{try{installDailyIntegrityV551()}catch(e){console.error('Career OS V5.5.1 Daily integrity hotfix failed',e)}},{once:true});
@@ -2497,11 +2623,16 @@ function renderCalendarDetailV551(){
   $('#calendarDayDetail').querySelectorAll('[data-quick]').forEach(bindQuickButton)
 }
 
+function newerCareerIdentityV551(){
+  return typeof seedDaily20260716==='function'||Boolean(window.CAREER_OS_V56)||String(S?.version||'').startsWith('5.6')
+}
+
 function applyIdentityV551(){
+  window.CAREER_OS_V551={version:'5.5.1',type:'incremental-hotfix',dailyCounts:Object.fromEntries(['2026-07-13','2026-07-14','2026-07-15'].map(d=>[d,dailyWorkV551(dailyByDateV551(d)).length])),backupKey:'zhantong-career-os-v5-pre-v551-backup'};
+  if(newerCareerIdentityV551())return;
   document.title='Zhantong · Career OS V5.5.1';
   const side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.5.1';
-  S.version='5.5.1';
-  window.CAREER_OS_V551={version:'5.5.1',type:'incremental-hotfix',dailyCounts:Object.fromEntries(['2026-07-13','2026-07-14','2026-07-15'].map(d=>[d,dailyWorkV551(dailyByDateV551(d)).length])),backupKey:'zhantong-career-os-v5-pre-v551-backup'}
+  S.version='5.5.1'
 }
 
 </script>
@@ -2530,6 +2661,7 @@ function applyIdentityV551(){
   }
 
   function count(date){return usableWork(logFor(date)).length}
+  function newerDailyLayerPresent(){return typeof seedDaily20260716==='function'||Boolean(window.CAREER_OS_V56)}
 
   function backup(){
     try{
@@ -2539,6 +2671,7 @@ function applyIdentityV551(){
   }
 
   function applyIdentity(){
+    if(newerDailyLayerPresent())return;
     if(typeof S!=='undefined')S.version='5.5.2';
     document.title='Zhantong · Career OS V5.5.2';
     var side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.5.2'
@@ -2549,6 +2682,7 @@ function applyIdentityV551(){
     running=true;
     try{
       backup();
+      var requestedDate=S.selectedDate;
       if(typeof ensureHistoricalDailyV53==='function')ensureHistoricalDailyV53();
       if(typeof seedDaily20260715==='function')seedDaily20260715();
       if(typeof normalizeDailyStoreV551==='function')normalizeDailyStoreV551(S);
@@ -2567,8 +2701,15 @@ function applyIdentityV551(){
       }
 
       if(complete){
-        var selected=logFor(S.selectedDate);
-        if(!selected||usableWork(selected).length===0){S.selectedDate='2026-07-15';S.calendarMonth='2026-07'}
+        var requested=logFor(requestedDate);
+        if(requested&&usableWork(requested).length){
+          S.selectedDate=requestedDate;
+          S.calendarMonth=requestedDate.slice(0,7)
+        }else if(newerDailyLayerPresent()&&count('2026-07-16')>0){
+          S.selectedDate='2026-07-16';S.calendarMonth='2026-07'
+        }else{
+          S.selectedDate='2026-07-15';S.calendarMonth='2026-07'
+        }
       }
 
       S.dailyRecoveryV552={version:'5.5.2',reason:reason||'runtime',counts:{'2026-07-13':c13,'2026-07-14':c14,'2026-07-15':c15},complete:complete,updatedAt:(typeof localISO==='function'?localISO():new Date().toISOString().slice(0,10))};
@@ -2601,6 +2742,74 @@ function applyIdentityV551(){
   window.addEventListener('pageshow',function(){schedule('pageshow')});
   window.addEventListener('focus',function(){recoverAndRender('focus')});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)recoverAndRender('visible')});
+})();
+
+</script>
+<script data-source="curriculum/v56-daily-0716-finalize.js">
+(function(){
+ var busy=false;
+ function workCount(log){
+  if(!log)return 0;
+  if(Array.isArray(log.work)&&log.work.length)return log.work.length;
+  if(Array.isArray(log.workItems)&&log.workItems.length)return log.workItems.length;
+  if(log.dailyRecord&&Array.isArray(log.dailyRecord.workItems))return log.dailyRecord.workItems.length;
+  return 0
+ }
+ function byDate(date){
+  if(typeof S==='undefined'||!Array.isArray(S.dailyLogs))return null;
+  return S.dailyLogs.find(function(x){return (x.date||(x.dailyRecord&&x.dailyRecord.date))===date})||null
+ }
+ function applyIdentity(){
+  if(typeof S!=='undefined')S.version='5.6.0';
+  document.title='Zhantong · Career OS V5.6';
+  var side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.6'
+ }
+ function installOutermostRenderIdentity(){
+  if(typeof renderAll!=='function'||renderAll.__careerV56Outermost)return;
+  var previousRenderAll=renderAll;
+  var renderAllV56=function(){
+   var result=previousRenderAll.apply(this,arguments);
+   applyIdentity();
+   return result
+  };
+  renderAllV56.__careerV56Outermost=true;
+  renderAll=renderAllV56
+ }
+ function ensure(reason){
+  if(busy||typeof S==='undefined')return false;
+  busy=true;
+  try{
+   var log=byDate('2026-07-16');
+   if(workCount(log)!==5&&typeof seedDaily20260716==='function')seedDaily20260716();
+   if(typeof normalizeDailyStoreV551==='function')normalizeDailyStoreV551(S);
+   log=byDate('2026-07-16');
+   var complete=workCount(log)===5;
+   if(complete){S.selectedDate='2026-07-16';S.calendarMonth='2026-07'}
+   S.dailyUpdateV56={version:'5.6.0',reason:reason||'runtime',date:'2026-07-16',workItems:workCount(log),diagnoses:Array.isArray(log&&log.diagnoses)?log.diagnoses.length:0,complete:complete,updatedAt:typeof localISO==='function'?localISO():new Date().toISOString().slice(0,10)};
+   window.CAREER_OS_V56=S.dailyUpdateV56;
+   applyIdentity();
+   if(typeof save==='function')save();
+   return complete
+  }catch(e){
+   window.CAREER_OS_V56={version:'5.6.0',complete:false,error:String(e&&e.message?e.message:e)};
+   console.error('Career OS V5.6 July 16 finalizer failed',e);
+   return false
+  }finally{busy=false}
+ }
+ function ensureAndRender(reason){
+  installOutermostRenderIdentity();
+  var ok=ensure(reason);
+  try{if(ok&&typeof renderAll==='function')renderAll()}catch(e){console.error('Career OS V5.6 render retry failed',e)}
+  applyIdentity();
+  try{if(typeof save==='function')save()}catch(e){}
+ }
+ window.addEventListener('load',function(){
+  installOutermostRenderIdentity();
+  [0,250,900,2200].forEach(function(delay,index){setTimeout(function(){ensureAndRender('load-'+index)},delay)})
+ },{once:true});
+ window.addEventListener('pageshow',function(){installOutermostRenderIdentity();ensureAndRender('pageshow')});
+ window.addEventListener('focus',function(){installOutermostRenderIdentity();ensureAndRender('focus')});
+ document.addEventListener('visibilitychange',function(){if(!document.hidden){installOutermostRenderIdentity();ensureAndRender('visible')}});
 })();
 
 </script>
