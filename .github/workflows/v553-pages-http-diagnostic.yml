@@ -1,0 +1,65 @@
+name: Career OS GitHub Pages HTTP Diagnostic
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v553-pages-http-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  http-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fetch official Pages URL
+        continue-on-error: true
+        run: |
+          set +e
+          url='https://zhantong27.github.io/ML/'
+          code=$(curl -L --connect-timeout 15 --max-time 45 -sS -o /tmp/career-pages.html -w '%{http_code}' "$url")
+          ctype=$(curl -L --connect-timeout 15 --max-time 45 -sSI "$url" | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type"{v=$2} END{print v}')
+          bytes=$(wc -c </tmp/career-pages.html 2>/dev/null || echo 0)
+          title=$(grep -o '<title>[^<]*</title>' /tmp/career-pages.html 2>/dev/null | head -1 || true)
+          marker552=false; grep -q 'CAREER_OS_V552' /tmp/career-pages.html 2>/dev/null && marker552=true
+          marker0715=false; grep -q '2026-07-15-c4t8' /tmp/career-pages.html 2>/dev/null && marker0715=true
+          python3 - <<PY
+          import json
+          print(json.dumps({
+            'url':'$url',
+            'httpStatus':'$code',
+            'contentType':'$ctype',
+            'bytes':int('$bytes' or 0),
+            'title':'$title',
+            'markerV552':'$marker552'=='true',
+            'marker0715':'$marker0715'=='true'
+          },ensure_ascii=False,indent=2))
+          PY
+          python3 - <<PY >/tmp/pages-http.json
+          import json
+          print(json.dumps({
+            'url':'$url',
+            'httpStatus':'$code',
+            'contentType':'$ctype',
+            'bytes':int('$bytes' or 0),
+            'title':'$title',
+            'markerV552':'$marker552'=='true',
+            'marker0715':'$marker0715'=='true'
+          },ensure_ascii=False,indent=2))
+          PY
+      - name: Upload HTTP diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v553-pages-http-result
+          path: /tmp/pages-http.json
+      - name: Publish HTTP diagnostic
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '### Career OS GitHub Pages HTTP diagnostic'; echo '```json'; cat /tmp/pages-http.json; echo '```'; } >/tmp/pages-http-comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/pages-http-comment.md
