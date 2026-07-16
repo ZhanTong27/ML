@@ -16,6 +16,16 @@
   document.title='Zhantong · Career OS V5.6';
   var side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.6'
  }
+ if(typeof renderAll==='function'&&!renderAll.__careerV56Wrapped){
+  var previousRenderAll=renderAll;
+  var renderAllV56=function(){
+   var result=previousRenderAll.apply(this,arguments);
+   applyIdentity();
+   return result
+  };
+  renderAllV56.__careerV56Wrapped=true;
+  renderAll=renderAllV56
+ }
  function ensure(reason){
   if(busy||typeof S==='undefined')return false;
   busy=true;
