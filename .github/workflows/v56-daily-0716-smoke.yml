@@ -19,27 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build branch single-file page
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-          root=Path('career-roadmap')
-          html=(root/'index.template.html').read_text(encoding='utf-8')
-          css=(root/'style.css').read_text(encoding='utf-8')
-          marker='<link rel="stylesheet" href="style.css">'
-          html=html.replace(marker,'<style>\n'+css+'\n</style>',1)
-          sources=['legacy-data-v22.js','curriculum/base.js','curriculum/cycle1.js','curriculum/cycle2.js','curriculum/cycle3.js','curriculum/cycle4.js','app.js','curriculum/patch.js','curriculum/finalize.js']
-          markers='\n'.join(f'<script src="{src}"></script>' for src in sources)
-          ordered=['curriculum/v50-storage-bootstrap.js']+sources+['curriculum/manual-v31.js','curriculum/v32.js','curriculum/resume-v33.js','curriculum/resume-portfolio-v34.js','curriculum/daily-20260713.js','curriculum/daily-20260714-core.js','curriculum/daily-20260714-analysis.js','curriculum/daily-20260714.js','curriculum/daily-20260715-record.js','curriculum/daily-20260715-analysis.js','curriculum/daily-20260715.js','curriculum/daily-20260716-record.js','curriculum/daily-20260716-analysis.js','curriculum/daily-20260716.js','curriculum/v40-career-model.js','curriculum/v40-reviews.js','curriculum/v41-explorer.js','curriculum/v42-demo.js','curriculum/v43-dji-assets.js','curriculum/v44-finance-simple.js','curriculum/v45-personalized-learning.js','curriculum/v46-pack-w1.js','curriculum/v46-pack-w2.js','curriculum/v46-pack-w3.js','curriculum/v46-pack-w4.js','curriculum/v46-learning-pack-ui.js','curriculum/v47-ai-native-overlay.js','curriculum/v48-reality-responsive.js','curriculum/v49-identity-education.js','curriculum/v50-profile-source.js','curriculum/v50-frontier-methods.js','curriculum/v50-frontier-labs.js','curriculum/v50-frontier-ui.js','curriculum/v50-asset-system.js','curriculum/v50-simplicity-core.js','curriculum/v50-frontier-kickoff.js','curriculum/v50-finalize.js','curriculum/v51-daily-closure-loop.js','curriculum/v51-daily-closure-fixes.js','curriculum/v52-learning-seeds-a.js','curriculum/v52-learning-seeds-b.js','curriculum/v52-problem-learning-ui.js','curriculum/v52-problem-learning-core.js','curriculum/v53-daily-history-demo.js','curriculum/v53-demo-fix.js','curriculum/v54-learning-seeds-0715-a.js','curriculum/v54-learning-seeds-0715-b.js','curriculum/v54-finalize.js','curriculum/v55-ams-frontier-data.js','curriculum/v55-source-corrections.js','curriculum/v55-ams-frontier-ui.js','curriculum/v55-frontier-integration-fix.js','curriculum/v55-finalize.js','curriculum/v551-daily-integrity-hotfix.js','curriculum/v552-safari-daily-recovery.js','curriculum/v56-daily-0716-finalize.js']
-          blocks=[]
-          for src in ordered:
-              code=(root/src).read_text(encoding='utf-8')
-              code=re.sub(r'</script',r'<\\/script',code,flags=re.I)
-              blocks.append(f'<script data-source="{src}">\n{code}\n</script>')
-          html=html.replace(markers,'\n'.join(blocks[:len(sources)+1]),1)
-          html=html.replace('</body>','\n'.join(blocks[len(sources)+1:])+'\n</body>',1)
-          (root/'index.v56-test.html').write_text(html,encoding='utf-8')
-          PY
+        run: python3 career-roadmap/build_single_file.py --output index.v56-test.html
       - name: Install browser runtimes
         run: |
           npm install --no-save --silent playwright@1.54.1
@@ -100,7 +80,6 @@ jobs:
                   evidence:S.evidence.filter(x=>x.sourceDate==='2026-07-16').length,
                   selectedDate:S.selectedDate,
                   todayStatus:document.querySelector('#todayRecordStatus')?.textContent?.trim()||'',
-                  todayText:document.querySelector('#todayActions')?.innerText||document.body.innerText,
                   historyDates:[...document.querySelectorAll('[data-history-date]')].map(x=>x.dataset.historyDate),
                   overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
                   update:window.CAREER_OS_V56
