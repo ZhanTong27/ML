@@ -62,6 +62,7 @@ jobs:
               }));
               await page.locator('#openUVMMSProgramV57').click();
               await page.waitForFunction(()=>document.getElementById('growth')?.classList.contains('active'));
+              await page.waitForFunction(()=>{const x=document.getElementById('uvmms-adoption-v57');return Boolean(x&&x.offsetParent!==null)});
               await page.locator('[data-v57-org="sponsor"]').fill('试点 Sponsor');
               await page.locator('[data-v57-org="sponsor"]').press('Tab');
               await page.locator('[data-v57-deliverable="g0-problem"]').check();
@@ -91,13 +92,14 @@ jobs:
                 orgCards:document.querySelectorAll('[data-v57-org]').length,
                 attributionCards:document.querySelectorAll('.uvmms-attribution-grid-v57>article').length,
                 stopItems:document.querySelectorAll('.uvmms-stop-decision-v57 article:first-child li').length,
-                growthIndex:Boolean(document.querySelector('[data-scroll="uvmms-adoption-v57"]')),
+                growthIndex:Boolean(document.querySelector('[data-scroll-v50="uvmms-adoption-v57"],[data-scroll="uvmms-adoption-v57"]')),
+                programTopLevel:document.getElementById('uvmms-adoption-v57')?.parentElement?.id==='growth',
                 overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
               }));
               await page.evaluate(()=>switchView('resume'));
               run.portfolioText=await page.locator('#uvmmsPortfolioV57').innerText();
               const f=run.fresh,p=run.persisted;
-              run.passed=run.errors.length===0&&f.title.includes('V5.7')&&f.currentGate==='gate0'&&f.decision==='evaluating'&&f.evidenceDone===1&&f.gates===4&&f.metrics===8&&f.evidence===5&&f.today&&f.growth&&f.portfolio&&f.frontierBoundary&&f.claim.includes('尚不能声称')&&f.overflow<=1&&p.sponsor==='试点 Sponsor'&&p.deliverable&&p.baseline==='6 人时'&&p.pilot==='待试点'&&p.conclusion==='先建立基线，不预设提效比例'&&p.note==='确认真实工具链后再进入 Gate 1。'&&p.currentGate==='gate0'&&p.gateCards===4&&p.metricRows===8&&p.evidenceCards===5&&p.orgCards===5&&p.attributionCards===3&&p.stopItems===5&&p.growthIndex&&p.overflow<=1&&run.portfolioText.includes('完成问题识别')&&run.portfolioText.includes('尚不能声称');
+              run.passed=run.errors.length===0&&f.title.includes('V5.7')&&f.currentGate==='gate0'&&f.decision==='evaluating'&&f.evidenceDone===1&&f.gates===4&&f.metrics===8&&f.evidence===5&&f.today&&f.growth&&f.portfolio&&f.frontierBoundary&&f.claim.includes('尚不能声称')&&f.overflow<=1&&p.sponsor==='试点 Sponsor'&&p.deliverable&&p.baseline==='6 人时'&&p.pilot==='待试点'&&p.conclusion==='先建立基线，不预设提效比例'&&p.note==='确认真实工具链后再进入 Gate 1。'&&p.currentGate==='gate0'&&p.gateCards===4&&p.metricRows===8&&p.evidenceCards===5&&p.orgCards===5&&p.attributionCards===3&&p.stopItems===5&&p.growthIndex&&p.programTopLevel&&p.overflow<=1&&run.portfolioText.includes('完成问题识别')&&run.portfolioText.includes('尚不能声称');
             }catch(e){run.errors.push(e?.stack||String(e));run.passed=false}
             result.runs.push(run);
             await browser.close();
