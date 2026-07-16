@@ -22,6 +22,7 @@
   }
 
   function count(date){return usableWork(logFor(date)).length}
+  function newerDailyLayerPresent(){return typeof seedDaily20260716==='function'||Boolean(window.CAREER_OS_V56)}
 
   function backup(){
     try{
@@ -31,6 +32,7 @@
   }
 
   function applyIdentity(){
+    if(newerDailyLayerPresent())return;
     if(typeof S!=='undefined')S.version='5.5.2';
     document.title='Zhantong · Career OS V5.5.2';
     var side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.5.2'
@@ -41,6 +43,7 @@
     running=true;
     try{
       backup();
+      var requestedDate=S.selectedDate;
       if(typeof ensureHistoricalDailyV53==='function')ensureHistoricalDailyV53();
       if(typeof seedDaily20260715==='function')seedDaily20260715();
       if(typeof normalizeDailyStoreV551==='function')normalizeDailyStoreV551(S);
@@ -59,8 +62,15 @@
       }
 
       if(complete){
-        var selected=logFor(S.selectedDate);
-        if(!selected||usableWork(selected).length===0){S.selectedDate='2026-07-15';S.calendarMonth='2026-07'}
+        var requested=logFor(requestedDate);
+        if(requested&&usableWork(requested).length){
+          S.selectedDate=requestedDate;
+          S.calendarMonth=requestedDate.slice(0,7)
+        }else if(newerDailyLayerPresent()&&count('2026-07-16')>0){
+          S.selectedDate='2026-07-16';S.calendarMonth='2026-07'
+        }else{
+          S.selectedDate='2026-07-15';S.calendarMonth='2026-07'
+        }
       }
 
       S.dailyRecoveryV552={version:'5.5.2',reason:reason||'runtime',counts:{'2026-07-13':c13,'2026-07-14':c14,'2026-07-15':c15},complete:complete,updatedAt:(typeof localISO==='function'?localISO():new Date().toISOString().slice(0,10))};
