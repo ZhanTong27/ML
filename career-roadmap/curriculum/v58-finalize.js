@@ -13,8 +13,8 @@
  function publishMarkerV58(reason){
   const actions=window.GROWTH_STORY_V58?.actions||[];
   const state=typeof S!=='undefined'?S.growthHubV58:null;
-  const complete=Boolean(document.getElementById('growth-hub-v58')&&state&&actions.length>=10&&window.CAREER_OS_V58_SAFETY?.backupPresent);
-  window.CAREER_OS_V58={version:'5.8.0',reason:reason||'runtime',complete,actionCount:actions.length,abilityCount:window.GROWTH_STORY_V58?.abilities?.length||0,signalCount:window.GROWTH_STORY_V58?.signals?.length||0,backupPresent:Boolean(window.CAREER_OS_V58_SAFETY?.backupPresent),updatedAt:new Date().toISOString()};
+  const complete=Boolean(document.getElementById('growth-hub-v58')&&state&&actions.length>=10);
+  window.CAREER_OS_V58={version:'5.8.0',reason:reason||'runtime',complete,actionCount:actions.length,abilityCount:window.GROWTH_STORY_V58?.abilities?.length||0,signalCount:window.GROWTH_STORY_V58?.signals?.length||0,backupPresent:Boolean(window.CAREER_OS_V58_SAFETY?.backupPresent),backupApplicable:Boolean(localStorage.getItem('zhantong-career-os-v5-pre-v58-backup')||localStorage.getItem('zhantong-career-os-v5')),updatedAt:new Date().toISOString()};
   if(typeof S!=='undefined'){S.growthUpdateV58=window.CAREER_OS_V58;applyIdentityV58();if(typeof save==='function')save()}
   return complete
  }
