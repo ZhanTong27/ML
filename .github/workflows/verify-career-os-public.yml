@@ -34,6 +34,7 @@ jobs:
             -o /tmp/career-pages/pages-api.json \
             -w '%{http_code}' \
             "https://api.github.com/repos/$REPO/pages")
+          export PAGES_CODE="${pages_code:-0}"
 
           check_url(){
             name="$1"; url="$2"
@@ -41,12 +42,14 @@ jobs:
               --connect-timeout 15 --max-time 60 \
               -o "/tmp/career-pages/${name}.html" \
               -w '%{http_code}' "$url")
+            code=${code:-0}
             ctype=$(curl -sS -L -I --connect-timeout 15 --max-time 45 "$url" 2>/dev/null | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type"{v=$2} END{print v}')
-            title=$(grep -oi '<title>[^<]*</title>' "/tmp/career-pages/${name}.html" | head -1 | sed -E 's#</?title>##Ig')
+            title=$(grep -oi '<title>[^<]*</title>' "/tmp/career-pages/${name}.html" 2>/dev/null | head -1 | sed -E 's#</?title>##Ig')
             bytes=$(wc -c <"/tmp/career-pages/${name}.html" 2>/dev/null || echo 0)
-            marker_v57=false; grep -q 'CAREER_OS_V57' "/tmp/career-pages/${name}.html" && marker_v57=true
-            marker_0716=false; grep -q '2026-07-16-ms7q' "/tmp/career-pages/${name}.html" && marker_0716=true
-            printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$name" "$url" "$code" "$ctype" "$bytes" "$marker_v57" "$marker_0716" >> /tmp/career-pages/url-results.tsv
+            marker_v57=false; grep -q 'CAREER_OS_V57' "/tmp/career-pages/${name}.html" 2>/dev/null && marker_v57=true
+            marker_0716=false; grep -q '2026-07-16-ms7q' "/tmp/career-pages/${name}.html" 2>/dev/null && marker_0716=true
+            wrapper_v57=false; grep -q 'raw.githubusercontent.com/ZhanTong27/ML/main/career-roadmap/index.html' "/tmp/career-pages/${name}.html" 2>/dev/null && wrapper_v57=true
+            printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$name" "$url" "$code" "$ctype" "$bytes" "$marker_v57" "$marker_0716" "$wrapper_v57" >> /tmp/career-pages/url-results.tsv
             printf '%s\t%s\n' "$name" "$title" >> /tmp/career-pages/titles.tsv
           }
 
@@ -55,7 +58,7 @@ jobs:
           check_url slideshow_career 'https://zhantong27.github.io/github-slideshow/career-os/'
 
           python3 - <<'PY'
-          import json, pathlib
+          import json, os, pathlib
           root=pathlib.Path('/tmp/career-pages')
           try:
               api=json.loads((root/'pages-api.json').read_text())
@@ -68,10 +71,23 @@ jobs:
           rows=[]
           if (root/'url-results.tsv').exists():
               for line in (root/'url-results.tsv').read_text().splitlines():
-                  name,url,code,ctype,bytes_,v57,m0716=line.split('\t')
-                  rows.append({'name':name,'url':url,'httpStatus':int(code or 0),'contentType':ctype,'bytes':int(bytes_ or 0),'title':titles.get(name,''),'markerV57':v57=='true','marker0716':m0716=='true'})
-          result={'pagesApiStatus':int('''${pages_code}''' or 0),'pagesApi':api,'urls':rows}
+                  parts=line.split('\t')
+                  if len(parts)!=8:
+                      continue
+                  name,url,code,ctype,bytes_,v57,m0716,wrapper=parts
+                  rows.append({
+                      'name':name,'url':url,'httpStatus':int(code or 0),
+                      'contentType':ctype,'bytes':int(bytes_ or 0),
+                      'title':titles.get(name,''),'markerV57':v57=='true',
+                      'marker0716':m0716=='true','wrapperV57':wrapper=='true'
+                  })
+          result={
+              'pagesApiStatus':int(os.environ.get('PAGES_CODE','0') or 0),
+              'pagesApi':api,
+              'urls':rows
+          }
           result['verifiedUrl']=next((r['url'] for r in rows if r['httpStatus']==200 and r['markerV57'] and r['marker0716']),None)
+          result['candidateWrapperUrl']=next((r['url'] for r in rows if r['httpStatus']==200 and r['wrapperV57']),None)
           (root/'result.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
           print(json.dumps(result,ensure_ascii=False,indent=2))
           PY
@@ -81,6 +97,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          mkdir -p /tmp/career-pages
+          if [ ! -f /tmp/career-pages/result.json ]; then
+            printf '{"error":"verification result was not generated"}\n' >/tmp/career-pages/result.json
+          fi
           {
             echo '### Public-site verification run'
             echo
