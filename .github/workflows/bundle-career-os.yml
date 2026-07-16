@@ -8,6 +8,7 @@ on:
       - 'career-roadmap/style.css'
       - 'career-roadmap/legacy-data-v22.js'
       - 'career-roadmap/app.js'
+      - 'career-roadmap/build_single_file.py'
       - 'career-roadmap/curriculum/**'
       - '.github/workflows/bundle-career-os.yml'
   workflow_dispatch:
@@ -27,59 +28,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Generate self-contained index.html
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-          root=Path('career-roadmap')
-          html=(root/'index.template.html').read_text(encoding='utf-8')
-          css=(root/'style.css').read_text(encoding='utf-8')
-          marker='<link rel="stylesheet" href="style.css">'
-          if marker not in html: raise SystemExit('Template stylesheet marker not found')
-          html=html.replace(marker,'<style>\n'+css+'\n</style>',1)
-          sources=['legacy-data-v22.js','curriculum/base.js','curriculum/cycle1.js','curriculum/cycle2.js','curriculum/cycle3.js','curriculum/cycle4.js','app.js','curriculum/patch.js','curriculum/finalize.js']
-          markers='\n'.join(f'<script src="{src}"></script>' for src in sources)
-          if markers not in html: raise SystemExit('Template script marker sequence not found')
-          blocks=[]
-          bootstrap_src='curriculum/v50-storage-bootstrap.js'
-          bootstrap=(root/bootstrap_src).read_text(encoding='utf-8')
-          bootstrap=re.sub(r'</script',r'<\\/script',bootstrap,flags=re.I)
-          blocks.append(f'<script data-source="{bootstrap_src}">\n{bootstrap}\n</script>')
-          for src in sources:
-              code=(root/src).read_text(encoding='utf-8')
-              code=re.sub(r'</script',r'<\\/script',code,flags=re.I)
-              blocks.append(f'<script data-source="{src}">\n{code}\n</script>')
-          html=html.replace(markers,'\n'.join(blocks),1)
-          extras=['curriculum/manual-v31.js','curriculum/v32.js','curriculum/resume-v33.js','curriculum/resume-portfolio-v34.js','curriculum/daily-20260713.js','curriculum/daily-20260714-core.js','curriculum/daily-20260714-analysis.js','curriculum/daily-20260714.js','curriculum/daily-20260715-record.js','curriculum/daily-20260715-analysis.js','curriculum/daily-20260715.js','curriculum/v40-career-model.js','curriculum/v40-reviews.js','curriculum/v41-explorer.js','curriculum/v42-demo.js','curriculum/v43-dji-assets.js','curriculum/v44-finance-simple.js','curriculum/v45-personalized-learning.js','curriculum/v46-pack-w1.js','curriculum/v46-pack-w2.js','curriculum/v46-pack-w3.js','curriculum/v46-pack-w4.js','curriculum/v46-learning-pack-ui.js','curriculum/v47-ai-native-overlay.js','curriculum/v48-reality-responsive.js','curriculum/v49-identity-education.js','curriculum/v50-profile-source.js','curriculum/v50-frontier-methods.js','curriculum/v50-frontier-labs.js','curriculum/v50-frontier-ui.js','curriculum/v50-asset-system.js','curriculum/v50-simplicity-core.js','curriculum/v50-frontier-kickoff.js','curriculum/v50-finalize.js','curriculum/v51-daily-closure-loop.js','curriculum/v51-daily-closure-fixes.js','curriculum/v52-learning-seeds-a.js','curriculum/v52-learning-seeds-b.js','curriculum/v52-problem-learning-ui.js','curriculum/v52-problem-learning-core.js','curriculum/v53-daily-history-demo.js','curriculum/v53-demo-fix.js','curriculum/v54-learning-seeds-0715-a.js','curriculum/v54-learning-seeds-0715-b.js','curriculum/v54-finalize.js','curriculum/v55-ams-frontier-data.js','curriculum/v55-source-corrections.js','curriculum/v55-ams-frontier-ui.js','curriculum/v55-frontier-integration-fix.js','curriculum/v55-finalize.js','curriculum/v551-daily-integrity-hotfix.js','curriculum/v552-safari-daily-recovery.js']
-          extra=[]
-          for src in extras:
-              code=(root/src).read_text(encoding='utf-8')
-              code=re.sub(r'</script',r'<\\/script',code,flags=re.I)
-              extra.append(f'<script data-source="{src}">\n{code}\n</script>')
-          html=html.replace('</body>','\n'.join(extra)+'\n</body>',1)
-          if re.search(r'<script\s+[^>]*src=',html,re.I): raise SystemExit('External script remains')
-          required=['ENGINEERING PORTFOLIO','Recruiter View','2026-07-13-a7f3','2026-07-14-k8m4','2026-07-15-c4t8','DIAGNOSIS LIFECYCLE','career-profile-v50-single-source','PERSONAL CAPITAL','目标资金桶','zhantong-career-os-v5','THIS WEEK · EXECUTION','V5.2 · PROBLEM-TO-LEARNING BRIDGE','每日记录与能力补足Prompt','DAILY HISTORY · SOURCE OF TRUTH','learn-2026-07-15-waveform-rollover','learn-2026-07-15-clock-switch-bounds','AMS Verification Frontier Track','从当前任务脱钩，建立数模混合验证的行业认知','SystemVerilog Mixed-Signal Interface Types','Federated Simulation','Output-Capacitorless LDO / OCL-LDO','A Capacitor-Free CMOS Low-Dropout Regulator','产业参与信号','Synopsys · UVM-MS Chair','独立研究数模混合验证标准、论文、AI与OCL-LDO','CAREER_OS_V55','CAREER_OS_V551','CAREER_OS_V552','Zhantong · Career OS V5.5.2']
-          missing=[x for x in required if x not in html]
-          if missing: raise SystemExit(f'Missing bundled markers: {missing}')
-          (root/'index.html').write_text(html,encoding='utf-8')
-          PY
-      - name: Validate bundled HTML structure
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-          text=Path('career-roadmap/index.html').read_text(encoding='utf-8')
-          assert not re.search(r'<script\s+[^>]*src=',text,re.I)
-          for marker in ['2026-07-13-a7f3','2026-07-14-k8m4','2026-07-15-c4t8','DAILY HISTORY · SOURCE OF TRUTH','CAREER_OS_V552','Zhantong · Career OS V5.5.2']:
-              assert marker in text
-          print('Career OS V5.5.2 single-file structure validated')
-          PY
+      - name: Generate and validate self-contained index.html
+        run: python3 career-roadmap/build_single_file.py --output index.html
       - name: Commit generated page
         run: |
           if git diff --quiet -- career-roadmap/index.html; then exit 0; fi
           git config user.name 'github-actions[bot]'
-          git config user.email '4189826+github-actions[bot]@users.noreply.github.com'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add career-roadmap/index.html
           git commit -m 'Bundle Career OS into single-file page'
           git push origin HEAD:main

@@ -3,12 +3,22 @@ name: Deploy Career OS to GitHub Pages
 on:
   pull_request:
     paths:
-      - 'career-roadmap/index.html'
+      - 'career-roadmap/index.template.html'
+      - 'career-roadmap/style.css'
+      - 'career-roadmap/legacy-data-v22.js'
+      - 'career-roadmap/app.js'
+      - 'career-roadmap/build_single_file.py'
+      - 'career-roadmap/curriculum/**'
       - '.github/workflows/deploy-career-os-pages.yml'
   push:
     branches: [main]
     paths:
-      - 'career-roadmap/index.html'
+      - 'career-roadmap/index.template.html'
+      - 'career-roadmap/style.css'
+      - 'career-roadmap/legacy-data-v22.js'
+      - 'career-roadmap/app.js'
+      - 'career-roadmap/build_single_file.py'
+      - 'career-roadmap/curriculum/**'
       - '.github/workflows/deploy-career-os-pages.yml'
   workflow_dispatch:
 
@@ -26,33 +36,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate production single-file page
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-          source=Path('career-roadmap/index.html')
-          text=source.read_text(encoding='utf-8')
-          required=[
-            'Zhantong · Career OS V5.5.2',
-            'CAREER_OS_V552',
-            '2026-07-13-a7f3',
-            '2026-07-14-k8m4',
-            '2026-07-15-c4t8',
-            'DAILY HISTORY · SOURCE OF TRUTH'
-          ]
-          missing=[x for x in required if x not in text]
-          if missing: raise SystemExit(f'Missing production markers: {missing}')
-          if re.search(r'<script\s+[^>]*src=',text,re.I): raise SystemExit('External script remains')
-          if re.search(r'<link\s+[^>]*rel=["\']stylesheet["\']',text,re.I): raise SystemExit('External stylesheet remains')
-          print(f'Validated {source} ({len(text)} bytes)')
-          PY
-      - name: Prepare Pages artifact
+      - name: Build production single-file page from canonical sources
         run: |
           rm -rf _site
           mkdir -p _site
-          cp career-roadmap/index.html _site/index.html
-          cp career-roadmap/index.html _site/404.html
+          python3 career-roadmap/build_single_file.py --output ../_site/index.html
+          cp _site/index.html _site/404.html
           touch _site/.nojekyll
       - name: Upload validation artifact
         uses: actions/upload-artifact@v4
@@ -75,12 +64,12 @@ jobs:
         uses: actions/configure-pages@v6
         with:
           enablement: true
-      - name: Prepare production site
+      - name: Build production site from canonical sources
         run: |
           rm -rf _site
           mkdir -p _site
-          cp career-roadmap/index.html _site/index.html
-          cp career-roadmap/index.html _site/404.html
+          python3 career-roadmap/build_single_file.py --output ../_site/index.html
+          cp _site/index.html _site/404.html
           touch _site/.nojekyll
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v4
@@ -119,25 +108,27 @@ jobs:
             for(let attempt=0;attempt<8;attempt++){
               response=await page.goto(site+`?deploy=${Date.now()}-${attempt}`,{waitUntil:'load',timeout:45000});
               await page.waitForTimeout(2500);
-              if((await page.title()).includes('V5.5.2'))break;
+              if((await page.title()).includes('V5.6'))break;
               await page.waitForTimeout(5000);
             }
             await page.evaluate(()=>{
               const key='zhantong-career-os-v5';
               const current=JSON.parse(localStorage.getItem(key)||'{}');
-              current.selectedDate='2026-07-15';
+              current.selectedDate='2026-07-16';
               current.calendarMonth='2026-07';
               current.dailyLogs=[
                 {date:'2026-07-13',summary:'pages empty 13',work:[]},
                 {date:'2026-07-14',summary:'pages empty 14',workItems:[]},
-                {date:'2026-07-15',summary:'pages empty 15',work:[]}
+                {date:'2026-07-15',summary:'pages empty 15',work:[]},
+                {date:'2026-07-16',summary:'pages empty 16',work:[]}
               ];
               current.dailyIntegrityV551={installedAt:'pages-old'};
               current.dailyRecoveryV552={version:'pages-old',complete:false};
+              current.dailyUpdateV56={version:'pages-old',complete:false};
               localStorage.setItem(key,JSON.stringify(current));
             });
             await page.reload({waitUntil:'load',timeout:45000});
-            await page.waitForFunction(()=>window.CAREER_OS_V552?.complete===true,null,{timeout:20000});
+            await page.waitForFunction(()=>window.CAREER_OS_V56?.complete===true,null,{timeout:20000});
             await page.waitForTimeout(2500);
             const check=await page.evaluate(()=>{
               const work=x=>Array.isArray(x?.work)&&x.work.length?x.work:Array.isArray(x?.workItems)&&x.workItems.length?x.workItems:Array.isArray(x?.dailyRecord?.workItems)?x.dailyRecord.workItems:[];
@@ -147,16 +138,17 @@ jobs:
                 counts:{
                   '2026-07-13':work(byDate('2026-07-13')).length,
                   '2026-07-14':work(byDate('2026-07-14')).length,
-                  '2026-07-15':work(byDate('2026-07-15')).length
+                  '2026-07-15':work(byDate('2026-07-15')).length,
+                  '2026-07-16':work(byDate('2026-07-16')).length
                 },
                 selectedDate:S.selectedDate,
                 todayStatus:document.querySelector('#todayRecordStatus')?.textContent?.trim()||'',
                 historyDates:[...document.querySelectorAll('[data-history-date]')].map(x=>x.dataset.historyDate),
                 overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
-                recovery:window.CAREER_OS_V552
+                update:window.CAREER_OS_V56
               }
             });
-            const passed=(response?.status()===200)&&errors.length===0&&check.title.includes('V5.5.2')&&check.counts['2026-07-13']===3&&check.counts['2026-07-14']===4&&check.counts['2026-07-15']===4&&check.selectedDate==='2026-07-15'&&check.todayStatus==='已记录'&&['2026-07-13','2026-07-14','2026-07-15'].every(x=>check.historyDates.includes(x))&&check.overflow<=1;
+            const passed=(response?.status()===200)&&errors.length===0&&check.title.includes('V5.6')&&check.counts['2026-07-13']===3&&check.counts['2026-07-14']===4&&check.counts['2026-07-15']===4&&check.counts['2026-07-16']===5&&check.selectedDate==='2026-07-16'&&check.todayStatus==='已记录'&&['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].every(x=>check.historyDates.includes(x))&&check.overflow<=1;
             results.push({name,site,status:response?.status()||0,passed,check,errors});
             await browser.close();
           }

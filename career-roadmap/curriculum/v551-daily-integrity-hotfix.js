@@ -78,9 +78,14 @@ function renderCalendarDetailV551(){
   $('#calendarDayDetail').querySelectorAll('[data-quick]').forEach(bindQuickButton)
 }
 
+function newerCareerIdentityV551(){
+  return typeof seedDaily20260716==='function'||Boolean(window.CAREER_OS_V56)||String(S?.version||'').startsWith('5.6')
+}
+
 function applyIdentityV551(){
+  window.CAREER_OS_V551={version:'5.5.1',type:'incremental-hotfix',dailyCounts:Object.fromEntries(['2026-07-13','2026-07-14','2026-07-15'].map(d=>[d,dailyWorkV551(dailyByDateV551(d)).length])),backupKey:'zhantong-career-os-v5-pre-v551-backup'};
+  if(newerCareerIdentityV551())return;
   document.title='Zhantong · Career OS V5.5.1';
   const side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.5.1';
-  S.version='5.5.1';
-  window.CAREER_OS_V551={version:'5.5.1',type:'incremental-hotfix',dailyCounts:Object.fromEntries(['2026-07-13','2026-07-14','2026-07-15'].map(d=>[d,dailyWorkV551(dailyByDateV551(d)).length])),backupKey:'zhantong-career-os-v5-pre-v551-backup'}
+  S.version='5.5.1'
 }
