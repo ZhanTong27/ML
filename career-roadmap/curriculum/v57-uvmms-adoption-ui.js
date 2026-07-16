@@ -40,14 +40,23 @@ function ensureUVMMSProgramShellV57(){
  if(weekly&&!document.getElementById('uvmmsTodayV57')){
   const host=document.createElement('div');host.id='uvmmsTodayV57';host.className='uvmms-today-v57';weekly.insertAdjacentElement('afterend',host)
  }
- const growth=document.getElementById('growth'),problem=document.getElementById('problem-journal');
- if(growth&&problem&&!document.getElementById('uvmms-adoption-v57')){
-  const section=document.createElement('section');section.className='content-section';section.id='uvmms-adoption-v57';problem.parentNode.insertBefore(section,problem)
+ const growth=document.getElementById('growth'),problem=document.getElementById('problem-journal'),growthLibrary=document.getElementById('growth-library-v50');
+ let program=document.getElementById('uvmms-adoption-v57');
+ if(growth&&!program){program=document.createElement('section');program.className='content-section';program.id='uvmms-adoption-v57'}
+ if(growth&&program){
+  if(growthLibrary)growthLibrary.insertAdjacentElement('beforebegin',program);
+  else if(problem)problem.parentNode.insertBefore(program,problem);
+  else growth.appendChild(program)
  }
  const growthIndex=growth?.querySelector('.page-index');
- if(growthIndex&&!growthIndex.querySelector('[data-scroll="uvmms-adoption-v57"]')){
-  const button=document.createElement('button');button.dataset.scroll='uvmms-adoption-v57';button.textContent='UVM-MS试点';
-  const current=growthIndex.querySelector('[data-scroll="current-execution"]');current?.insertAdjacentElement('afterend',button);
+ if(growthIndex){
+  let button=growthIndex.querySelector('[data-scroll-v50="uvmms-adoption-v57"],[data-scroll="uvmms-adoption-v57"]');
+  if(!button){
+   button=document.createElement('button');button.textContent='UVM-MS试点';button.setAttribute('data-scroll-v50','uvmms-adoption-v57');
+   const libraryButton=growthIndex.querySelector('[data-scroll-v50="growth-library-v50"]');
+   const currentButton=growthIndex.querySelector('[data-scroll-v50="weekly-command-v50"],[data-scroll="current-execution"]');
+   if(libraryButton)libraryButton.insertAdjacentElement('beforebegin',button);else if(currentButton)currentButton.insertAdjacentElement('afterend',button);else growthIndex.appendChild(button)
+  }
   button.onclick=()=>{document.getElementById('uvmms-adoption-v57')?.scrollIntoView({behavior:'smooth'});growthIndex.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===button))}
  }
  const library=document.getElementById('project-library'),grid=document.getElementById('projectGrid');
