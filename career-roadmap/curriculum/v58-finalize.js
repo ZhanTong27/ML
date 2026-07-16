@@ -7,7 +7,7 @@
  function installOutermostV58(){
   if(typeof renderAll!=='function'||renderAll.__careerV58Outermost)return;
   const previous=renderAll;
-  const wrapped=function(){const result=previous.apply(this,arguments);setTimeout(()=>{try{mountGrowthHubV58();applyIdentityV58();publishMarkerV58('render')}catch(e){console.error('V5.8 outer render failed',e)}},0);return result};
+  const wrapped=function(){const result=previous.apply(this,arguments);setTimeout(()=>{try{mountGrowthHubV58();window.compactLegacyV58?.();applyIdentityV58();publishMarkerV58('render')}catch(e){console.error('V5.8 outer render failed',e)}},0);return result};
   wrapped.__careerV58Outermost=true;renderAll=wrapped
  }
  function publishMarkerV58(reason){
@@ -18,7 +18,7 @@
   if(typeof S!=='undefined'){S.growthUpdateV58=window.CAREER_OS_V58;applyIdentityV58();if(typeof save==='function')save()}
   return complete
  }
- function settleV58(reason){installOutermostV58();try{mountGrowthHubV58()}catch(e){console.error('V5.8 Growth settle failed',e)}applyIdentityV58();publishMarkerV58(reason)}
+ function settleV58(reason){installOutermostV58();try{mountGrowthHubV58();window.compactLegacyV58?.()}catch(e){console.error('V5.8 Growth settle failed',e)}applyIdentityV58();publishMarkerV58(reason)}
  window.addEventListener('load',()=>{installOutermostV58();[0,300,1000,2500].forEach((delay,index)=>setTimeout(()=>settleV58('load-'+index),delay))},{once:true});
  window.addEventListener('pageshow',()=>settleV58('pageshow'));
  window.addEventListener('focus',()=>settleV58('focus'));
