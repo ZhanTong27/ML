@@ -42,18 +42,19 @@ jobs:
             try{
               await page.goto(url,{waitUntil:'load'});
               await page.waitForFunction(()=>window.CAREER_OS_V58?.complete===true,null,{timeout:30000});
-              await page.evaluate(()=>{
+              run.beforeReload=await page.evaluate(()=>{
                 const key='zhantong-career-os-v5';
-                const state=JSON.parse(localStorage.getItem(key));
-                state.v58SafetySentinel='preserve-old-data';
-                state.selectedDate='2026-07-16';
-                state.calendarMonth='2026-07';
-                state.uvmmsProgramV57=state.uvmmsProgramV57||{};
-                state.uvmmsProgramV57.note='keep-v57-note';
+                S.v58SafetySentinel='preserve-old-data';
+                S.selectedDate='2026-07-16';
+                S.calendarMonth='2026-07';
+                S.uvmmsProgramV57=S.uvmmsProgramV57||{};
+                S.uvmmsProgramV57.note='keep-v57-note';
                 localStorage.removeItem('zhantong-career-os-v5-pre-v58-backup');
                 localStorage.removeItem('zhantong-career-os-v5-pre-v58-manifest');
-                localStorage.setItem(key,JSON.stringify(state));
+                localStorage.setItem(key,JSON.stringify(S));
+                return {sentinel:S.v58SafetySentinel,note:S.uvmmsProgramV57.note,stored:(localStorage.getItem(key)||'').includes('preserve-old-data')}
               });
+              await page.waitForTimeout(150);
               run.errors=[];
               await page.reload({waitUntil:'load'});
               await page.waitForFunction(()=>window.CAREER_OS_V58?.complete===true,null,{timeout:30000});
@@ -98,7 +99,7 @@ jobs:
               run.persisted=await page.evaluate(()=>({selected:S.growthHubV58.selectedActions['main-model-contract'],checked:S.growthHubV58.selfChecks['main-model-contract'][0],note:S.growthHubV58.actionNotes['main-model-contract'],backupStillHasSentinel:(localStorage.getItem('zhantong-career-os-v5-pre-v58-backup')||'').includes('preserve-old-data'),v57Note:S.uvmmsProgramV57?.note||'',legacyCount:['current-execution','problem-journal','weekly-review','ability-map','cycle-archive','uvmms-adoption-v57'].filter(id=>document.getElementById(id)).length,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth}));
               const f=run.fresh,p=run.persisted,c=f.counts;
               const legacySafe=Object.values(f.oldSections).every(x=>x.exists&&!x.insideHub&&x.hidden);
-              run.passed=run.errors.length===0&&f.title.includes('V5.8')&&String(f.version).startsWith('5.8')&&c['2026-07-13']===3&&c['2026-07-14']===4&&c['2026-07-15']===4&&c['2026-07-16']===5&&f.nav.join('|')==='本周成长|学习专题|能力与证据|复盘档案'&&f.actionCount===10&&f.actionGroups===4&&f.materialCount>=20&&f.promptCount===10&&f.selfCheckCount>=40&&f.signalVisible===3&&f.abilityCount===5&&f.scaleCount>=6&&legacySafe&&f.backupPresent&&f.backupHasSentinel&&f.v57Note==='keep-v57-note'&&f.todayCompact&&f.portfolioCompact&&f.overflow<=1&&p.selected&&p.checked&&p.note==='v58-note-persist'&&p.backupStillHasSentinel&&p.v57Note==='keep-v57-note'&&p.legacyCount===6&&p.overflow<=1;
+              run.passed=run.errors.length===0&&run.beforeReload.sentinel==='preserve-old-data'&&run.beforeReload.note==='keep-v57-note'&&run.beforeReload.stored&&f.title.includes('V5.8')&&String(f.version).startsWith('5.8')&&c['2026-07-13']===3&&c['2026-07-14']===4&&c['2026-07-15']===4&&c['2026-07-16']===5&&f.nav.join('|')==='本周成长|学习专题|能力与证据|复盘档案'&&f.actionCount===10&&f.actionGroups===4&&f.materialCount>=20&&f.promptCount===10&&f.selfCheckCount>=40&&f.signalVisible===3&&f.abilityCount===5&&f.scaleCount>=6&&legacySafe&&f.backupPresent&&f.backupHasSentinel&&f.v57Note==='keep-v57-note'&&f.todayCompact&&f.portfolioCompact&&f.overflow<=1&&p.selected&&p.checked&&p.note==='v58-note-persist'&&p.backupStillHasSentinel&&p.v57Note==='keep-v57-note'&&p.legacyCount===6&&p.overflow<=1;
             }catch(e){run.errors.push(e?.stack||String(e));run.passed=false}
             result.runs.push(run);await browser.close()
           }
