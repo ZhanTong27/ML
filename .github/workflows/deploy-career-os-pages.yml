@@ -108,7 +108,7 @@ jobs:
             for(let attempt=0;attempt<8;attempt++){
               response=await page.goto(site+`?deploy=${Date.now()}-${attempt}`,{waitUntil:'load',timeout:45000});
               await page.waitForTimeout(2500);
-              if((await page.title()).includes('V5.6'))break;
+              if((await page.title()).includes('V5.7'))break;
               await page.waitForTimeout(5000);
             }
             await page.evaluate(()=>{
@@ -125,10 +125,12 @@ jobs:
               current.dailyIntegrityV551={installedAt:'pages-old'};
               current.dailyRecoveryV552={version:'pages-old',complete:false};
               current.dailyUpdateV56={version:'pages-old',complete:false};
+              delete current.uvmmsProgramV57;
+              delete current.uvmmsUpdateV57;
               localStorage.setItem(key,JSON.stringify(current));
             });
             await page.reload({waitUntil:'load',timeout:45000});
-            await page.waitForFunction(()=>window.CAREER_OS_V56?.complete===true,null,{timeout:20000});
+            await page.waitForFunction(()=>window.CAREER_OS_V56?.complete===true&&window.CAREER_OS_V57?.complete===true,null,{timeout:20000});
             await page.waitForTimeout(2500);
             const check=await page.evaluate(()=>{
               const work=x=>Array.isArray(x?.work)&&x.work.length?x.work:Array.isArray(x?.workItems)&&x.workItems.length?x.workItems:Array.isArray(x?.dailyRecord?.workItems)?x.dailyRecord.workItems:[];
@@ -145,10 +147,19 @@ jobs:
                 todayStatus:document.querySelector('#todayRecordStatus')?.textContent?.trim()||'',
                 historyDates:[...document.querySelectorAll('[data-history-date]')].map(x=>x.dataset.historyDate),
                 overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
-                update:window.CAREER_OS_V56
+                program:{
+                  today:Boolean(document.getElementById('uvmmsTodayV57')),
+                  growth:Boolean(document.getElementById('uvmms-adoption-v57')),
+                  portfolio:Boolean(document.getElementById('uvmmsPortfolioV57')),
+                  gates:document.querySelectorAll('[data-uvmms-gate]').length,
+                  metrics:document.querySelectorAll('[data-uvmms-metric]').length,
+                  evidence:document.querySelectorAll('[data-uvmms-evidence]').length,
+                  currentGate:S.uvmmsProgramV57?.currentGate||''
+                },
+                update:window.CAREER_OS_V57
               }
             });
-            const passed=(response?.status()===200)&&errors.length===0&&check.title.includes('V5.6')&&check.counts['2026-07-13']===3&&check.counts['2026-07-14']===4&&check.counts['2026-07-15']===4&&check.counts['2026-07-16']===5&&check.selectedDate==='2026-07-16'&&check.todayStatus==='已记录'&&['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].every(x=>check.historyDates.includes(x))&&check.overflow<=1;
+            const passed=(response?.status()===200)&&errors.length===0&&check.title.includes('V5.7')&&check.counts['2026-07-13']===3&&check.counts['2026-07-14']===4&&check.counts['2026-07-15']===4&&check.counts['2026-07-16']===5&&check.selectedDate==='2026-07-16'&&check.todayStatus==='已记录'&&['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].every(x=>check.historyDates.includes(x))&&check.program.today&&check.program.growth&&check.program.portfolio&&check.program.gates===4&&check.program.metrics===8&&check.program.evidence===5&&check.program.currentGate==='gate0'&&check.overflow<=1;
             results.push({name,site,status:response?.status()||0,passed,check,errors});
             await browser.close();
           }
