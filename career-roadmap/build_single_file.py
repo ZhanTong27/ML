@@ -77,6 +77,11 @@ EXTRA_SOURCES = [
     'curriculum/v57-uvmms-adoption-data.js',
     'curriculum/v57-uvmms-adoption-ui.js',
     'curriculum/v57-finalize.js',
+    'curriculum/v58-growth-safety.js',
+    'curriculum/v58-growth-story-data.js',
+    'curriculum/v58-growth-story-ui.js',
+    'curriculum/v58-compact-legacy.js',
+    'curriculum/v58-finalize.js',
 ]
 
 REQUIRED_MARKERS = [
@@ -99,11 +104,16 @@ REQUIRED_MARKERS = [
     'Output-Capacitorless LDO / OCL-LDO',
     'UVM-MS 方法学引入与数模验证资产复用试点',
     'METHODOLOGY ADOPTION PROGRAM',
+    'HUMAN-CENTERED GROWTH',
+    '本周全部成长行动',
+    'AI检测与训练Prompt',
+    'zhantong-career-os-v5-pre-v58-backup',
     'CAREER_OS_V551',
     'CAREER_OS_V552',
     'CAREER_OS_V56',
     'CAREER_OS_V57',
-    'Zhantong · Career OS V5.7',
+    'CAREER_OS_V58',
+    'Zhantong · Career OS V5.8',
 ]
 
 
