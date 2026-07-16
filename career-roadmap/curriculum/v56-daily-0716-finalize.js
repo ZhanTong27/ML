@@ -16,14 +16,15 @@
   document.title='Zhantong · Career OS V5.6';
   var side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.6'
  }
- if(typeof renderAll==='function'&&!renderAll.__careerV56Wrapped){
+ function installOutermostRenderIdentity(){
+  if(typeof renderAll!=='function'||renderAll.__careerV56Outermost)return;
   var previousRenderAll=renderAll;
   var renderAllV56=function(){
    var result=previousRenderAll.apply(this,arguments);
    applyIdentity();
    return result
   };
-  renderAllV56.__careerV56Wrapped=true;
+  renderAllV56.__careerV56Outermost=true;
   renderAll=renderAllV56
  }
  function ensure(reason){
@@ -48,13 +49,17 @@
   }finally{busy=false}
  }
  function ensureAndRender(reason){
+  installOutermostRenderIdentity();
   var ok=ensure(reason);
   try{if(ok&&typeof renderAll==='function')renderAll()}catch(e){console.error('Career OS V5.6 render retry failed',e)}
   applyIdentity();
   try{if(typeof save==='function')save()}catch(e){}
  }
- window.addEventListener('load',function(){[0,250,900,2200].forEach(function(delay,index){setTimeout(function(){ensureAndRender('load-'+index)},delay)})},{once:true});
- window.addEventListener('pageshow',function(){ensureAndRender('pageshow')});
- window.addEventListener('focus',function(){ensureAndRender('focus')});
- document.addEventListener('visibilitychange',function(){if(!document.hidden)ensureAndRender('visible')});
+ window.addEventListener('load',function(){
+  installOutermostRenderIdentity();
+  [0,250,900,2200].forEach(function(delay,index){setTimeout(function(){ensureAndRender('load-'+index)},delay)})
+ },{once:true});
+ window.addEventListener('pageshow',function(){installOutermostRenderIdentity();ensureAndRender('pageshow')});
+ window.addEventListener('focus',function(){installOutermostRenderIdentity();ensureAndRender('focus')});
+ document.addEventListener('visibilitychange',function(){if(!document.hidden){installOutermostRenderIdentity();ensureAndRender('visible')}});
 })();
