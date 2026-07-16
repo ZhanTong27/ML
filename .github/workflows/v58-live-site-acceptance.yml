@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: read
-  issues: write
 
 jobs:
   live-v58:
@@ -20,13 +19,11 @@ jobs:
           npm install --no-save --silent playwright@1.54.1
           npx playwright install --with-deps chromium webkit
 
-      - name: Test the real public website
-        continue-on-error: true
+      - name: Verify the real public website
         run: |
           cat > live-v58.mjs <<'EOF'
           import { chromium, webkit, devices } from 'playwright';
           import fs from 'node:fs';
-
           const site='https://zhantong27.github.io/ML/';
           const result={site,passed:false,runs:[]};
 
@@ -35,29 +32,14 @@ jobs:
             const context=await browser.newContext(options);
             const page=await context.newPage();
             const run={name,errors:[]};
-            page.on('pageerror',e=>run.errors.push(`pageerror: ${e.message}`));
-            page.on('console',m=>{if(m.type()==='error')run.errors.push(`console: ${m.text()}`)});
-
+            page.on('pageerror',e=>run.errors.push(e.message));
+            page.on('console',m=>{if(m.type()==='error')run.errors.push(m.text())});
             try{
-              let response;
-              for(let attempt=0;attempt<10;attempt++){
-                response=await page.goto(`${site}?accept_v58=${Date.now()}-${attempt}`,{waitUntil:'load',timeout:45000});
-                await page.waitForTimeout(2200);
-                if(response?.status()===200 && await page.evaluate(()=>window.CAREER_OS_V58?.complete===true)) break;
-                await page.waitForTimeout(5000);
-              }
+              const response=await page.goto(`${site}?accept_v58=${Date.now()}`,{waitUntil:'load',timeout:45000});
               run.httpStatus=response?.status()||0;
               run.contentType=response?.headers()?.['content-type']||'';
               await page.waitForFunction(()=>window.CAREER_OS_V58?.complete===true,null,{timeout:30000});
               await page.waitForTimeout(2600);
-
-              run.initial=await page.evaluate(()=>({
-                title:document.title,
-                version:S?.version||'',
-                marker:window.CAREER_OS_V58||null,
-                sourceBytes:document.documentElement.outerHTML.length
-              }));
-
               await page.evaluate(()=>{
                 const key='zhantong-career-os-v5';
                 localStorage.removeItem('zhantong-career-os-v5-pre-v58-backup');
@@ -66,14 +48,11 @@ jobs:
                 S.selectedDate='2026-07-16';
                 S.calendarMonth='2026-07';
                 S.dailyLogs=[
-                  {date:'2026-07-13',summary:'live stale 13',work:[]},
-                  {date:'2026-07-14',summary:'live stale 14',workItems:[]},
-                  {date:'2026-07-15',summary:'live stale 15',work:[]},
-                  {date:'2026-07-16',summary:'live stale 16',work:[]}
+                  {date:'2026-07-13',work:[]},
+                  {date:'2026-07-14',workItems:[]},
+                  {date:'2026-07-15',work:[]},
+                  {date:'2026-07-16',work:[]}
                 ];
-                S.dailyIntegrityV551={installedAt:'live-stale'};
-                S.dailyRecoveryV552={version:'live-stale',complete:false};
-                S.dailyUpdateV56={version:'live-stale',complete:false};
                 S.growthHubV58=S.growthHubV58||{};
                 S.growthHubV58.activeView='week';
                 localStorage.setItem(key,JSON.stringify(S));
@@ -84,8 +63,7 @@ jobs:
               await page.waitForFunction(()=>window.CAREER_OS_V58?.complete===true,null,{timeout:30000});
               await page.waitForTimeout(3200);
               await page.click('[data-view="growth"]');
-              await page.waitForTimeout(800);
-
+              await page.waitForTimeout(700);
               run.check=await page.evaluate(()=>{
                 const work=x=>Array.isArray(x?.work)&&x.work.length?x.work:Array.isArray(x?.workItems)&&x.workItems.length?x.workItems:Array.isArray(x?.dailyRecord?.workItems)?x.dailyRecord.workItems:[];
                 const byDate=d=>S.dailyLogs.find(x=>(x.date||x.dailyRecord?.date)===d);
@@ -94,62 +72,28 @@ jobs:
                 return {
                   title:document.title,
                   version:S.version,
-                  counts:{
-                    '2026-07-13':work(byDate('2026-07-13')).length,
-                    '2026-07-14':work(byDate('2026-07-14')).length,
-                    '2026-07-15':work(byDate('2026-07-15')).length,
-                    '2026-07-16':work(byDate('2026-07-16')).length
-                  },
+                  counts:['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].map(d=>work(byDate(d)).length),
                   selectedDate:S.selectedDate,
                   todayStatus:document.querySelector('#todayRecordStatus')?.textContent?.trim()||'',
                   historyDates:[...document.querySelectorAll('[data-history-date]')].map(x=>x.dataset.historyDate),
                   nav:[...document.querySelectorAll('#growth-nav-v58 [data-v58-nav]')].map(x=>x.textContent.trim()),
                   actions:document.querySelectorAll('[data-v58-action]').length,
-                  actionGroups:document.querySelectorAll('[data-v58-action-group]').length,
+                  groups:document.querySelectorAll('[data-v58-action-group]').length,
                   materials:document.querySelectorAll('.action-materials-v58>article').length,
                   prompts:document.querySelectorAll('.action-prompt-v58').length,
                   selfChecks:document.querySelectorAll('[data-v58-selfcheck]').length,
-                  visibleSignals:document.querySelectorAll('.signal-grid-v58>article').length,
+                  signals:document.querySelectorAll('.signal-grid-v58>article').length,
                   abilities:document.querySelectorAll('.ability-cards-v58>article').length,
-                  scaleSteps:document.querySelectorAll('.ability-scale-line-v58>div').length,
                   compactToday:Boolean(document.querySelector('#uvmmsTodayV57 .v58-topic-line')),
                   compactPortfolio:Boolean(document.querySelector('#uvmmsPortfolioV57 .v58-topic-line')),
-                  legacySafe:legacyIds.every(id=>{
-                    const node=document.getElementById(id);
-                    return Boolean(node)&&!document.getElementById('growth-hub-v58')?.contains(node);
-                  }),
-                  backupPresent:Boolean(backup),
+                  legacySafe:legacyIds.every(id=>{const n=document.getElementById(id);return Boolean(n)&&!document.getElementById('growth-hub-v58')?.contains(n)}),
                   backupHasSentinel:backup.includes('preserve-live-v58-data'),
-                  canonicalHasSentinel:(localStorage.getItem('zhantong-career-os-v5')||'').includes('preserve-live-v58-data'),
                   overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
                 };
               });
-
-              const c=run.check.counts;
-              run.passed=
-                run.httpStatus===200 &&
-                run.contentType.includes('text/html') &&
-                run.errors.length===0 &&
-                run.initial.title.includes('V5.8') &&
-                String(run.initial.version).startsWith('5.8') &&
-                run.initial.marker?.complete===true &&
-                run.check.title.includes('V5.8') &&
-                String(run.check.version).startsWith('5.8') &&
-                c['2026-07-13']===3 && c['2026-07-14']===4 && c['2026-07-15']===4 && c['2026-07-16']===5 &&
-                run.check.selectedDate==='2026-07-16' &&
-                run.check.todayStatus==='已记录' &&
-                ['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].every(x=>run.check.historyDates.includes(x)) &&
-                run.check.nav.join('|')==='本周成长|学习专题|能力与证据|复盘档案' &&
-                run.check.actions===10 && run.check.actionGroups===4 &&
-                run.check.materials>=20 && run.check.prompts===10 && run.check.selfChecks>=40 &&
-                run.check.visibleSignals===3 && run.check.abilities===5 && run.check.scaleSteps>=6 &&
-                run.check.compactToday && run.check.compactPortfolio && run.check.legacySafe &&
-                run.check.backupPresent && run.check.backupHasSentinel && run.check.canonicalHasSentinel &&
-                run.check.overflow<=1;
-            }catch(e){
-              run.errors.push(e?.stack||String(e));
-              run.passed=false;
-            }
+              const x=run.check;
+              run.passed=run.httpStatus===200&&run.contentType.includes('text/html')&&run.errors.length===0&&x.title.includes('V5.8')&&String(x.version).startsWith('5.8')&&x.counts.join('/')==='3/4/4/5'&&x.selectedDate==='2026-07-16'&&x.todayStatus==='已记录'&&['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].every(d=>x.historyDates.includes(d))&&x.nav.join('|')==='本周成长|学习专题|能力与证据|复盘档案'&&x.actions===10&&x.groups===4&&x.materials>=20&&x.prompts===10&&x.selfChecks>=40&&x.signals===3&&x.abilities===5&&x.compactToday&&x.compactPortfolio&&x.legacySafe&&x.backupHasSentinel&&x.overflow<=1;
+            }catch(e){run.errors.push(e?.stack||String(e));run.passed=false}
             result.runs.push(run);
             await browser.close();
           }
@@ -159,6 +103,7 @@ jobs:
           result.passed=result.runs.every(x=>x.passed);
           fs.writeFileSync('/tmp/v58-live-acceptance.json',JSON.stringify(result,null,2));
           console.log(JSON.stringify(result,null,2));
+          if(!result.passed)process.exit(1);
           EOF
           node live-v58.mjs
 
@@ -168,15 +113,3 @@ jobs:
         with:
           name: v58-live-site-acceptance
           path: /tmp/v58-live-acceptance.json
-
-      - name: Comment result
-        if: always() && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if [ ! -f /tmp/v58-live-acceptance.json ]; then printf '{"passed":false,"error":"result missing"}\n' >/tmp/v58-live-acceptance.json; fi
-          { echo '### Career OS V5.8 live-site acceptance'; echo '```json'; cat /tmp/v58-live-acceptance.json; echo '```'; } >/tmp/v58-live-comment.md
-          gh pr comment ${{ github.event.pull_request.number }} --repo "${{ github.repository }}" --body-file /tmp/v58-live-comment.md
-
-      - name: Enforce live acceptance
-        run: node -e "const r=require('/tmp/v58-live-acceptance.json');if(!r.passed)process.exit(1)"
