@@ -26,7 +26,7 @@ jobs:
       - name: Verify live Career OS in desktop and iPhone browsers
         continue-on-error: true
         run: |
-          cat > /tmp/live-career-os.mjs <<'EOF'
+          cat > live-career-os.mjs <<'EOF'
           import { chromium, webkit, devices } from 'playwright';
           import fs from 'node:fs';
 
@@ -148,7 +148,7 @@ jobs:
           fs.writeFileSync('/tmp/career-os-live-browser.json',JSON.stringify(result,null,2));
           console.log(JSON.stringify(result,null,2));
           EOF
-          node /tmp/live-career-os.mjs
+          node live-career-os.mjs
 
       - name: Post browser result to verification issue
         if: always()
