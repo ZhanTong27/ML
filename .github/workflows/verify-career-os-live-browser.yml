@@ -1,0 +1,179 @@
+name: Verify Career OS Live Browser
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-career-os-live-browser.yml'
+      - '.github/workflows/deploy-career-os-pages.yml'
+      - 'career-roadmap/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  live-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Install browser runtimes
+        run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium webkit
+
+      - name: Verify live Career OS in desktop and iPhone browsers
+        continue-on-error: true
+        run: |
+          cat > /tmp/live-career-os.mjs <<'EOF'
+          import { chromium, webkit, devices } from 'playwright';
+          import fs from 'node:fs';
+
+          const base='https://zhantong27.github.io/ML/';
+          const result={url:base,passed:false,runs:[]};
+
+          async function inspect(browserType,name,options){
+            const browser=await browserType.launch({headless:true});
+            const context=await browser.newContext(options);
+            const page=await context.newPage();
+            const run={name,errors:[]};
+            page.on('pageerror',e=>run.errors.push(`pageerror: ${e.message}`));
+            page.on('console',m=>{if(m.type()==='error')run.errors.push(`console: ${m.text()}`)});
+            try{
+              let response;
+              for(let attempt=0;attempt<6;attempt++){
+                response=await page.goto(`${base}?live_v57=${Date.now()}-${attempt}`,{waitUntil:'load',timeout:45000});
+                await page.waitForTimeout(1800);
+                if(response?.status()===200&&await page.evaluate(()=>Boolean(window.CAREER_OS_V57)))break;
+                await page.waitForTimeout(4000);
+              }
+              run.httpStatus=response?.status()||0;
+              await page.waitForFunction(()=>window.CAREER_OS_V57?.complete===true,null,{timeout:25000});
+              await page.waitForTimeout(2500);
+
+              run.fresh=await page.evaluate(()=>{
+                const work=x=>Array.isArray(x?.work)&&x.work.length?x.work:Array.isArray(x?.workItems)&&x.workItems.length?x.workItems:Array.isArray(x?.dailyRecord?.workItems)?x.dailyRecord.workItems:[];
+                const byDate=d=>Array.isArray(S?.dailyLogs)?S.dailyLogs.find(x=>(x.date||x.dailyRecord?.date)===d):null;
+                return {
+                  title:document.title,
+                  version:S?.version||'',
+                  marker:window.CAREER_OS_V57||null,
+                  counts:{
+                    '2026-07-13':work(byDate('2026-07-13')).length,
+                    '2026-07-14':work(byDate('2026-07-14')).length,
+                    '2026-07-15':work(byDate('2026-07-15')).length,
+                    '2026-07-16':work(byDate('2026-07-16')).length
+                  },
+                  selectedDate:S?.selectedDate||'',
+                  todayStatus:document.querySelector('#todayRecordStatus')?.textContent?.trim()||'',
+                  gates:document.querySelectorAll('[data-uvmms-gate]').length,
+                  metrics:document.querySelectorAll('[data-uvmms-metric]').length,
+                  evidence:document.querySelectorAll('[data-uvmms-evidence]').length,
+                  todayProgram:Boolean(document.getElementById('uvmmsTodayV57')),
+                  growthProgram:Boolean(document.getElementById('uvmms-adoption-v57')),
+                  portfolioProgram:Boolean(document.getElementById('uvmmsPortfolioV57')),
+                  overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
+                }
+              });
+
+              await page.evaluate(()=>{
+                const key='zhantong-career-os-v5';
+                const state=JSON.parse(localStorage.getItem(key)||'{}');
+                state.selectedDate='2026-07-16';
+                state.calendarMonth='2026-07';
+                state.dailyLogs=[
+                  {date:'2026-07-13',summary:'live empty 13',work:[]},
+                  {date:'2026-07-14',summary:'live empty 14',workItems:[]},
+                  {date:'2026-07-15',summary:'live empty 15',work:[]},
+                  {date:'2026-07-16',summary:'live empty 16',work:[]}
+                ];
+                state.dailyIntegrityV551={installedAt:'live-stale'};
+                state.dailyRecoveryV552={version:'live-stale',complete:false};
+                state.dailyUpdateV56={version:'live-stale',complete:false};
+                state.uvmmsProgramV57=state.uvmmsProgramV57||{};
+                localStorage.setItem(key,JSON.stringify(state));
+              });
+
+              run.errors=[];
+              await page.reload({waitUntil:'load',timeout:45000});
+              await page.waitForFunction(()=>window.CAREER_OS_V57?.complete===true,null,{timeout:25000});
+              await page.waitForTimeout(3000);
+
+              run.recovered=await page.evaluate(()=>{
+                const work=x=>Array.isArray(x?.work)&&x.work.length?x.work:Array.isArray(x?.workItems)&&x.workItems.length?x.workItems:Array.isArray(x?.dailyRecord?.workItems)?x.dailyRecord.workItems:[];
+                const byDate=d=>S.dailyLogs.find(x=>(x.date||x.dailyRecord?.date)===d);
+                return {
+                  title:document.title,
+                  version:S.version,
+                  counts:{
+                    '2026-07-13':work(byDate('2026-07-13')).length,
+                    '2026-07-14':work(byDate('2026-07-14')).length,
+                    '2026-07-15':work(byDate('2026-07-15')).length,
+                    '2026-07-16':work(byDate('2026-07-16')).length
+                  },
+                  selectedDate:S.selectedDate,
+                  todayStatus:document.querySelector('#todayRecordStatus')?.textContent?.trim()||'',
+                  historyDates:[...document.querySelectorAll('[data-history-date]')].map(x=>x.dataset.historyDate),
+                  gates:document.querySelectorAll('[data-uvmms-gate]').length,
+                  metrics:document.querySelectorAll('[data-uvmms-metric]').length,
+                  evidence:document.querySelectorAll('[data-uvmms-evidence]').length,
+                  currentGate:S.uvmmsProgramV57?.currentGate||'',
+                  decision:S.uvmmsProgramV57?.decision||'',
+                  overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
+                }
+              });
+
+              const f=run.fresh,r=run.recovered,c=r.counts;
+              run.passed=run.httpStatus===200&&run.errors.length===0&&
+                f.title.includes('V5.7')&&String(f.version).startsWith('5.7')&&
+                f.counts['2026-07-13']===3&&f.counts['2026-07-14']===4&&f.counts['2026-07-15']===4&&f.counts['2026-07-16']===5&&
+                f.gates===4&&f.metrics===8&&f.evidence===5&&f.todayProgram&&f.growthProgram&&f.portfolioProgram&&f.overflow<=1&&
+                r.title.includes('V5.7')&&String(r.version).startsWith('5.7')&&
+                c['2026-07-13']===3&&c['2026-07-14']===4&&c['2026-07-15']===4&&c['2026-07-16']===5&&
+                r.selectedDate==='2026-07-16'&&r.todayStatus==='已记录'&&
+                ['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].every(x=>r.historyDates.includes(x))&&
+                r.gates===4&&r.metrics===8&&r.evidence===5&&r.currentGate==='gate0'&&r.decision==='evaluating'&&r.overflow<=1;
+            }catch(e){
+              run.errors.push(e?.stack||String(e));
+              run.passed=false;
+            }
+            result.runs.push(run);
+            await browser.close();
+          }
+
+          await inspect(chromium,'chromium-desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
+          await inspect(webkit,'webkit-iphone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
+          result.passed=result.runs.every(x=>x.passed);
+          fs.writeFileSync('/tmp/career-os-live-browser.json',JSON.stringify(result,null,2));
+          console.log(JSON.stringify(result,null,2));
+          EOF
+          node /tmp/live-career-os.mjs
+
+      - name: Post browser result to verification issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ ! -f /tmp/career-os-live-browser.json ]; then
+            printf '{"passed":false,"error":"browser result was not generated"}\n' >/tmp/career-os-live-browser.json
+          fi
+          {
+            echo '### Live browser verification'
+            echo
+            echo 'Commit: `${{ github.sha }}`'
+            echo '```json'
+            cat /tmp/career-os-live-browser.json
+            echo '```'
+          } >/tmp/career-os-live-browser-comment.md
+          gh issue comment 53 --repo "${{ github.repository }}" --body-file /tmp/career-os-live-browser-comment.md
+
+      - name: Upload live-browser diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: career-os-live-browser-result
+          path: /tmp/career-os-live-browser.json
+
+      - name: Enforce live browser verification
+        run: node -e "const r=require('/tmp/career-os-live-browser.json');if(!r.passed)process.exit(1)"
