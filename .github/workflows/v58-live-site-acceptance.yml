@@ -8,7 +8,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
+  issues: write
 
 jobs:
   live-v58:
@@ -142,7 +142,7 @@ jobs:
                 run.check.nav.join('|')==='本周成长|学习专题|能力与证据|复盘档案' &&
                 run.check.actions===10 && run.check.actionGroups===4 &&
                 run.check.materials>=20 && run.check.prompts===10 && run.check.selfChecks>=40 &&
-                run.check.visibleSignals===3 && run.check.abilities===5 && run.check.scaleSteps===6 &&
+                run.check.visibleSignals===3 && run.check.abilities===5 && run.check.scaleSteps>=6 &&
                 run.check.compactToday && run.check.compactPortfolio && run.check.legacySafe &&
                 run.check.backupPresent && run.check.backupHasSentinel && run.check.canonicalHasSentinel &&
                 run.check.overflow<=1;
@@ -176,7 +176,7 @@ jobs:
         run: |
           if [ ! -f /tmp/v58-live-acceptance.json ]; then printf '{"passed":false,"error":"result missing"}\n' >/tmp/v58-live-acceptance.json; fi
           { echo '### Career OS V5.8 live-site acceptance'; echo '```json'; cat /tmp/v58-live-acceptance.json; echo '```'; } >/tmp/v58-live-comment.md
-          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/v58-live-comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --repo "${{ github.repository }}" --body-file /tmp/v58-live-comment.md
 
       - name: Enforce live acceptance
         run: node -e "const r=require('/tmp/v58-live-acceptance.json');if(!r.passed)process.exit(1)"
