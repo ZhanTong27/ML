@@ -23,9 +23,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: career-os-pages
@@ -49,53 +47,49 @@ jobs:
           name: career-os-pages-preview
           path: _site
 
-  deploy:
+  publish:
     if: github.event_name != 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    outputs:
-      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v6
-        with:
-          enablement: true
-      - name: Build production site from canonical sources
+      - name: Build production site
         run: |
           rm -rf _site
           mkdir -p _site
           python3 career-roadmap/build_single_file.py --output ../_site/index.html
           cp _site/index.html _site/404.html
           touch _site/.nojekyll
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: _site
-      - name: Deploy GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Publish to active gh-pages source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd _site
+          git init -b gh-pages
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html 404.html .nojekyll
+          git commit -m "Publish Career OS V5.8 from ${GITHUB_SHA}"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin HEAD:gh-pages
 
   verify-published:
     if: github.event_name != 'pull_request'
-    needs: deploy
+    needs: publish
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 18
     env:
-      SITE_URL: ${{ needs.deploy.outputs.page_url }}
+      SITE_URL: https://zhantong27.github.io/ML/
     steps:
       - name: Install browser runtimes
         run: |
           npm install --no-save --silent playwright@1.54.1
           npx playwright install --with-deps chromium webkit
-      - name: Verify official published page
+      - name: Verify official V5.8 page in desktop and iPhone browsers
         run: |
           cat > verify-pages.mjs <<'EOF'
           import { chromium, webkit, devices } from 'playwright';
-          const site=(process.env.SITE_URL||'').replace(/\/$/,'')+'/';
+          const site=process.env.SITE_URL;
           const results=[];
           async function verify(browserType,name,options){
             const browser=await browserType.launch({headless:true});
@@ -105,63 +99,67 @@ jobs:
             page.on('pageerror',e=>errors.push(e.message));
             page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
             let response;
-            for(let attempt=0;attempt<8;attempt++){
-              response=await page.goto(site+`?deploy=${Date.now()}-${attempt}`,{waitUntil:'load',timeout:45000});
+            for(let attempt=0;attempt<12;attempt++){
+              response=await page.goto(site+`?deploy_v58=${Date.now()}-${attempt}`,{waitUntil:'load',timeout:45000});
               await page.waitForTimeout(2500);
-              if((await page.title()).includes('V5.7'))break;
-              await page.waitForTimeout(5000);
+              if(response?.status()===200&&(await page.title()).includes('V5.8')&&await page.evaluate(()=>Boolean(window.CAREER_OS_V58)))break;
+              await page.waitForTimeout(6000);
             }
+            await page.waitForFunction(()=>window.CAREER_OS_V58?.complete===true,null,{timeout:30000});
             await page.evaluate(()=>{
               const key='zhantong-career-os-v5';
-              const current=JSON.parse(localStorage.getItem(key)||'{}');
-              current.selectedDate='2026-07-16';
-              current.calendarMonth='2026-07';
-              current.dailyLogs=[
+              S.selectedDate='2026-07-16';
+              S.calendarMonth='2026-07';
+              S.dailyLogs=[
                 {date:'2026-07-13',summary:'pages empty 13',work:[]},
                 {date:'2026-07-14',summary:'pages empty 14',workItems:[]},
                 {date:'2026-07-15',summary:'pages empty 15',work:[]},
                 {date:'2026-07-16',summary:'pages empty 16',work:[]}
               ];
-              current.dailyIntegrityV551={installedAt:'pages-old'};
-              current.dailyRecoveryV552={version:'pages-old',complete:false};
-              current.dailyUpdateV56={version:'pages-old',complete:false};
-              delete current.uvmmsProgramV57;
-              delete current.uvmmsUpdateV57;
-              localStorage.setItem(key,JSON.stringify(current));
+              S.dailyIntegrityV551={installedAt:'pages-old'};
+              S.dailyRecoveryV552={version:'pages-old',complete:false};
+              S.dailyUpdateV56={version:'pages-old',complete:false};
+              S.growthHubV58=S.growthHubV58||{};
+              S.growthHubV58.activeView='week';
+              localStorage.removeItem('zhantong-career-os-v5-pre-v58-backup');
+              localStorage.removeItem('zhantong-career-os-v5-pre-v58-manifest');
+              localStorage.setItem(key,JSON.stringify(S));
             });
+            await page.waitForTimeout(150);
+            errors.length=0;
             await page.reload({waitUntil:'load',timeout:45000});
-            await page.waitForFunction(()=>window.CAREER_OS_V56?.complete===true&&window.CAREER_OS_V57?.complete===true,null,{timeout:20000});
-            await page.waitForTimeout(2500);
+            await page.waitForFunction(()=>window.CAREER_OS_V58?.complete===true,null,{timeout:30000});
+            await page.waitForTimeout(3000);
+            await page.click('[data-view="growth"]');
+            await page.waitForTimeout(700);
             const check=await page.evaluate(()=>{
               const work=x=>Array.isArray(x?.work)&&x.work.length?x.work:Array.isArray(x?.workItems)&&x.workItems.length?x.workItems:Array.isArray(x?.dailyRecord?.workItems)?x.dailyRecord.workItems:[];
               const byDate=d=>S.dailyLogs.find(x=>(x.date||x.dailyRecord?.date)===d);
               return {
-                title:document.title,
-                counts:{
-                  '2026-07-13':work(byDate('2026-07-13')).length,
-                  '2026-07-14':work(byDate('2026-07-14')).length,
-                  '2026-07-15':work(byDate('2026-07-15')).length,
-                  '2026-07-16':work(byDate('2026-07-16')).length
-                },
+                title:document.title,version:S.version,
+                counts:{'2026-07-13':work(byDate('2026-07-13')).length,'2026-07-14':work(byDate('2026-07-14')).length,'2026-07-15':work(byDate('2026-07-15')).length,'2026-07-16':work(byDate('2026-07-16')).length},
                 selectedDate:S.selectedDate,
                 todayStatus:document.querySelector('#todayRecordStatus')?.textContent?.trim()||'',
                 historyDates:[...document.querySelectorAll('[data-history-date]')].map(x=>x.dataset.historyDate),
-                overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
-                program:{
-                  today:Boolean(document.getElementById('uvmmsTodayV57')),
-                  growth:Boolean(document.getElementById('uvmms-adoption-v57')),
-                  portfolio:Boolean(document.getElementById('uvmmsPortfolioV57')),
-                  gates:document.querySelectorAll('[data-uvmms-gate]').length,
-                  metrics:document.querySelectorAll('[data-uvmms-metric]').length,
-                  evidence:document.querySelectorAll('[data-uvmms-evidence]').length,
-                  currentGate:S.uvmmsProgramV57?.currentGate||''
-                },
-                update:window.CAREER_OS_V57
+                nav:[...document.querySelectorAll('#growth-nav-v58 [data-v58-nav]')].map(x=>x.textContent.trim()),
+                actions:document.querySelectorAll('[data-v58-action]').length,
+                groups:document.querySelectorAll('[data-v58-action-group]').length,
+                materials:document.querySelectorAll('.action-materials-v58>article').length,
+                prompts:document.querySelectorAll('.action-prompt-v58').length,
+                selfChecks:document.querySelectorAll('[data-v58-selfcheck]').length,
+                signals:document.querySelectorAll('.signal-grid-v58>article').length,
+                abilities:document.querySelectorAll('.ability-cards-v58>article').length,
+                compactToday:Boolean(document.querySelector('#uvmmsTodayV57 .v58-topic-line')),
+                compactPortfolio:Boolean(document.querySelector('#uvmmsPortfolioV57 .v58-topic-line')),
+                oldDataSafe:['current-execution','problem-journal','weekly-review','ability-map','cycle-archive','uvmms-adoption-v57'].every(id=>{const n=document.getElementById(id);return Boolean(n)&&!document.getElementById('growth-hub-v58')?.contains(n)}),
+                backup:Boolean(localStorage.getItem('zhantong-career-os-v5-pre-v58-backup')),
+                overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
               }
             });
-            const passed=(response?.status()===200)&&errors.length===0&&check.title.includes('V5.7')&&check.counts['2026-07-13']===3&&check.counts['2026-07-14']===4&&check.counts['2026-07-15']===4&&check.counts['2026-07-16']===5&&check.selectedDate==='2026-07-16'&&check.todayStatus==='已记录'&&['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].every(x=>check.historyDates.includes(x))&&check.program.today&&check.program.growth&&check.program.portfolio&&check.program.gates===4&&check.program.metrics===8&&check.program.evidence===5&&check.program.currentGate==='gate0'&&check.overflow<=1;
+            const c=check.counts;
+            const passed=response?.status()===200&&errors.length===0&&check.title.includes('V5.8')&&String(check.version).startsWith('5.8')&&c['2026-07-13']===3&&c['2026-07-14']===4&&c['2026-07-15']===4&&c['2026-07-16']===5&&check.selectedDate==='2026-07-16'&&check.todayStatus==='已记录'&&['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].every(x=>check.historyDates.includes(x))&&check.nav.join('|')==='本周成长|学习专题|能力与证据|复盘档案'&&check.actions===10&&check.groups===4&&check.materials>=20&&check.prompts===10&&check.selfChecks>=40&&check.signals===3&&check.abilities===5&&check.compactToday&&check.compactPortfolio&&check.oldDataSafe&&check.backup&&check.overflow<=1;
             results.push({name,site,status:response?.status()||0,passed,check,errors});
-            await browser.close();
+            await browser.close()
           }
           await verify(chromium,'chromium-desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
           await verify(webkit,'webkit-iphone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
