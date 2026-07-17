@@ -1,6 +1,11 @@
 (function(){
  function identity(){if(typeof S!=='undefined')S.version='5.9.0';document.title='Zhantong · Career OS V5.9';const side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.9'}
- function aliases(){document.querySelectorAll('[data-v59-open-track]').forEach(n=>n.dataset.v59Route=n.dataset.v59OpenTrack);document.querySelectorAll('[data-v59-assessment]').forEach(n=>n.dataset.v59Assess=n.dataset.v59Assessment)}
+ function aliases(){
+  document.querySelectorAll('#growth-week-v58 [data-v59-pause]').forEach(n=>{n.dataset.v59PauseWeek=n.dataset.v59Pause;delete n.dataset.v59Pause});
+  document.querySelectorAll('#growth-week-v58 [data-v59-open-track]').forEach(n=>{n.dataset.v59OpenTrackWeek=n.dataset.v59OpenTrack;delete n.dataset.v59OpenTrack});
+  document.querySelectorAll('[data-v59-open-track]').forEach(n=>n.dataset.v59Route=n.dataset.v59OpenTrack);
+  document.querySelectorAll('[data-v59-assessment]').forEach(n=>n.dataset.v59Assess=n.dataset.v59Assessment)
+ }
  function marker(reason){
   const s=typeof S!=='undefined'?S.specializationV59:null,o=window.SPECIALIZATION_V59?.tracks?.ocldo?.units||[],u=window.SPECIALIZATION_V59?.tracks?.uvmms?.units||[];
   const complete=Boolean(s&&o.length===10&&u.length===9&&document.querySelectorAll('.v59-track-card').length===2);
