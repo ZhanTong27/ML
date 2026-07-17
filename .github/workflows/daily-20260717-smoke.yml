@@ -27,6 +27,7 @@ jobs:
           assert '2026-07-17-n4s8' in html
           assert 'diag-ams-verification-boundary' in html
           assert 'diag-post-simulation-flow' in html
+          assert 'CAREER_OS_V591_DAILY' in html
           assert not re.search(r'<script\s+[^>]*src=',html,re.I)
           assert not re.search(r'<link\s+[^>]*rel=["\']stylesheet["\']',html,re.I)
           print({'bytes':len(html),'dailyMarker':'2026-07-17-n4s8'})
@@ -56,8 +57,8 @@ jobs:
               await page.goto(url,{waitUntil:'load'});
               await page.evaluate(()=>localStorage.clear());run.errors=[];
               await page.reload({waitUntil:'load'});
-              await page.waitForFunction(()=>window.CAREER_OS_V59?.complete===true,null,{timeout:30000});
-              await page.waitForTimeout(3000);
+              await page.waitForFunction(()=>window.CAREER_OS_V59?.complete===true&&window.CAREER_OS_V591_DAILY?.complete===true,null,{timeout:30000});
+              await page.waitForTimeout(3600);
               run.state=await page.evaluate(()=>{
                 const log=S.dailyLogs.find(x=>(x.date||x.dailyRecord?.date)==='2026-07-17');
                 return{
@@ -70,14 +71,14 @@ jobs:
                   patch:S.patchHistory.some(x=>x.patchId==='2026-07-17-n4s8'),
                   weekly:log?.weeklyObservations?.length||0,
                   technical:Boolean(log?.technicalSupplement),
-                  trackStates:{o:{...S.specializationV59.tracks.ocldo.unitStates},u:{...S.specializationV59.tracks.uvmms.unitStates}},
+                  dailyMarker:window.CAREER_OS_V591_DAILY,
                   completed:{o:Object.values(S.specializationV59.tracks.ocldo.unitStates).filter(x=>x==='completed').length,u:Object.values(S.specializationV59.tracks.uvmms.unitStates).filter(x=>x==='completed').length},
                   integration:S.specializationV59.integrationProject.status,
                   overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
                 }
               });
-              await page.click('[data-view="daily"]');
-              await page.waitForTimeout(600);
+              await page.click('[data-view="today"]');
+              await page.waitForTimeout(700);
               run.ui=await page.evaluate(()=>({
                 body:document.body.innerText.includes('模拟网表接入与数模混合仿真'),
                 scope:document.body.innerText.includes('数模混合验证关注边界梳理'),
@@ -88,7 +89,7 @@ jobs:
               }));
               await page.screenshot({path:`/tmp/daily-0717/${name}.png`,fullPage:false});
               const s=run.state,u=run.ui;
-              run.passed=run.errors.length===0&&s.selectedDate==='2026-07-17'&&s.month==='2026-07'&&s.work===5&&s.diagnoses===4&&s.facts===10&&s.evidence===8&&s.patch&&s.weekly===6&&s.technical&&s.completed.o===0&&s.completed.u===0&&s.integration==='locked'&&s.overflow<=1&&u.body&&u.scope&&u.post&&u.date&&u.today==='已记录'&&u.overflow<=1;
+              run.passed=run.errors.length===0&&s.selectedDate==='2026-07-17'&&s.month==='2026-07'&&s.work===5&&s.diagnoses===4&&s.facts===10&&s.evidence===8&&s.patch&&s.weekly===6&&s.technical&&s.dailyMarker?.workItems===5&&s.completed.o===0&&s.completed.u===0&&s.integration==='locked'&&s.overflow<=1&&u.body&&u.scope&&u.post&&u.date&&u.today==='已记录'&&u.overflow<=1;
             }catch(e){run.errors.push(e?.stack||String(e));run.passed=false}
             result.runs.push(run);await browser.close()
           }
