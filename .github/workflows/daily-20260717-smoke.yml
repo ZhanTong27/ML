@@ -1,0 +1,117 @@
+name: Career OS July 17 Daily Smoke
+
+on:
+  pull_request:
+    paths:
+      - 'career-roadmap/**'
+      - '.github/workflows/daily-20260717-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build single-file Career OS
+        run: |
+          python3 career-roadmap/build_single_file.py --output index.0717-test.html
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          html=Path('career-roadmap/index.0717-test.html').read_text(encoding='utf-8')
+          assert '2026-07-17-n4s8' in html
+          assert 'diag-ams-verification-boundary' in html
+          assert 'diag-post-simulation-flow' in html
+          assert not re.search(r'<script\s+[^>]*src=',html,re.I)
+          assert not re.search(r'<link\s+[^>]*rel=["\']stylesheet["\']',html,re.I)
+          print({'bytes':len(html),'dailyMarker':'2026-07-17-n4s8'})
+          PY
+      - name: Install browser runtimes
+        run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium webkit
+      - name: Validate Daily state and UI
+        continue-on-error: true
+        run: |
+          mkdir -p /tmp/daily-0717
+          python3 -m http.server 8000 --directory . >/tmp/daily-0717-http.log 2>&1 &
+          cat > daily-0717-smoke.mjs <<'EOF'
+          import { chromium, webkit, devices } from 'playwright';
+          import fs from 'node:fs';
+          const url='http://127.0.0.1:8000/career-roadmap/index.0717-test.html';
+          const result={passed:false,runs:[]};
+          async function inspect(type,name,options){
+            const browser=await type.launch({headless:true});
+            const context=await browser.newContext(options);
+            const page=await context.newPage();
+            const run={name,errors:[]};
+            page.on('pageerror',e=>run.errors.push(`pageerror: ${e.message}`));
+            page.on('console',m=>{if(m.type()==='error')run.errors.push(`console: ${m.text()}`)});
+            try{
+              await page.goto(url,{waitUntil:'load'});
+              await page.evaluate(()=>localStorage.clear());run.errors=[];
+              await page.reload({waitUntil:'load'});
+              await page.waitForFunction(()=>window.CAREER_OS_V59?.complete===true,null,{timeout:30000});
+              await page.waitForTimeout(3000);
+              run.state=await page.evaluate(()=>{
+                const log=S.dailyLogs.find(x=>(x.date||x.dailyRecord?.date)==='2026-07-17');
+                return{
+                  selectedDate:S.selectedDate,
+                  month:S.calendarMonth,
+                  work:log?.workItems?.length||log?.work?.length||0,
+                  diagnoses:log?.diagnoses?.length||0,
+                  facts:S.facts.filter(x=>x.date==='2026-07-17').length,
+                  evidence:S.evidence.filter(x=>x.sourceDate==='2026-07-17').length,
+                  patch:S.patchHistory.some(x=>x.patchId==='2026-07-17-n4s8'),
+                  weekly:log?.weeklyObservations?.length||0,
+                  technical:Boolean(log?.technicalSupplement),
+                  trackStates:{o:{...S.specializationV59.tracks.ocldo.unitStates},u:{...S.specializationV59.tracks.uvmms.unitStates}},
+                  completed:{o:Object.values(S.specializationV59.tracks.ocldo.unitStates).filter(x=>x==='completed').length,u:Object.values(S.specializationV59.tracks.uvmms.unitStates).filter(x=>x==='completed').length},
+                  integration:S.specializationV59.integrationProject.status,
+                  overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
+                }
+              });
+              await page.click('[data-view="daily"]');
+              await page.waitForTimeout(600);
+              run.ui=await page.evaluate(()=>({
+                body:document.body.innerText.includes('模拟网表接入与数模混合仿真'),
+                scope:document.body.innerText.includes('数模混合验证关注边界梳理'),
+                post:document.body.innerText.includes('后仿任务前期准备'),
+                date:document.body.innerText.includes('2026-07-17')||document.body.innerText.includes('7月17'),
+                today:document.querySelector('#todayRecordStatus')?.textContent?.trim()||'',
+                overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
+              }));
+              await page.screenshot({path:`/tmp/daily-0717/${name}.png`,fullPage:false});
+              const s=run.state,u=run.ui;
+              run.passed=run.errors.length===0&&s.selectedDate==='2026-07-17'&&s.month==='2026-07'&&s.work===5&&s.diagnoses===4&&s.facts===10&&s.evidence===8&&s.patch&&s.weekly===6&&s.technical&&s.completed.o===0&&s.completed.u===0&&s.integration==='locked'&&s.overflow<=1&&u.body&&u.scope&&u.post&&u.date&&u.today==='已记录'&&u.overflow<=1;
+            }catch(e){run.errors.push(e?.stack||String(e));run.passed=false}
+            result.runs.push(run);await browser.close()
+          }
+          await inspect(chromium,'daily-0717-desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
+          await inspect(webkit,'daily-0717-iphone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
+          result.passed=result.runs.every(x=>x.passed);
+          fs.writeFileSync('/tmp/daily-0717/result.json',JSON.stringify(result,null,2));
+          console.log(JSON.stringify(result,null,2));
+          EOF
+          node daily-0717-smoke.mjs
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-20260717-result
+          path: /tmp/daily-0717
+      - name: Comment PR
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ ! -f /tmp/daily-0717/result.json ]; then printf '{"passed":false,"error":"missing result"}\n' >/tmp/daily-0717/result.json; fi
+          { echo '### July 17 Daily smoke'; echo '```json'; cat /tmp/daily-0717/result.json; echo '```'; } >/tmp/daily-0717/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --repo "${{ github.repository }}" --body-file /tmp/daily-0717/comment.md
+      - name: Enforce current Daily checks
+        run: node -e "const r=require('/tmp/daily-0717/result.json');if(!r.passed)process.exit(1)"
