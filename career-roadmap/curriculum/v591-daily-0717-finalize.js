@@ -37,3 +37,8 @@ function render(){const b=document.getElementById('weeklyReviewV592');if(!b)retu
 function install(){seed();inject();render()}
 window.addEventListener('load',()=>setTimeout(install,3600),{once:true});window.addEventListener('pageshow',()=>setTimeout(install,100));
 })();
+
+(function(){
+ function loadCRG(){if(window.CRG_TRACK_V593||document.getElementById('crg-track-loader-v593'))return;const s=document.createElement('script');s.id='crg-track-loader-v593';s.src='curriculum/v593-crg-track.js';s.async=false;s.onerror=()=>console.error('CRG Track load failed');document.body.appendChild(s)}
+ window.addEventListener('load',()=>setTimeout(loadCRG,3900),{once:true});window.addEventListener('pageshow',()=>setTimeout(loadCRG,120));
+})();
