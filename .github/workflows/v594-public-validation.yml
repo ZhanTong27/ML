@@ -67,8 +67,9 @@ jobs:
               await page.waitForTimeout(250);
               await page.screenshot({path:`/tmp/v594-public/${name}-weekly.png`,fullPage:false});
               const archive=await page.evaluate(()=>{const w=document.getElementById('weekly-review-v594'),a=document.getElementById('crg-archive-v594');return{weeklyVisible:Boolean(w&&w.offsetParent!==null),crgArchiveVisible:Boolean(a&&a.offsetParent!==null),diagnoses:w?.querySelectorAll('.weekly-diagnoses-v594>article').length||0,interventions:window.CAREER_OS_V592_WEEKLY_REVIEW?.interventions?.length||0,overflow:w?w.scrollWidth-w.clientWidth:999,pageOverflow:document.documentElement.scrollWidth-document.documentElement.clientWidth}});
-              item.check={crg,evidence,archive,marker:window.CAREER_OS_V594};
-              item.passed=item.httpStatus===200&&item.errors.length===0&&crg.cardVisible&&crg.detailVisible&&crg.packs===3&&crg.domains===7&&crg.state==='not_started'&&crg.intro&&crg.overflow<=1&&evidence.visible&&evidence.title==='三条专项能力证据'&&archive.weeklyVisible&&archive.crgArchiveVisible&&archive.diagnoses===6&&archive.interventions===3&&archive.overflow<=1&&archive.pageOverflow<=1;
+              const marker=await page.evaluate(()=>window.CAREER_OS_V594);
+              item.check={crg,evidence,archive,marker};
+              item.passed=item.httpStatus===200&&item.errors.length===0&&marker?.complete===true&&crg.cardVisible&&crg.detailVisible&&crg.packs===3&&crg.domains===7&&crg.state==='not_started'&&crg.intro&&crg.overflow<=1&&evidence.visible&&evidence.title==='三条专项能力证据'&&archive.weeklyVisible&&archive.crgArchiveVisible&&archive.diagnoses===6&&archive.interventions===3&&archive.overflow<=1&&archive.pageOverflow<=1;
             }catch(e){item.errors.push(e?.stack||String(e));item.passed=false}
             result.runs.push(item);await browser.close()
           }
