@@ -22,7 +22,7 @@ jobs:
       - name: Test real V5.9 site and capture screenshots
         run: |
           mkdir -p /tmp/v59-live
-          cat > /tmp/v59-live-check.mjs <<'EOF'
+          cat > v59-live-check.mjs <<'EOF'
           import { chromium, webkit, devices } from 'playwright';
           import fs from 'node:fs';
 
@@ -119,7 +119,7 @@ jobs:
           console.log(JSON.stringify(result,null,2));
           if(!result.passed)process.exit(1);
           EOF
-          node /tmp/v59-live-check.mjs
+          node v59-live-check.mjs
 
       - name: Upload live result and screenshots
         if: always()
