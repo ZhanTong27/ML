@@ -16,22 +16,30 @@ permissions:
 jobs:
   live-browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 24
     steps:
       - name: Wait for Pages publication
-        run: sleep 35
+        run: sleep 40
+
       - name: Install browser runtimes
         run: |
           npm install --no-save --silent playwright@1.54.1
           npx playwright install --with-deps chromium webkit
-      - name: Verify live Career OS V5.8
+
+      - name: Verify real Career OS V5.9 site
         continue-on-error: true
         run: |
+          mkdir -p /tmp/career-os-v59-live
           cat > live-career-os.mjs <<'EOF'
           import { chromium, webkit, devices } from 'playwright';
           import fs from 'node:fs';
-          const base='https://zhantong27.github.io/ML/';
-          const result={url:base,passed:false,runs:[]};
+
+          const SITE='https://zhantong27.github.io/ML/';
+          const KEY='zhantong-career-os-v5';
+          const BACKUP='zhantong-career-os-v5-pre-v59-backup';
+          const MANIFEST='zhantong-career-os-v5-pre-v59-manifest';
+          const result={url:SITE,passed:false,runs:[]};
+
           async function inspect(browserType,name,options){
             const browser=await browserType.launch({headless:true});
             const context=await browser.newContext(options);
@@ -39,66 +47,133 @@ jobs:
             const run={name,errors:[]};
             page.on('pageerror',e=>run.errors.push(`pageerror: ${e.message}`));
             page.on('console',m=>{if(m.type()==='error')run.errors.push(`console: ${m.text()}`)});
+
             try{
               let response;
-              for(let attempt=0;attempt<12;attempt++){
-                response=await page.goto(`${base}?live_v58=${Date.now()}-${attempt}`,{waitUntil:'load',timeout:45000});
-                await page.waitForTimeout(2200);
-                if(response?.status()===200&&await page.evaluate(()=>window.CAREER_OS_V58?.complete===true))break;
-                await page.waitForTimeout(6000)
+              for(let attempt=0;attempt<15;attempt++){
+                response=await page.goto(`${SITE}?live_v59=${Date.now()}-${attempt}`,{waitUntil:'load',timeout:45000});
+                await page.waitForTimeout(2300);
+                if(response?.status()===200 && await page.evaluate(()=>window.CAREER_OS_V59?.complete===true))break;
+                await page.waitForTimeout(5000);
               }
               run.httpStatus=response?.status()||0;
-              await page.waitForFunction(()=>window.CAREER_OS_V58?.complete===true,null,{timeout:30000});
+              run.contentType=response?.headers()?.['content-type']||'';
+              await page.waitForFunction(()=>window.CAREER_OS_V59?.complete===true,null,{timeout:30000});
               await page.waitForTimeout(2800);
+
+              await page.evaluate(({key,backup,manifest})=>{
+                const fixture=JSON.parse(JSON.stringify(S));
+                fixture.v59LiveSentinel='preserve-live-v59-data';
+                fixture.selectedDate='2026-07-16';
+                fixture.calendarMonth='2026-07';
+                fixture.dailyLogs=[
+                  {date:'2026-07-13',work:[]},
+                  {date:'2026-07-14',workItems:[]},
+                  {date:'2026-07-15',work:[]},
+                  {date:'2026-07-16',work:[]},
+                ];
+                fixture.amsFrontierV55={reading:{'r-uvmms-standard':true},note:'live frontier note'};
+                fixture.uvmmsProgramV57={note:'live adoption note',gates:{g0:true}};
+                fixture.growthHubV58=fixture.growthHubV58||{};
+                fixture.growthHubV58.actionNotes={'topic-uvmms-architecture':'live growth note'};
+                delete fixture.specializationV59;
+                delete fixture.specializationUpdateV59;
+                Object.keys(S).forEach(k=>delete S[k]);
+                Object.assign(S,fixture);
+                localStorage.removeItem(backup);
+                localStorage.removeItem(manifest);
+                localStorage.setItem(key,JSON.stringify(fixture));
+              },{key:KEY,backup:BACKUP,manifest:MANIFEST});
+              await page.waitForTimeout(350);
+              run.errors=[];
+              await page.reload({waitUntil:'load',timeout:45000});
+              await page.waitForFunction(()=>window.CAREER_OS_V59?.complete===true,null,{timeout:30000});
+              await page.waitForTimeout(3200);
               await page.click('[data-view="growth"]');
+              await page.click('[data-v58-nav="topics"]');
               await page.waitForTimeout(700);
-              run.check=await page.evaluate(()=>{
+              await page.locator('#v59-track-topics').scrollIntoViewIfNeeded();
+              await page.waitForTimeout(250);
+
+              run.check=await page.evaluate(({backup,manifest})=>{
                 const work=x=>Array.isArray(x?.work)&&x.work.length?x.work:Array.isArray(x?.workItems)&&x.workItems.length?x.workItems:Array.isArray(x?.dailyRecord?.workItems)?x.dailyRecord.workItems:[];
                 const byDate=d=>S.dailyLogs.find(x=>(x.date||x.dailyRecord?.date)===d);
-                return {
-                  title:document.title,version:S.version,marker:window.CAREER_OS_V58,
-                  counts:{'2026-07-13':work(byDate('2026-07-13')).length,'2026-07-14':work(byDate('2026-07-14')).length,'2026-07-15':work(byDate('2026-07-15')).length,'2026-07-16':work(byDate('2026-07-16')).length},
-                  selectedDate:S.selectedDate,todayStatus:document.querySelector('#todayRecordStatus')?.textContent?.trim()||'',
+                const snapshot=localStorage.getItem(backup)||'';
+                return{
+                  title:document.title,
+                  version:S.version,
+                  marker:window.CAREER_OS_V59,
+                  counts:['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].map(d=>work(byDate(d)).length),
+                  selectedDate:S.selectedDate,
+                  todayStatus:document.querySelector('#todayRecordStatus')?.textContent?.trim()||'',
                   historyDates:[...document.querySelectorAll('[data-history-date]')].map(x=>x.dataset.historyDate),
                   nav:[...document.querySelectorAll('#growth-nav-v58 [data-v58-nav]')].map(x=>x.textContent.trim()),
-                  actions:document.querySelectorAll('[data-v58-action]').length,
-                  groups:document.querySelectorAll('[data-v58-action-group]').length,
-                  materials:document.querySelectorAll('.action-materials-v58>article').length,
-                  prompts:document.querySelectorAll('.action-prompt-v58').length,
-                  selfChecks:document.querySelectorAll('[data-v58-selfcheck]').length,
-                  signals:document.querySelectorAll('.signal-grid-v58>article').length,
-                  abilities:document.querySelectorAll('.ability-cards-v58>article').length,
-                  todayCompact:Boolean(document.querySelector('#uvmmsTodayV57 .v58-topic-line')),
-                  portfolioCompact:Boolean(document.querySelector('#uvmmsPortfolioV57 .v58-topic-line')),
-                  legacySafe:['current-execution','problem-journal','weekly-review','ability-map','cycle-archive','uvmms-adoption-v57'].every(id=>{const n=document.getElementById(id);return Boolean(n)&&!document.getElementById('growth-hub-v58')?.contains(n)}),
-                  overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
+                  trackCards:document.querySelectorAll('.v59-track-card').length,
+                  units:{ocldo:SPECIALIZATION_V59.tracks.ocldo.units.length,uvmms:SPECIALIZATION_V59.tracks.uvmms.units.length,total:SPECIALIZATION_V59.tracks.ocldo.units.length+SPECIALIZATION_V59.tracks.uvmms.units.length},
+                  completed:{ocldo:Object.values(S.specializationV59.tracks.ocldo.unitStates).filter(x=>x==='completed').length,uvmms:Object.values(S.specializationV59.tracks.uvmms.unitStates).filter(x=>x==='completed').length},
+                  independent:S.specializationV59.tracks.ocldo!==S.specializationV59.tracks.uvmms,
+                  integration:S.specializationV59.integrationProject.status,
+                  backup:Boolean(snapshot),
+                  backupSentinel:snapshot.includes('preserve-live-v59-data'),
+                  manifest:Boolean(localStorage.getItem(manifest)),
+                  oldData:{v55:S.amsFrontierV55?.note||'',v57:S.uvmmsProgramV57?.note||'',v58:S.growthHubV58?.actionNotes?.['topic-uvmms-architecture']||''},
+                  terminology:{digital:document.body.innerText.includes('Digitally Controlled On-Chip LDO'),analog:document.documentElement.innerHTML.includes('Analog Output-Capacitorless LDO Background'),disclaimer:document.documentElement.innerHTML.includes('不等同于新的Digital OCLDO Verification Track')},
+                  overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
                 }
-              });
-              const c=run.check.counts;
-              run.passed=run.httpStatus===200&&run.errors.length===0&&run.check.title.includes('V5.8')&&String(run.check.version).startsWith('5.8')&&c['2026-07-13']===3&&c['2026-07-14']===4&&c['2026-07-15']===4&&c['2026-07-16']===5&&run.check.selectedDate==='2026-07-16'&&run.check.todayStatus==='已记录'&&['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].every(x=>run.check.historyDates.includes(x))&&run.check.nav.join('|')==='本周成长|学习专题|能力与证据|复盘档案'&&run.check.actions===10&&run.check.groups===4&&run.check.materials>=20&&run.check.prompts===10&&run.check.selfChecks>=40&&run.check.signals===3&&run.check.abilities===5&&run.check.todayCompact&&run.check.portfolioCompact&&run.check.legacySafe&&run.check.overflow<=1
-            }catch(e){run.errors.push(e?.stack||String(e));run.passed=false}
-            result.runs.push(run);await browser.close()
+              },{backup:BACKUP,manifest:MANIFEST});
+
+              await page.screenshot({path:`/tmp/career-os-v59-live/${name}.png`,fullPage:false});
+              const c=run.check;
+              run.passed=run.httpStatus===200
+                && run.contentType.includes('text/html')
+                && run.errors.length===0
+                && c.title.includes('V5.9')
+                && String(c.version).startsWith('5.9')
+                && c.marker?.complete===true
+                && c.counts.join('/')==='3/4/4/5'
+                && c.selectedDate==='2026-07-16'
+                && c.todayStatus==='已记录'
+                && ['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].every(d=>c.historyDates.includes(d))
+                && c.nav.join('|')==='本周成长|学习专题|能力与证据|复盘档案'
+                && c.trackCards===2
+                && c.units.ocldo===10 && c.units.uvmms===9 && c.units.total===19
+                && c.completed.ocldo===0 && c.completed.uvmms===0
+                && c.independent && c.integration==='locked'
+                && c.backup && c.backupSentinel && c.manifest
+                && c.oldData.v55==='live frontier note' && c.oldData.v57==='live adoption note' && c.oldData.v58==='live growth note'
+                && Object.values(c.terminology).every(Boolean)
+                && c.overflow<=1;
+            }catch(error){
+              run.errors.push(error?.stack||String(error));
+              run.passed=false;
+            }
+            result.runs.push(run);
+            await browser.close();
           }
+
           await inspect(chromium,'chromium-desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
           await inspect(webkit,'webkit-iphone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
           result.passed=result.runs.every(x=>x.passed);
-          fs.writeFileSync('/tmp/career-os-live-browser.json',JSON.stringify(result,null,2));
+          fs.writeFileSync('/tmp/career-os-v59-live/result.json',JSON.stringify(result,null,2));
           console.log(JSON.stringify(result,null,2));
           EOF
           node live-career-os.mjs
-      - name: Post browser result to verification issue
+
+      - name: Post V5.9 live result to verification issue
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if [ ! -f /tmp/career-os-live-browser.json ]; then printf '{"passed":false,"error":"browser result was not generated"}\n' >/tmp/career-os-live-browser.json; fi
-          { echo '### Live V5.8 browser verification'; echo; echo 'Commit: `${{ github.sha }}`'; echo '```json'; cat /tmp/career-os-live-browser.json; echo '```'; } >/tmp/career-os-live-browser-comment.md
-          gh issue comment 53 --repo "${{ github.repository }}" --body-file /tmp/career-os-live-browser-comment.md
-      - name: Upload live-browser diagnostic
+          if [ ! -f /tmp/career-os-v59-live/result.json ]; then mkdir -p /tmp/career-os-v59-live; printf '{"passed":false,"error":"browser result was not generated"}\n' >/tmp/career-os-v59-live/result.json; fi
+          { echo '### Live V5.9 browser verification'; echo; echo 'Commit: `${{ github.sha }}`'; echo '```json'; cat /tmp/career-os-v59-live/result.json; echo '```'; } >/tmp/career-os-v59-live/comment.md
+          gh issue comment 53 --repo "${{ github.repository }}" --body-file /tmp/career-os-v59-live/comment.md
+
+      - name: Upload live-browser result and screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: career-os-live-browser-result
-          path: /tmp/career-os-live-browser.json
-      - name: Enforce live browser verification
-        run: node -e "const r=require('/tmp/career-os-live-browser.json');if(!r.passed)process.exit(1)"
+          name: career-os-v59-live-browser
+          path: /tmp/career-os-v59-live
+
+      - name: Enforce live V5.9 verification
+        run: node -e "const r=require('/tmp/career-os-v59-live/result.json');if(!r.passed)process.exit(1)"
