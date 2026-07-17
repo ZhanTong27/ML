@@ -85,7 +85,10 @@ EXTRA_SOURCES = [
     'curriculum/v59-specialization-data.js',
     'curriculum/v59-specialization-migration.js',
     'curriculum/v59-specialization-assessment.js',
-    'curriculum/v59-specialization-ui.js',
+    'curriculum/v59-ui-foundation.js',
+    'curriculum/v59-ui-unit.js',
+    'curriculum/v59-ui-views.js',
+    'curriculum/v59-ui-install.js',
     'curriculum/v59-finalize.js',
 ]
 
