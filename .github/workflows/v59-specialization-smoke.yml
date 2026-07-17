@@ -20,13 +20,18 @@ jobs:
       - name: Build single-file V5.9
         run: |
           python3 career-roadmap/build_single_file.py --output index.v59-test.html
-          test -s career-roadmap/index.v59-test.html
-          ! grep -E '<script[^>]+src=' career-roadmap/index.v59-test.html
-          ! grep -E '<link[^>]+rel=["'"']stylesheet' career-roadmap/index.v59-test.html
-          grep -q 'PARALLEL SPECIALIZATION TRACKS' career-roadmap/index.v59-test.html
-          grep -q 'Digitally Controlled On-Chip LDO' career-roadmap/index.v59-test.html
-          grep -q 'Analog Output-Capacitorless LDO Background' career-roadmap/index.v59-test.html
-          grep -q 'CAREER_OS_V59' career-roadmap/index.v59-test.html
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          p=Path('career-roadmap/index.v59-test.html')
+          html=p.read_text(encoding='utf-8')
+          assert p.stat().st_size>0
+          assert not re.search(r'<script\s+[^>]*src=',html,re.I)
+          assert not re.search(r'<link\s+[^>]*rel=["\']stylesheet["\']',html,re.I)
+          for marker in ['PARALLEL SPECIALIZATION TRACKS','Digitally Controlled On-Chip LDO','Analog Output-Capacitorless LDO Background','CAREER_OS_V59','Zhantong · Career OS V5.9']:
+              assert marker in html, marker
+          print({'bytes':len(html),'externalScripts':0,'externalStylesheets':0})
+          PY
       - name: Install browser runtimes
         run: |
           npm install --no-save --silent playwright@1.54.1
