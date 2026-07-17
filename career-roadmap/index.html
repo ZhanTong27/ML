@@ -1398,6 +1398,96 @@ function seedDaily20260716(){
 }
 
 </script>
+<script data-source="curriculum/daily-20260717-record.js">
+window.DAILY_20260717_RECORD={
+ id:'daily-20260717',patchId:'2026-07-17-n4s8',date:'2026-07-17',
+ summary:'完成某模块模拟网表向数字验证环境的接入并运行基础数模混合仿真，但对层级绑定、模型选择和若干内部配置文件的作用仍缺少完整认识。进一步识别出数字前端数模混仿的检查边界尚不清晰，目前主要依赖数字激励和检查器，尚未明确连续行为及跨域接口应覆盖的内容。即将承担另一项后仿任务，但暂不清楚后仿类型、所需交付物和签核目标。片上电源类模块的上游交付继续延期，导师另提出后续可能参与时钟与复位相关单元测试自动化脚本工作。',
+ work:[
+  {id:'wi-0717-ams-netlist-integration',title:'模拟网表接入与数模混合仿真',goal:'将模拟网表接入现有数字验证环境并运行基础数模混合仿真。',progress:'将模拟网表加入现有仿真工程，配置相关数模混合仿真流程并启动仿真，完成一次基础数模混合仿真运行。在操作过程中发现，当前可以依托现有工程完成接入，但不能完整解释若干配置文件分别控制什么；模型绑定、层级选择和数模接口转换机制仍需进一步理解。',status:'in_progress',problem:'已完成模拟网表接入和基础仿真运行，但配置正确性、可复用性和正式验证有效性尚未确认。',unresolved:['当前实际使用的模拟表示和抽象层级。','各配置文件分别在编译、展开和运行阶段的作用。','模拟实例与数字层级的绑定方式。','数模接口转换规则、单位和阈值的来源。','当前结果是否经过参考用例或设计人员确认。','能否在新的验证环境中独立复现。'],independence:'independent',feedback:[],next:['从编译和运行日志反查每个配置文件的读取位置。','按照源文件、层级绑定、接口转换、求解设置和运行参数整理配置。','保存最小可运行配置。','使用已知输入和预期输出确认网表及接口连接正确。']},
+  {id:'wi-0717-ams-scope',title:'数模混合验证关注边界梳理',goal:'明确数字前端验证人员在数模混仿中需要承担的检查范围。',progress:'回顾当前仿真方式，发现主要沿用数字侧激励和检查器，当前主要关注数字输入顺序和数字结果。进一步提出是否需要检查连续量、动态建立过程和数模接口响应的问题，并希望了解数字验证、模拟签核和混合信号验证之间的职责划分。',status:'in_progress',problem:'已识别当前验证计划可能缺少明确的数模接口合同和检查边界，但尚未得到项目或团队确认。',unresolved:['当前项目的数模混仿签核目标。','模拟内部性能的责任边界。','数字验证侧是否需要检查连续量容差、斜率、建立时间和异常恢复。','哪些模拟行为必须在混合信号层重新验证。','是否存在模拟条件与数字场景的交叉覆盖。'],independence:'independent',feedback:[],next:['将数模接口拆分为激励、连续响应、阈值转换、数字结果和时间关系。','向验证负责人确认签核边界。','分类现有检查器的覆盖范围。','确认需要与行为模型或真实网表进行相关性比较的指标。']},
+  {id:'wi-0717-post-simulation-prep',title:'后仿任务前期准备',goal:'明确即将开展的后仿类型、输入物、验证目标和关注点。',progress:'获知后续某模块需要开展后仿，识别出当前不清楚后仿具体指综合网表、布局布线后门级、模拟提取后仿还是数模混合后仿；尚未形成网表、时延、寄生参数、库模型和测试环境的交付清单。进一步提出后仿与前仿、静态分析和流片后测试之间关系的问题，开始建立芯片设计、验证、后端、DFT和量产测试的整体流程认识。',status:'in_progress',problem:'当前处于前置知识和交付物识别阶段，尚未正式开始后仿。',unresolved:['后仿的具体类型。','正式输入文件和工具配置。','需要复用的前仿用例。','后仿与静态检查的责任边界。','必须运行的模式和corner。','签核标准及负责人。'],independence:'unknown',feedback:[],next:['确认网表产生阶段。','确认是否需要时延或寄生参数回标。','确认本次后仿主要防范的风险。','取得必须通过的用例、corner和签核标准。']},
+  {id:'wi-0717-upstream-delay',title:'上游交付延期影响跟踪',goal:'识别上游交付延期对数模验证任务的影响和可替代输入。',progress:'确认片上电源类模块的部分上游交付仍存在延期，判断模型、环境和验证计划工作可能受到影响，尚未形成新的里程碑或替代交付方案。',status:'waiting',problem:'延期风险仍然存在，具体影响尚未量化。',unresolved:['具体受影响任务。','可先行使用的接口波形、行为模型或早期网表。','延期是否进入正式项目风险列表。','新的交付日期和责任人。'],independence:'unknown',feedback:[{source:'其他',content:'上游相关交付仍存在延期，可能影响后续验证工作。'}],next:['将工作拆分为完全阻塞、可部分启动和不受影响三类。','为阻塞项明确临时替代输入。','更新模型、网表和正式回归之间的依赖关系。']},
+  {id:'wi-0717-clock-reset-automation',title:'时钟与复位单元测试自动化机会',goal:'了解导师提出的时钟与复位相关单元测试自动化任务。',progress:'导师提出后续可能安排用户参与相关单元测试自动化脚本，用户希望补充时钟与复位模块知识；当前尚未明确自动化范围、输入输出和交付标准。',status:'waiting',problem:'记录为待定义的新任务机会，尚未开始。',unresolved:['自动化针对环境生成、用例生成、回归执行、结果分析还是报告汇总。','当前流程中的主要人工瓶颈。','现有脚本和框架。','任务验收标准和使用者。'],independence:'prompted',feedback:[{source:'导师',content:'后续可能安排用户参与时钟与复位相关单元测试的自动化脚本工作。'}],next:['等待任务范围明确。','确认现有人工流程和自动化目标。','再针对任务补充模块知识及脚本能力。']}
+ ],
+ workLearning:[
+  {statement:'可以依托现有流程将模拟网表接入数字验证环境并启动数模混合仿真。',masteryStatus:'applied',basis:'已在真实工程中完成一次模拟网表接入和仿真运行，但配置语义和结果正确性尚未完整确认。'},
+  {statement:'数模混仿配置除源文件外，还涉及模型选择、层级绑定、接口转换和求解设置。',masteryStatus:'exposed',basis:'已在实际工程中接触相关配置，但尚不能完整解释各配置文件的作用。'},
+  {statement:'数字前端数模混仿需要明确数字控制、连续响应、阈值转换和数字判断之间的接口合同。',masteryStatus:'exposed',basis:'已主动识别该问题，但尚未新增连续量或跨域检查。'},
+  {statement:'后仿可能包括数字门级、模拟提取后仿和数模混合后仿，需要先确认网表阶段及签核目的。',masteryStatus:'exposed',basis:'已识别概念和任务输入不清，但尚未执行实际后仿。'},
+  {statement:'设计、验证、后端、DFT和量产测试构成连续且并行迭代的芯片交付链。',masteryStatus:'exposed',basis:'已开始建立全流程认识，但尚未在真实跨阶段交付中验证。'},
+  {statement:'时钟与复位验证需要关注时钟源、切换、门控、复位顺序和跨电源状态行为。',masteryStatus:'exposed',basis:'导师刚提出潜在自动化任务，尚未开展具体工作。'}
+ ],
+ outsideLearning:[],life:[],energy:'未记录',
+ tomorrow:{work:['反查数模混仿配置文件和仿真日志。','确认当前数模混仿的签核范围。','向后仿任务负责人确认仿真类型和交付物。','列出上游延期对当前任务的影响。','等待时钟与复位单元测试自动化任务进一步定义。'],learning:['学习数模环境中的层级绑定、接口转换和模型选择。','区分数字门级后仿、模拟提取后仿和数模混合后仿。','建立芯片开发和验证全流程图。','补充时钟生成、切换、门控和复位的基础知识。'],life:[]},
+ technicalSupplement:{
+  amsBoundary:['连接与配置：模型、层级、方向、单位、connect rule、电源与掉电表示。','数字控制到模拟响应：enable、模式、配置生效、power-down和保护状态。','模拟响应到数字决策：阈值、迟滞、稳定时间、过早状态推进和短暂越界。','动态异常：建立时间、斜率、重复enable、模式瞬态、电源跌落、负载变化、超时和恢复。','模型相关性：比较最终值、阈值穿越、建立时间、状态输出、异常排序和corner趋势。'],
+ postSimulationTypes:['数字门级后仿：gate netlist、标准单元模型、SDF、复位/初始化和必要的power-aware配置。','模拟post-layout：提取网表、寄生参数、器件模型、PVT、负载和节点映射。','AMS post-layout：数字RTL或gate netlist、SDF、模拟提取网表、寄生、binding、connect rule和数字testbench。'],
+ firstQuestions:['网表产生阶段是什么？','是否带时延或寄生参数？','本次后仿主要防什么风险？','必须通过哪些用例、corner和签核标准？'],
+ crgFramework:['结构：时钟源、PLL/振荡器、mux、divider、gate、reset generation和同步。','控制：源切换、分频、门控、优先级、reset assert/deassert和电源状态。','安全：无毛刺、无短脉冲、无双时钟重叠、时钟丢失、复位释放同步和非法配置恢复。','验证：组合、切换相位、快速重复切换、门控边界、reset/clock并发、掉电恢复和有界完成。']
+ }
+};
+
+</script>
+<script data-source="curriculum/daily-20260717-analysis.js">
+window.DAILY_20260717_ANALYSIS={
+ diagnoses:[
+  {id:'diag-mixedsignal-environment-configuration',topic:'数模混仿环境配置理解',hypothesis:'目前倾向于认为，用户已经具备在现有工程中完成模拟网表接入和基础运行的同场景操作能力，但对配置结构、模型绑定和文件依赖仍缺少可解释且可迁移的认识。',gapType:'knowledge',supportingEvidence:['连续两天完成不同形式的网表接入。','当天完成基础数模混合仿真。','用户明确表示不能完整解释若干配置文件。','尚不能说明模型绑定和接口转换的来源。'],counterEvidence:['用户已经能够实际完成接入和运行。','部分配置可能由团队脚本自动生成。','普通使用者可能不需要维护所有底层配置。','尚未通过新环境任务验证迁移能力。'],alternativeExplanations:['内部流程文档可能不足。','配置文件可能属于公司专用脚本而非通用工具概念。','用户当前主要沿用了现有模板。','工具的数据流和日志可能缺乏透明度。'],evidenceStrength:'medium',diagnosisConfidence:0.8,confidenceReason:'存在连续真实操作和明确自述，但尚无新环境重建或受控实践证据，不能将问题完全归因于个人。',trend:'emerging',impact:['环境变化后可能难以独立定位编译、绑定或求解问题。','可能出现仿真可以运行但模型或接口绑定错误的风险。','补足配置结构后可提高环境复用和自动化能力。'],interventionFlag:false,weeklyReviewReason:'先通过一次最小环境重建或配置反查验证问题范围，不因单次配置疑问直接调整课程。'},
+  {id:'diag-ams-verification-boundary',topic:'数字前端数模混仿检查边界',hypothesis:'目前可能存在数模混仿目标和检查责任方面的知识与判断缺口，用户能够复用数字激励和检查器，但尚未明确哪些连续行为及跨域关系属于自身应检查的内容。',gapType:'judgment',supportingEvidence:['用户当前主要关注数字检查器和激励顺序。','用户不确定是否应关注模拟部分。','尚不能列出连续量和跨域动态检查项。','该问题直接关联当前真实数模混仿任务。'],counterEvidence:['模拟内部性能可能已由模拟团队验证。','数字验证职责可能主要是系统控制和接口行为。','用户已主动识别并质疑当前范围。','项目可能已有相关检查机制但用户尚未掌握。'],alternativeExplanations:['验证计划和职责边界可能未明确传达。','当前仿真可能只用于连通性或基本功能。','模拟行为可能已抽象为数字状态。','当前模型可能不支持深入的模拟性能检查。'],evidenceStrength:'medium',diagnosisConfidence:0.74,confidenceReason:'问题来自真实任务并影响签核完整性，但尚无验证计划、设计规格或负责人反馈。',trend:'first_seen',impact:['可能漏掉模拟响应与数字决策之间的阈值和时序错误。','也可能重复模拟团队已完成的性能验证。','建立接口合同可提高用例和检查器针对性。'],interventionFlag:true,weeklyReviewReason:'该问题直接影响当前数模混仿验证计划和签核范围，属于关键前置缺口，需要进入周复盘确认责任和检查矩阵。'},
+  {id:'diag-post-simulation-flow',topic:'后仿与跨阶段验证流程',hypothesis:'目前较强地怀疑，用户尚未建立数字门级后仿、模拟提取后仿、数模混合后仿、静态时序分析和流片后测试之间的清晰区分，这可能影响即将开始的后仿任务准备。',gapType:'knowledge',supportingEvidence:['用户明确表示不知道后仿需要哪些输入物。','用户不清楚后仿的目的、执行方式和关注点。','尚不能判断即将开展的后仿属于哪种类型。','此前已出现对量产测试和交付文件用途不清的问题。','本次进一步提出芯片全流程问题。','相关知识即将用于真实任务。'],counterEvidence:['用户已经完成过RTL仿真、网表嵌入和数模混仿。','对局部验证任务已有实际经验。','不同公司和模块的后仿流程差异较大。','当前尚未收到正式任务说明和上游文件。'],alternativeExplanations:['内部流程可能未向新成员进行系统介绍。','团队内的后仿称呼本身可能较宽泛。','不同模块可能采用不同的后仿流程。','上游交付延期限制了实际学习机会。'],evidenceStrength:'high',diagnosisConfidence:0.88,confidenceReason:'存在跨日真实任务、自述和即将到来的交付需求支持，且知识缺口已影响任务准备；具体范围仍需在确认后仿类型后收敛。',trend:'emerging',impact:['可能向上游索取错误或不完整的文件。','可能误用前仿用例和检查器。','可能难以区分模型、网表、时延和寄生问题。','补足流程有助于发展跨阶段协调能力。'],interventionFlag:true,weeklyReviewReason:'后仿任务即将开始，该知识属于关键前置条件，应进入周复盘形成针对性补充，但每日不直接修改整个课程。'},
+  {id:'diag-mixedsignal-delivery-boundary',topic:'数模任务上游交付与模型合同',hypothesis:'当前数模任务仍可能受到上游设计和模型交付延期影响，用户已能识别依赖，但替代输入、风险升级和范围调整尚未完全形成。',gapType:'environment',supportingEvidence:['连续多日出现代码、模型、接口资料和网表延期。','当天再次确认延期可能影响相关任务。','此前已经推动多个角色提供交付物。','后续模型和正式验证仍依赖上游输入。'],counterEvidence:['已有部分网表可用于数模混仿。','模拟侧此前承诺提供接口波形和行为模型。','部分环境和验证计划工作仍可先行推进。','当天未说明出现新的完全阻塞。'],alternativeExplanations:['当前延期可能属于正常设计迭代。','任务范围可能调整以降低即时依赖。','现有临时模型或早期网表可能支持部分验证。'],evidenceStrength:'medium',diagnosisConfidence:0.91,confidenceReason:'问题已连续出现并涉及实际依赖，但当天新增影响尚未按任务和工期量化。',trend:'repeated',impact:['模型开发、相关性验证和正式回归可能集中到后期。','使用不完整临时输入可能产生返工。','明确替代输入和依赖矩阵可降低被动等待。'],interventionFlag:true,weeklyReviewReason:'问题重复出现并影响真实任务，需要继续在周复盘中跟踪交付物、替代方案和里程碑。'}
+ ],
+ evidence:[
+  {id:'ev-0717-config-01',diagnosisId:'diag-mixedsignal-environment-configuration',direction:'support',sourceType:'real_work',sourceDate:'2026-07-17',sourceFactIds:['fact-0717-01','fact-0717-02','fact-0717-03'],statement:'用户在真实工程中完成模拟网表接入和基础数模混仿，但不能完整解释相关配置文件和绑定机制。',quality:'medium',independence:'independent',transferLevel:'same_context',limitations:['不知道是否沿用了现成模板。','尚未验证仿真连接正确性。','没有新环境迁移证据。']},
+  {id:'ev-0717-config-02',diagnosisId:'diag-mixedsignal-environment-configuration',direction:'counter',sourceType:'real_work',sourceDate:'2026-07-17',sourceFactIds:['fact-0717-01','fact-0717-02'],statement:'用户已经能够完成真实操作，说明并非完全缺少数模环境使用能力。',quality:'medium',independence:'independent',transferLevel:'same_context',limitations:['操作成功不等于理解配置或能够迁移。']},
+  {id:'ev-0717-scope-01',diagnosisId:'diag-ams-verification-boundary',direction:'support',sourceType:'self_report',sourceDate:'2026-07-17',sourceFactIds:['fact-0717-04','fact-0717-05'],statement:'用户明确表示当前主要关注数字检查器和激励，并不确定模拟连续行为是否属于数字验证的检查范围。',quality:'medium',independence:'independent',transferLevel:'same_context',limitations:['尚无验证计划和负责人意见。','无法确认现有环境是否已包含隐藏的模拟检查。']},
+  {id:'ev-0717-scope-02',diagnosisId:'diag-ams-verification-boundary',direction:'counter',sourceType:'self_report',sourceDate:'2026-07-17',sourceFactIds:['fact-0717-05'],statement:'用户已主动识别职责边界问题，而不是无意识忽略模拟行为。',quality:'medium',independence:'independent',transferLevel:'none',limitations:['识别问题尚未转化为检查器或验证计划。']},
+  {id:'ev-0717-postsim-01',diagnosisId:'diag-post-simulation-flow',direction:'support',sourceType:'self_report',sourceDate:'2026-07-17',sourceFactIds:['fact-0717-06','fact-0717-07','fact-0717-08'],statement:'即将开展真实后仿任务，但用户尚不能区分后仿类型、输入物、目的和跨阶段流程。',quality:'high',independence:'unknown',transferLevel:'none',limitations:['尚未获得正式任务说明。','内部后仿流程可能与通用流程不同。']},
+  {id:'ev-0717-postsim-02',diagnosisId:'diag-post-simulation-flow',direction:'counter',sourceType:'real_work',sourceDate:'2026-07-17',sourceFactIds:['fact-0717-01','fact-0717-02'],statement:'用户已经具备RTL、网表接入和数模混仿的局部实践，不属于完全缺乏仿真经验。',quality:'medium',independence:'independent',transferLevel:'similar_context',limitations:['局部实践尚未形成跨阶段流程认识。']},
+  {id:'ev-0717-delivery-01',diagnosisId:'diag-mixedsignal-delivery-boundary',direction:'support',sourceType:'real_work',sourceDate:'2026-07-17',sourceFactIds:['fact-0717-09'],statement:'上游交付延期继续存在，并可能影响后续数模验证任务。',quality:'medium',independence:'unknown',transferLevel:'same_context',limitations:['当天未量化具体延期时间和受影响任务。','尚未确认是否存在可用替代输入。']},
+  {id:'ev-0717-delivery-02',diagnosisId:'diag-mixedsignal-delivery-boundary',direction:'counter',sourceType:'real_work',sourceDate:'2026-07-17',sourceFactIds:['fact-0717-01','fact-0717-02'],statement:'用户当天仍使用已有网表完成了部分数模混仿工作，说明并非所有任务均被完全阻塞。',quality:'medium',independence:'independent',transferLevel:'same_context',limitations:['当前网表可能不是后续正式交付版本。']}
+ ],
+ weeklyObservations:[
+  {topic:'数模混仿最小配置地图',reason:'需要观察用户能否从日志和脚本还原源文件、模型绑定、接口转换和求解设置之间的关系。',priority:'medium'},
+  {topic:'数模接口验证合同',reason:'当前主要依赖数字检查器，需要确认连续响应、阈值转换、时间容差和异常恢复的检查责任。',priority:'high'},
+  {topic:'后仿任务入门闭环',reason:'任务即将开始，应先确认后仿类型、输入物、目标场景和签核标准，再安排针对性学习。',priority:'high'},
+  {topic:'芯片跨阶段流程地图',reason:'用户多次出现ATE、数模交付和后仿流程疑问，可观察能否将设计、验证、后端、DFT和量产测试连成可解释流程。',priority:'high'},
+  {topic:'数模上游交付依赖',reason:'延期持续存在，需要按任务区分完全阻塞、可部分启动和不受影响，并明确替代输入。',priority:'high'},
+  {topic:'时钟与复位自动化机会',reason:'导师提出潜在任务，但需求尚未定义，暂不判断能力，等待出现实际范围和产物。',priority:'low'}
+ ],
+ roadmapIntervention:{flag:false,proposalOnly:true,reason:'每日不直接修改16周课程，也不自动推进OCLDO或UVM-MS Track。数模验证边界、后仿流程和上游交付依赖进入周复盘；环境配置和时钟复位自动化先通过实际任务继续取证。'},
+ missingInformation:['数模混仿是否通过以及实际检查结果。','当前模拟网表的类型、版本和抽象层级。','各内部配置文件的生成方、读取阶段和具体作用。','模型绑定和数模接口转换规则。','当前项目的数模混仿签核目标与责任人。','需要检查的连续量、时间容差和异常行为。','即将开展的后仿属于哪一种类型。','后仿正式交付物、用例、corner和签核标准。','上游延期的具体时间、影响任务和替代输入。','时钟与复位单元测试自动化任务的范围和验收标准。','当天是否有独立的工作外学习或生活事项。']
+};
+
+</script>
+<script data-source="curriculum/daily-20260717.js">
+window.addEventListener('load',()=>{try{seedDaily20260717()}catch(e){console.error('July 17 daily seed failed',e)}},{once:true});
+function seedDaily20260717(){
+ const r=window.DAILY_20260717_RECORD,a=window.DAILY_20260717_ANALYSIS;if(!r||!a||typeof S==='undefined')return;
+ ['dailyLogs','diagnoses','facts','evidence','patchHistory','pendingConfidence'].forEach(k=>S[k]=arr(S[k]));
+ const log={...r,workItems:r.work,diagnoses:a.diagnoses,diagnosisIds:a.diagnoses.map(x=>x.id),weeklyObservations:a.weeklyObservations,roadmapIntervention:a.roadmapIntervention,missingInformation:a.missingInformation,sourceVersion:'v59-july17-career-patch'};
+ const li=S.dailyLogs.findIndex(x=>(x.date||x.dailyRecord?.date)===r.date);if(li>=0)S.dailyLogs[li]={...S.dailyLogs[li],...log};else S.dailyLogs.push(log);
+ a.diagnoses.forEach(d=>{const i=S.diagnoses.findIndex(x=>x.id===d.id);const item={...d,date:r.date,lastSeen:r.date,firstSeen:i>=0?(S.diagnoses[i].firstSeen||S.diagnoses[i].date||r.date):r.date,lifecycle:i>=0?(S.diagnoses[i].lifecycle||'collecting'):'collecting'};if(i>=0)S.diagnoses[i]={...S.diagnoses[i],...item};else S.diagnoses.push(item)});
+ const f=[
+ ['fact-0717-01','application','用户完成了模拟网表向数字验证环境的接入。','wi-0717-ams-netlist-integration'],
+ ['fact-0717-02','work','用户运行了一次基础数模混合仿真。','wi-0717-ams-netlist-integration'],
+ ['fact-0717-03','assessment','用户自述对若干数模混仿配置文件和相关配置机制的认识尚不透彻。','wi-0717-ams-netlist-integration'],
+ ['fact-0717-04','assessment','用户当前在数模混仿中主要关注数字检查器和数字激励顺序。','wi-0717-ams-scope'],
+ ['fact-0717-05','learning','用户不确定数字前端验证是否需要关注模拟连续行为和数模接口动态过程。','wi-0717-ams-scope'],
+ ['fact-0717-06','work','用户后续将承担一项后仿任务。','wi-0717-post-simulation-prep'],
+ ['fact-0717-07','learning','用户自述目前不清楚后仿所需交付物、执行方式、关注点和目的。','wi-0717-post-simulation-prep'],
+ ['fact-0717-08','assessment','用户希望补充从架构设计、前端验证、后端实现、系统验证到流片后测试的整体流程知识。','wi-0717-post-simulation-prep'],
+ ['fact-0717-09','problem','片上电源类模块的部分上游交付仍存在延期，并可能影响后续工作。','wi-0717-upstream-delay'],
+ ['fact-0717-10','feedback','导师提出后续可能安排用户参与时钟与复位相关单元测试自动化脚本工作。','wi-0717-clock-reset-automation']
+ ].map(x=>({id:x[0],type:x[1],statement:x[2],sourceWorkItemId:x[3],date:r.date,immutable:true}));
+ f.forEach(x=>{const i=S.facts.findIndex(y=>y.id===x.id);if(i>=0)S.facts[i]=x;else S.facts.push(x)});
+ a.evidence.forEach(x=>{const i=S.evidence.findIndex(y=>y.id===x.id);if(i>=0)S.evidence[i]=x;else S.evidence.push(x)});
+ const p=[['diag-mixedsignal-environment-configuration',[72,86]],['diag-ams-verification-boundary',[66,82]],['diag-post-simulation-flow',[82,93]],['diag-mixedsignal-delivery-boundary',[87,95]]];
+ p.forEach(x=>{S.pendingConfidence=S.pendingConfidence.filter(y=>!(y.diagnosisId===x[0]&&y.patchId===r.patchId));S.pendingConfidence.push({diagnosisId:x[0],range:x[1],patchId:r.patchId,date:r.date,requiresWeeklyConfirmation:true})});
+ if(!S.patchHistory.some(x=>x.patchId===r.patchId))S.patchHistory.push({patchId:r.patchId,date:r.date,version:'career-os-v59-daily-0717',summary:'保存7月17日工作事实、诊断和周复盘观察。'});
+ S.selectedDate=r.date;S.calendarMonth='2026-07';if(typeof normalizeDailyStoreV551==='function')normalizeDailyStoreV551(S);save();renderAll()
+}
+
+</script>
 <script data-source="curriculum/v40-career-model.js">
 window.addEventListener('load',()=>{try{installV40CareerModel()}catch(e){console.error('V4 career model failed',e)}},{once:true});
 function installV40CareerModel(){
@@ -3848,6 +3938,31 @@ window.CAREER_OS_V59_DATA_READY=true;
  function installOuter(){if(typeof renderAll!=='function'||renderAll.__v59Outermost)return;const old=renderAll;const wrapped=function(){const r=old.apply(this,arguments);setTimeout(()=>settle('render'),0);return r};wrapped.__v59Outermost=true;renderAll=wrapped}
  function settle(reason){try{window.ensureSpecializationV59?.();window.mountSpecializationV59?.();aliases();identity();marker(reason)}catch(e){console.error('Career OS V5.9 finalize failed',e)}}
  window.addEventListener('load',()=>{installOuter();[0,350,1200,2600].forEach((d,i)=>setTimeout(()=>settle('load-'+i),d))},{once:true});
+ window.addEventListener('pageshow',()=>settle('pageshow'));
+ window.addEventListener('focus',()=>settle('focus'));
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)settle('visible')});
+})();
+
+</script>
+<script data-source="curriculum/v591-daily-0717-finalize.js">
+(function(){
+ let busy=false;
+ function count(log){if(!log)return 0;if(Array.isArray(log.work)&&log.work.length)return log.work.length;if(Array.isArray(log.workItems)&&log.workItems.length)return log.workItems.length;if(log.dailyRecord&&Array.isArray(log.dailyRecord.workItems))return log.dailyRecord.workItems.length;return 0}
+ function byDate(){return Array.isArray(S?.dailyLogs)?S.dailyLogs.find(x=>(x.date||x.dailyRecord?.date)==='2026-07-17'):null}
+ function ensure(reason){
+  if(busy||typeof S==='undefined')return false;busy=true;
+  try{
+   let log=byDate();if(count(log)!==5&&typeof seedDaily20260717==='function')seedDaily20260717();
+   if(typeof normalizeDailyStoreV551==='function')normalizeDailyStoreV551(S);
+   log=byDate();const complete=count(log)===5;
+   if(complete){S.selectedDate='2026-07-17';S.calendarMonth='2026-07'}
+   S.dailyUpdateV591={version:'5.9.1',reason:reason||'runtime',date:'2026-07-17',workItems:count(log),diagnoses:Array.isArray(log?.diagnoses)?log.diagnoses.length:0,facts:Array.isArray(S.facts)?S.facts.filter(x=>x.date==='2026-07-17').length:0,evidence:Array.isArray(S.evidence)?S.evidence.filter(x=>x.sourceDate==='2026-07-17').length:0,complete,updatedAt:new Date().toISOString()};
+   window.CAREER_OS_V591_DAILY=S.dailyUpdateV591;
+   if(typeof save==='function')save();return complete
+  }catch(e){console.error('July 17 Daily finalizer failed',e);return false}finally{busy=false}
+ }
+ function settle(reason){const ok=ensure(reason);if(ok&&typeof renderAll==='function'){try{renderAll()}catch(e){console.error('July 17 Daily render failed',e)}}if(typeof S!=='undefined'){S.version='5.9.0';document.title='Zhantong · Career OS V5.9';const side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.9';if(typeof save==='function')save()}}
+ window.addEventListener('load',()=>[50,500,1400,3200].forEach((d,i)=>setTimeout(()=>settle('load-'+i),d)),{once:true});
  window.addEventListener('pageshow',()=>settle('pageshow'));
  window.addEventListener('focus',()=>settle('focus'));
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)settle('visible')});
