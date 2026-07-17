@@ -88,6 +88,7 @@ EXTRA_SOURCES = [
     'curriculum/v59-ui-foundation.js',
     'curriculum/v59-ui-unit.js',
     'curriculum/v59-ui-views.js',
+    'curriculum/v59-ui-hotfix.js',
     'curriculum/v59-ui-install.js',
     'curriculum/v59-finalize.js',
 ]
