@@ -17,26 +17,38 @@ jobs:
     timeout-minutes: 24
     steps:
       - uses: actions/checkout@v4
+
       - name: Build single-file V5.9
         run: |
           python3 career-roadmap/build_single_file.py --output index.v59-test.html
           python3 - <<'PY'
           import re
           from pathlib import Path
-          p=Path('career-roadmap/index.v59-test.html')
-          html=p.read_text(encoding='utf-8')
-          assert p.stat().st_size>0
-          assert not re.search(r'<script\s+[^>]*src=',html,re.I)
-          assert not re.search(r'<link\s+[^>]*rel=["\']stylesheet["\']',html,re.I)
-          for marker in ['PARALLEL SPECIALIZATION TRACKS','OCLDO Verification','Digitally Controlled On-Chip LDO','UVM-MS Personal Learning Track','Analog Output-Capacitorless LDO Background','CAREER_OS_V59','Zhantong · Career OS V5.9']:
+          path = Path('career-roadmap/index.v59-test.html')
+          html = path.read_text(encoding='utf-8')
+          assert path.stat().st_size > 0
+          assert not re.search(r'<script\s+[^>]*src=', html, re.I)
+          assert not re.search(r'<link\s+[^>]*rel=["\']stylesheet["\']', html, re.I)
+          markers = [
+              'PARALLEL SPECIALIZATION TRACKS',
+              'OCLDO Verification',
+              'Digitally Controlled On-Chip LDO',
+              'UVM-MS Personal Learning Track',
+              'Analog Output-Capacitorless LDO Background',
+              'CAREER_OS_V59',
+              'Zhantong · Career OS V5.9',
+          ]
+          for marker in markers:
               assert marker in html, marker
-          print({'bytes':len(html),'externalScripts':0,'externalStylesheets':0})
+          print({'bytes': len(html), 'markers': len(markers), 'externalResources': 0})
           PY
+
       - name: Install browser runtimes
         run: |
           npm install --no-save --silent playwright@1.54.1
           npx playwright install --with-deps chromium webkit
-      - name: Run fresh, migration, independence and responsive checks
+
+      - name: Run cross-browser acceptance
         continue-on-error: true
         run: |
           mkdir -p /tmp/v59-artifacts
@@ -44,94 +56,255 @@ jobs:
           cat > v59-smoke.mjs <<'EOF'
           import { chromium, webkit, devices } from 'playwright';
           import fs from 'node:fs';
-          const url='http://127.0.0.1:8000/career-roadmap/index.v59-test.html';
-          const result={passed:false,runs:[]};
-          const dates=['2026-07-13','2026-07-14','2026-07-15','2026-07-16'];
+
+          const URL = 'http://127.0.0.1:8000/career-roadmap/index.v59-test.html';
+          const KEY = 'zhantong-career-os-v5';
+          const BACKUP = 'zhantong-career-os-v5-pre-v59-backup';
+          const MANIFEST = 'zhantong-career-os-v5-pre-v59-manifest';
+          const DATES = ['2026-07-13','2026-07-14','2026-07-15','2026-07-16'];
+          const result = {passed:false,runs:[]};
 
           async function waitV59(page){
-            await page.waitForFunction(()=>window.CAREER_OS_V59?.complete===true,null,{timeout:30000});
-            await page.waitForTimeout(2600);
-          }
-          async function seed(page,kind){
-            await page.evaluate(kind=>{
-              const key='zhantong-career-os-v5';
-              const old=JSON.parse(localStorage.getItem(key));
-              old.v59MigrationSentinel=`keep-${kind}`;
-              old.dailyLogs=[{date:'2026-07-13',work:[]},{date:'2026-07-14',workItems:[]},{date:'2026-07-15',work:[]},{date:'2026-07-16',work:[]}];
-              if(kind==='v55'||kind==='combined')old.amsFrontierV55={reading:{'r-uvmms-standard':true},chapters:{},note:'legacy frontier note'};
-              if(kind==='v57'||kind==='combined')old.uvmmsProgramV57={note:'legacy adoption note',gates:{g0:true},metrics:{m0:'kept'}};
-              if(kind==='v58'||kind==='combined'){
-                old.growthHubV58=old.growthHubV58||{};
-                old.growthHubV58.actionNotes={...(old.growthHubV58.actionNotes||{}),'topic-uvmms-architecture':'legacy growth note'};
-                old.growthHubV58.selectedActions={...(old.growthHubV58.selectedActions||{}),'topic-uvmms-architecture':true};
-              }
-              delete old.specializationV59;delete old.specializationUpdateV59;
-              localStorage.removeItem('zhantong-career-os-v5-pre-v59-backup');
-              localStorage.removeItem('zhantong-career-os-v5-pre-v59-manifest');
-              localStorage.setItem(key,JSON.stringify(old));
-            },kind);
-            await page.reload({waitUntil:'load'});await waitV59(page);
-            return await page.evaluate(kind=>{
-              const work=x=>Array.isArray(x?.work)&&x.work.length?x.work:Array.isArray(x?.workItems)&&x.workItems.length?x.workItems:Array.isArray(x?.dailyRecord?.workItems)?x.dailyRecord.workItems:[];
-              const byDate=d=>S.dailyLogs.find(x=>(x.date||x.dailyRecord?.date)===d);
-              const b=localStorage.getItem('zhantong-career-os-v5-pre-v59-backup')||'';
-              return{kind,daily:['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].map(d=>work(byDate(d)).length),backup:Boolean(b),sentinel:b.includes(`keep-${kind}`),manifest:Boolean(localStorage.getItem('zhantong-career-os-v5-pre-v59-manifest')),v55:S.amsFrontierV55?.note||'',v57:S.uvmmsProgramV57?.note||'',v58:S.growthHubV58?.actionNotes?.['topic-uvmms-architecture']||'',prior:{o:S.specializationV59.tracks.ocldo.priorKnowledge.length,u:S.specializationV59.tracks.uvmms.priorKnowledge.length},completed:{o:Object.values(S.specializationV59.tracks.ocldo.unitStates).filter(x=>x==='completed').length,u:Object.values(S.specializationV59.tracks.uvmms.unitStates).filter(x=>x==='completed').length},integration:S.specializationV59.integrationProject.status};
-            },kind);
+            await page.waitForFunction(() => window.CAREER_OS_V59?.complete === true, null, {timeout:30000});
+            await page.waitForTimeout(2800);
           }
 
-          async function inspect(browserType,name,options){
-            const browser=await browserType.launch({headless:true});
-            const context=await browser.newContext(options);
-            const page=await context.newPage();
-            const run={name,errors:[],migrations:[]};
-            page.on('pageerror',e=>run.errors.push(`pageerror: ${e.message}`));
-            page.on('console',m=>{if(m.type()==='error')run.errors.push(`console: ${m.text()}`)});
-            try{
-              await page.goto(url,{waitUntil:'load'});await page.evaluate(()=>localStorage.clear());run.errors=[];
-              await page.reload({waitUntil:'load'});await waitV59(page);
-              await page.click('[data-view="growth"]');await page.click('[data-v58-nav="week"]');await page.waitForTimeout(400);
-              run.fresh=await page.evaluate(()=>({title:document.title,version:S.version,marker:window.CAREER_OS_V59,cards:document.querySelectorAll('.v59-track-card').length,dataCounts:{ocldo:SPECIALIZATION_V59.tracks.ocldo.units.length,uvmms:SPECIALIZATION_V59.tracks.uvmms.units.length},states:{ocldo:Object.values(S.specializationV59.tracks.ocldo.unitStates),uvmms:Object.values(S.specializationV59.tracks.uvmms.unitStates)},focus:{...S.specializationV59.learningFocus},integration:{...S.specializationV59.integrationProject},nav:[...document.querySelectorAll('#growth-nav-v58 [data-v58-nav]')].map(x=>x.textContent.trim()),overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth}));
-              await page.click('#v59SwapFocus');await page.waitForTimeout(250);
-              run.swap=await page.evaluate(()=>({...S.specializationV59.learningFocus}));
-              await page.click('[data-v58-nav="topics"]');await page.waitForTimeout(500);
-              run.topics=await page.evaluate(()=>({cards:document.querySelectorAll('.v59-track-card').length,locked:document.querySelector('.v59-integration')?.textContent.includes('锁定'),digital:document.body.innerText.includes('Digitally Controlled On-Chip LDO'),analogSource:document.documentElement.innerHTML.includes('Analog Output-Capacitorless LDO Background'),disclaimer:document.documentElement.innerHTML.includes('不等同于新的Digital OCLDO Verification Track')}));
-              await page.click('[data-v59-pause="uvmms"]');await page.waitForTimeout(200);
-              run.pause=await page.evaluate(()=>({ocldo:S.specializationV59.tracks.ocldo.status,uvmms:S.specializationV59.tracks.uvmms.status}));
-              await page.locator('[data-v59-open-track="ocldo"]').first().click();await page.waitForTimeout(450);
-              await page.click('[data-v59-unit="ocldo-01"]');await page.waitForTimeout(250);
+          async function freshPage(page){
+            await page.goto(URL, {waitUntil:'load'});
+            await page.evaluate(() => localStorage.clear());
+            await page.reload({waitUntil:'load'});
+            await waitV59(page);
+          }
+
+          async function installFixture(page, kind){
+            await freshPage(page);
+            await page.evaluate(({kind,key,backup,manifest}) => {
+              const fixture = JSON.parse(JSON.stringify(S));
+              fixture.v59MigrationSentinel = `keep-${kind}`;
+              fixture.dailyLogs = [
+                {date:'2026-07-13',work:[]},
+                {date:'2026-07-14',workItems:[]},
+                {date:'2026-07-15',work:[]},
+                {date:'2026-07-16',work:[]},
+              ];
+              delete fixture.specializationV59;
+              delete fixture.specializationUpdateV59;
+              delete fixture.uvmmsProgramV57;
+              delete fixture.amsFrontierV55;
+              if (fixture.growthHubV58) {
+                fixture.growthHubV58.actionNotes = {};
+                fixture.growthHubV58.selectedActions = {};
+              }
+              if (kind === 'v55' || kind === 'combined') {
+                fixture.amsFrontierV55 = {reading:{'r-uvmms-standard':true},chapters:{},note:'legacy frontier note'};
+              }
+              if (kind === 'v57' || kind === 'combined') {
+                fixture.uvmmsProgramV57 = {note:'legacy adoption note',gates:{g0:true},metrics:{m0:'kept'}};
+              }
+              if (kind === 'v58' || kind === 'combined') {
+                fixture.growthHubV58 = fixture.growthHubV58 || {};
+                fixture.growthHubV58.actionNotes = {'topic-uvmms-architecture':'legacy growth note'};
+                fixture.growthHubV58.selectedActions = {'topic-uvmms-architecture':true};
+              }
+              Object.keys(S).forEach(k => delete S[k]);
+              Object.assign(S, fixture);
+              localStorage.removeItem(backup);
+              localStorage.removeItem(manifest);
+              localStorage.setItem(key, JSON.stringify(fixture));
+            }, {kind,key:KEY,backup:BACKUP,manifest:MANIFEST});
+            await page.waitForTimeout(350);
+            await page.reload({waitUntil:'load'});
+            await waitV59(page);
+            return await page.evaluate(({kind,backup,manifest}) => {
+              const work = x => Array.isArray(x?.work) && x.work.length ? x.work : Array.isArray(x?.workItems) && x.workItems.length ? x.workItems : Array.isArray(x?.dailyRecord?.workItems) ? x.dailyRecord.workItems : [];
+              const byDate = d => S.dailyLogs.find(x => (x.date || x.dailyRecord?.date) === d);
+              const snapshot = localStorage.getItem(backup) || '';
+              return {
+                kind,
+                daily:['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].map(d => work(byDate(d)).length),
+                backup:Boolean(snapshot),
+                sentinel:snapshot.includes(`keep-${kind}`),
+                manifest:Boolean(localStorage.getItem(manifest)),
+                v55:S.amsFrontierV55?.note || '',
+                v57:S.uvmmsProgramV57?.note || '',
+                v58:S.growthHubV58?.actionNotes?.['topic-uvmms-architecture'] || '',
+                prior:{
+                  o:S.specializationV59.tracks.ocldo.priorKnowledge.length,
+                  u:S.specializationV59.tracks.uvmms.priorKnowledge.length,
+                },
+                completed:{
+                  o:Object.values(S.specializationV59.tracks.ocldo.unitStates).filter(x=>x==='completed').length,
+                  u:Object.values(S.specializationV59.tracks.uvmms.unitStates).filter(x=>x==='completed').length,
+                },
+                integration:S.specializationV59.integrationProject.status,
+              };
+            }, {kind,backup:BACKUP,manifest:MANIFEST});
+          }
+
+          async function inspect(browserType, name, options){
+            const browser = await browserType.launch({headless:true});
+            const context = await browser.newContext(options);
+            const page = await context.newPage();
+            const run = {name,errors:[],migrations:[]};
+            page.on('pageerror', e => run.errors.push(`pageerror: ${e.message}`));
+            page.on('console', m => { if (m.type() === 'error') run.errors.push(`console: ${m.text()}`); });
+
+            try {
+              await freshPage(page);
+              run.errors = [];
+              await page.click('[data-view="growth"]');
+              await page.click('[data-v58-nav="week"]');
+              await page.waitForTimeout(450);
+
+              run.fresh = await page.evaluate(() => ({
+                title:document.title,
+                version:S.version,
+                marker:window.CAREER_OS_V59,
+                dataCounts:{ocldo:SPECIALIZATION_V59.tracks.ocldo.units.length,uvmms:SPECIALIZATION_V59.tracks.uvmms.units.length},
+                states:{
+                  o:Object.values(S.specializationV59.tracks.ocldo.unitStates),
+                  u:Object.values(S.specializationV59.tracks.uvmms.unitStates),
+                },
+                focus:{...S.specializationV59.learningFocus},
+                integration:{...S.specializationV59.integrationProject},
+                nav:[...document.querySelectorAll('#growth-nav-v58 [data-v58-nav]')].map(x=>x.textContent.trim()),
+                overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
+              }));
+
+              await page.click('#v59SwapFocus');
+              await page.waitForTimeout(300);
+              run.swap = await page.evaluate(() => ({...S.specializationV59.learningFocus}));
+
+              await page.click('[data-v58-nav="topics"]');
+              await page.waitForTimeout(550);
+              run.topics = await page.evaluate(() => ({
+                cards:document.querySelectorAll('.v59-track-card').length,
+                locked:document.querySelector('.v59-integration')?.textContent.includes('锁定'),
+                digital:document.body.innerText.includes('Digitally Controlled On-Chip LDO'),
+                analog:document.documentElement.innerHTML.includes('Analog Output-Capacitorless LDO Background'),
+                disclaimer:document.documentElement.innerHTML.includes('不等同于新的Digital OCLDO Verification Track'),
+              }));
+
+              await page.locator('[data-v59-pause="uvmms"]').click();
+              await page.waitForTimeout(250);
+              run.pause = await page.evaluate(() => ({
+                o:S.specializationV59.tracks.ocldo.status,
+                u:S.specializationV59.tracks.uvmms.status,
+              }));
+
+              await page.locator('[data-v59-open-track="ocldo"]').first().click();
+              await page.waitForTimeout(450);
+              await page.click('[data-v59-unit="ocldo-01"]');
+              await page.waitForTimeout(250);
               await page.check('[data-v59-check="0"][data-track="ocldo"][data-unit="ocldo-01"]');
-              run.afterCheck=await page.evaluate(()=>S.specializationV59.tracks.ocldo.unitStates['ocldo-01']);
-              for(const dim of ['understanding','practice','verificationDesign'])await page.selectOption(`[data-v59-assessment="${dim}"][data-track="ocldo"][data-unit="ocldo-01"]`,'3');
-              async function addEvidence(kind,title){await page.selectOption('#v59EvidenceKind',kind);await page.fill('#v59EvidenceTitle',title);await page.fill('#v59EvidenceDetail','public synthetic evidence');await page.click('[data-v59-add-evidence="ocldo"][data-unit="ocldo-01"]');await page.waitForTimeout(180)}
-              await addEvidence('output','architecture output');await addEvidence('practice','timeline practice');await addEvidence('verification','sequence checker');
-              await page.click('[data-v59-complete="ocldo"][data-unit="ocldo-01"]');await page.waitForTimeout(250);
-              run.independence=await page.evaluate(()=>({o:S.specializationV59.tracks.ocldo.unitStates['ocldo-01'],u:S.specializationV59.tracks.uvmms.unitStates['uvmms-01'],related:S.specializationV59.tracks.uvmms.unitStates['uvmms-02'],integration:S.specializationV59.integrationProject.status}));
+              run.afterCheck = await page.evaluate(() => S.specializationV59.tracks.ocldo.unitStates['ocldo-01']);
+
+              for (const dim of ['understanding','practice','verificationDesign']) {
+                await page.selectOption(`[data-v59-assessment="${dim}"][data-track="ocldo"][data-unit="ocldo-01"]`, '3');
+              }
+              async function addEvidence(kind,title){
+                await page.selectOption('#v59EvidenceKind',kind);
+                await page.fill('#v59EvidenceTitle',title);
+                await page.fill('#v59EvidenceDetail','public synthetic evidence');
+                await page.click('[data-v59-add-evidence="ocldo"][data-unit="ocldo-01"]');
+                await page.waitForTimeout(220);
+              }
+              await addEvidence('output','architecture output');
+              await addEvidence('practice','timeline practice');
+              await addEvidence('verification','sequence checker');
+              await page.click('[data-v59-complete="ocldo"][data-unit="ocldo-01"]');
+              await page.waitForTimeout(300);
+              run.independence = await page.evaluate(() => ({
+                o:S.specializationV59.tracks.ocldo.unitStates['ocldo-01'],
+                u:S.specializationV59.tracks.uvmms.unitStates['uvmms-01'],
+                related:S.specializationV59.tracks.uvmms.unitStates['uvmms-02'],
+                integration:S.specializationV59.integrationProject.status,
+              }));
+
+              await page.evaluate(() => window.scrollTo(0, 0));
               await page.screenshot({path:`/tmp/v59-artifacts/${name}.png`,fullPage:false});
 
-              for(const kind of ['v55','v57','v58','combined'])run.migrations.push(await seed(page,kind));
-              await page.click('[data-view="growth"]');await page.click('[data-v58-nav="topics"]');await page.waitForTimeout(350);await page.locator('[data-v59-open-track="uvmms"]').first().click();await page.waitForTimeout(300);await page.click('[data-v59-unit="uvmms-01"]');
-              await page.fill('[data-v59-note][data-track="uvmms"][data-unit="uvmms-01"]','persisted unit note');await page.locator('[data-v59-note][data-track="uvmms"][data-unit="uvmms-01"]').evaluate(el=>el.dispatchEvent(new Event('change',{bubbles:true})));
-              await page.reload({waitUntil:'load'});await waitV59(page);
-              run.persist=await page.evaluate(()=>({note:S.specializationV59.tracks.uvmms.notes['uvmms-01'],backup:(localStorage.getItem('zhantong-career-os-v5-pre-v59-backup')||'').includes('keep-combined'),v57:S.uvmmsProgramV57?.note,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth}));
-              const f=run.fresh,mi=run.migrations;
-              const migrationsPass=mi.every(x=>x.daily.join('/')==='3/4/4/5'&&x.backup&&x.sentinel&&x.manifest&&x.completed.o===0&&x.completed.u===0&&x.integration==='locked')&&mi.find(x=>x.kind==='v55').v55==='legacy frontier note'&&mi.find(x=>x.kind==='v57').v57==='legacy adoption note'&&mi.find(x=>x.kind==='v58').v58==='legacy growth note'&&mi.find(x=>x.kind==='combined').prior.u>0;
-              run.passed=run.errors.length===0&&f.title.includes('V5.9')&&String(f.version).startsWith('5.9')&&f.marker?.complete===true&&f.dataCounts.ocldo===10&&f.dataCounts.uvmms===9&&f.states.ocldo.filter(x=>x==='completed').length===0&&f.states.uvmms.filter(x=>x==='completed').length===0&&f.focus.primaryTrack==='ocldo'&&f.focus.secondaryTrack==='uvmms'&&f.integration.status==='locked'&&f.nav.join('|')==='本周成长|学习专题|能力与证据|复盘档案'&&f.overflow<=1&&run.swap.primaryTrack==='uvmms'&&run.swap.secondaryTrack==='ocldo'&&run.topics.cards===2&&run.topics.locked&&run.topics.digital&&run.topics.analogSource&&run.topics.disclaimer&&run.pause.ocldo!=='paused'&&run.pause.uvmms==='paused'&&run.afterCheck!=='completed'&&run.independence.o==='completed'&&run.independence.u!=='completed'&&run.independence.related!=='completed'&&run.independence.integration==='locked'&&migrationsPass&&run.persist.note==='persisted unit note'&&run.persist.backup&&run.persist.v57==='legacy adoption note'&&run.persist.overflow<=1;
-            }catch(e){run.errors.push(e?.stack||String(e));run.passed=false}
-            result.runs.push(run);await browser.close()
+              for (const kind of ['v55','v57','v58','combined']) {
+                run.migrations.push(await installFixture(page,kind));
+              }
+
+              await page.click('[data-view="growth"]');
+              await page.click('[data-v58-nav="topics"]');
+              await page.waitForTimeout(450);
+              await page.locator('[data-v59-open-track="uvmms"]').first().click();
+              await page.waitForTimeout(350);
+              await page.click('[data-v59-unit="uvmms-01"]');
+              await page.waitForTimeout(250);
+              const note = page.locator('[data-v59-note][data-track="uvmms"][data-unit="uvmms-01"]');
+              await note.fill('persisted unit note');
+              await note.evaluate(el => el.dispatchEvent(new Event('change',{bubbles:true})));
+              await page.waitForTimeout(600);
+              run.noteBeforeReload = await page.evaluate(() => S.specializationV59.tracks.uvmms.notes['uvmms-01']);
+              await page.reload({waitUntil:'load'});
+              await waitV59(page);
+              run.persist = await page.evaluate(({backup}) => ({
+                note:S.specializationV59.tracks.uvmms.notes['uvmms-01'],
+                backup:(localStorage.getItem(backup)||'').includes('keep-combined'),
+                v57:S.uvmmsProgramV57?.note || '',
+                overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
+              }), {backup:BACKUP});
+
+              const f = run.fresh;
+              const migrationsPass = run.migrations.every(x => x.daily.join('/') === '3/4/4/5' && x.backup && x.sentinel && x.manifest && x.completed.o === 0 && x.completed.u === 0 && x.integration === 'locked')
+                && run.migrations.find(x=>x.kind==='v55').v55 === 'legacy frontier note'
+                && run.migrations.find(x=>x.kind==='v57').v57 === 'legacy adoption note'
+                && run.migrations.find(x=>x.kind==='v58').v58 === 'legacy growth note'
+                && run.migrations.find(x=>x.kind==='combined').prior.u > 0;
+
+              run.passed = run.errors.length === 0
+                && f.title.includes('V5.9')
+                && String(f.version).startsWith('5.9')
+                && f.marker?.complete === true
+                && f.dataCounts.ocldo === 10 && f.dataCounts.uvmms === 9
+                && f.states.o.filter(x=>x==='completed').length === 0
+                && f.states.u.filter(x=>x==='completed').length === 0
+                && f.focus.primaryTrack === 'ocldo' && f.focus.secondaryTrack === 'uvmms'
+                && f.integration.status === 'locked'
+                && f.nav.join('|') === '本周成长|学习专题|能力与证据|复盘档案'
+                && f.overflow <= 1
+                && run.swap.primaryTrack === 'uvmms' && run.swap.secondaryTrack === 'ocldo'
+                && run.topics.cards === 2 && run.topics.locked && run.topics.digital && run.topics.analog && run.topics.disclaimer
+                && run.pause.o !== 'paused' && run.pause.u === 'paused'
+                && run.afterCheck !== 'completed'
+                && run.independence.o === 'completed'
+                && run.independence.u !== 'completed'
+                && run.independence.related !== 'completed'
+                && run.independence.integration === 'locked'
+                && migrationsPass
+                && run.noteBeforeReload === 'persisted unit note'
+                && run.persist.note === 'persisted unit note'
+                && run.persist.backup
+                && run.persist.v57 === 'legacy adoption note'
+                && run.persist.overflow <= 1;
+            } catch (error) {
+              run.errors.push(error?.stack || String(error));
+              run.passed = false;
+            }
+
+            result.runs.push(run);
+            await browser.close();
           }
+
           await inspect(chromium,'chromium-desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
           await inspect(webkit,'webkit-iphone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
-          result.passed=result.runs.every(x=>x.passed);
+          result.passed = result.runs.every(x => x.passed);
           fs.writeFileSync('/tmp/v59-artifacts/v59-result.json',JSON.stringify(result,null,2));
           console.log(JSON.stringify(result,null,2));
           EOF
           node v59-smoke.mjs
+
       - name: Upload diagnostics and screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: v59-specialization-result
           path: /tmp/v59-artifacts
+
       - name: Comment PR
         if: always() && github.event_name == 'pull_request'
         env:
@@ -140,5 +313,6 @@ jobs:
           if [ ! -f /tmp/v59-artifacts/v59-result.json ]; then printf '{"passed":false,"error":"result missing"}\n' >/tmp/v59-artifacts/v59-result.json; fi
           { echo '### Career OS V5.9 specialization smoke'; echo '```json'; cat /tmp/v59-artifacts/v59-result.json; echo '```'; } >/tmp/v59-comment.md
           gh pr comment ${{ github.event.pull_request.number }} --repo "${{ github.repository }}" --body-file /tmp/v59-comment.md
+
       - name: Enforce checks
         run: node -e "const r=require('/tmp/v59-artifacts/v59-result.json');if(!r.passed)process.exit(1)"
