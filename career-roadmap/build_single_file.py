@@ -95,6 +95,7 @@ EXTRA_SOURCES = [
     'curriculum/v59-ui-install.js',
     'curriculum/v59-finalize.js',
     'curriculum/v591-daily-0717-finalize.js',
+    'curriculum/v593-crg-track.js',
 ]
 
 REQUIRED_MARKERS = [
@@ -135,6 +136,9 @@ REQUIRED_MARKERS = [
     'CAREER_OS_V58',
     'CAREER_OS_V59',
     'CAREER_OS_V591_DAILY',
+    'CAREER_OS_V592_WEEKLY_REVIEW',
+    'CAREER_OS_V593_CRG_TRACK',
+    'CRG Architecture & Verification',
     'Zhantong · Career OS V5.9',
 ]
 
