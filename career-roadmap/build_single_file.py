@@ -82,6 +82,11 @@ EXTRA_SOURCES = [
     'curriculum/v58-growth-story-ui.js',
     'curriculum/v58-compact-legacy.js',
     'curriculum/v58-finalize.js',
+    'curriculum/v59-specialization-data.js',
+    'curriculum/v59-specialization-migration.js',
+    'curriculum/v59-specialization-assessment.js',
+    'curriculum/v59-specialization-ui.js',
+    'curriculum/v59-finalize.js',
 ]
 
 REQUIRED_MARKERS = [
@@ -108,12 +113,19 @@ REQUIRED_MARKERS = [
     '本周全部成长行动',
     'AI检测与训练Prompt',
     'zhantong-career-os-v5-pre-v58-backup',
+    'PARALLEL SPECIALIZATION TRACKS',
+    'OCLDO Verification',
+    'Digitally Controlled On-Chip LDO',
+    'UVM-MS Personal Learning Track',
+    'Analog Output-Capacitorless LDO Background',
+    'zhantong-career-os-v5-pre-v59-backup',
     'CAREER_OS_V551',
     'CAREER_OS_V552',
     'CAREER_OS_V56',
     'CAREER_OS_V57',
     'CAREER_OS_V58',
-    'Zhantong · Career OS V5.8',
+    'CAREER_OS_V59',
+    'Zhantong · Career OS V5.9',
 ]
 
 
