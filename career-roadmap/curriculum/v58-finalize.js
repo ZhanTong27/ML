@@ -1,5 +1,7 @@
 (function(){
  function applyIdentityV58(){
+  const current=typeof S!=='undefined'?parseFloat(String(S.version||'0')):0;
+  if(current>=5.9)return;
   if(typeof S!=='undefined')S.version='5.8.0';
   document.title='Zhantong · Career OS V5.8';
   const side=document.querySelector('.side-title');if(side)side.textContent='CAREER OS · V5.8'
