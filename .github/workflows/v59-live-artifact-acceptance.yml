@@ -1,0 +1,129 @@
+name: Career OS V5.9 Live Artifact Acceptance
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v59-live-artifact-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-artifacts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Install browser runtimes
+        run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium webkit
+
+      - name: Test real V5.9 site and capture screenshots
+        run: |
+          mkdir -p /tmp/v59-live
+          cat > /tmp/v59-live-check.mjs <<'EOF'
+          import { chromium, webkit, devices } from 'playwright';
+          import fs from 'node:fs';
+
+          const SITE='https://zhantong27.github.io/ML/';
+          const KEY='zhantong-career-os-v5';
+          const BACKUP='zhantong-career-os-v5-pre-v59-backup';
+          const MANIFEST='zhantong-career-os-v5-pre-v59-manifest';
+          const result={site:SITE,passed:false,runs:[]};
+
+          async function run(browserType,name,options){
+            const browser=await browserType.launch({headless:true});
+            const context=await browser.newContext(options);
+            const page=await context.newPage();
+            const item={name,errors:[]};
+            page.on('pageerror',e=>item.errors.push(`pageerror: ${e.message}`));
+            page.on('console',m=>{if(m.type()==='error')item.errors.push(`console: ${m.text()}`)});
+            try{
+              let response;
+              for(let attempt=0;attempt<12;attempt++){
+                response=await page.goto(`${SITE}?v59_artifact=${Date.now()}-${attempt}`,{waitUntil:'load',timeout:45000});
+                await page.waitForTimeout(2200);
+                if(response?.status()===200&&await page.evaluate(()=>window.CAREER_OS_V59?.complete===true))break;
+                await page.waitForTimeout(5000);
+              }
+              item.httpStatus=response?.status()||0;
+              await page.waitForFunction(()=>window.CAREER_OS_V59?.complete===true,null,{timeout:30000});
+              await page.waitForTimeout(2600);
+              await page.evaluate(({key,backup,manifest})=>{
+                const fixture=JSON.parse(JSON.stringify(S));
+                fixture.liveArtifactSentinel='v59-live-artifact';
+                fixture.selectedDate='2026-07-16';
+                fixture.calendarMonth='2026-07';
+                fixture.dailyLogs=[
+                  {date:'2026-07-13',work:[]},
+                  {date:'2026-07-14',workItems:[]},
+                  {date:'2026-07-15',work:[]},
+                  {date:'2026-07-16',work:[]},
+                ];
+                fixture.amsFrontierV55={note:'artifact frontier'};
+                fixture.uvmmsProgramV57={note:'artifact adoption'};
+                fixture.growthHubV58=fixture.growthHubV58||{};
+                fixture.growthHubV58.actionNotes={'topic-uvmms-architecture':'artifact growth'};
+                delete fixture.specializationV59;
+                delete fixture.specializationUpdateV59;
+                Object.keys(S).forEach(k=>delete S[k]);
+                Object.assign(S,fixture);
+                localStorage.removeItem(backup);
+                localStorage.removeItem(manifest);
+                localStorage.setItem(key,JSON.stringify(fixture));
+              },{key:KEY,backup:BACKUP,manifest:MANIFEST});
+              await page.waitForTimeout(350);
+              item.errors=[];
+              await page.reload({waitUntil:'load',timeout:45000});
+              await page.waitForFunction(()=>window.CAREER_OS_V59?.complete===true,null,{timeout:30000});
+              await page.waitForTimeout(3200);
+              await page.click('[data-view="growth"]');
+              await page.click('[data-v58-nav="topics"]');
+              await page.waitForTimeout(700);
+              await page.locator('#v59-track-topics').scrollIntoViewIfNeeded();
+              await page.waitForTimeout(250);
+              item.check=await page.evaluate(({backup,manifest})=>{
+                const work=x=>Array.isArray(x?.work)&&x.work.length?x.work:Array.isArray(x?.workItems)&&x.workItems.length?x.workItems:Array.isArray(x?.dailyRecord?.workItems)?x.dailyRecord.workItems:[];
+                const byDate=d=>S.dailyLogs.find(x=>(x.date||x.dailyRecord?.date)===d);
+                const snapshot=localStorage.getItem(backup)||'';
+                return{
+                  title:document.title,
+                  version:S.version,
+                  marker:window.CAREER_OS_V59,
+                  daily:['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].map(d=>work(byDate(d)).length),
+                  cards:document.querySelectorAll('.v59-track-card').length,
+                  units:[SPECIALIZATION_V59.tracks.ocldo.units.length,SPECIALIZATION_V59.tracks.uvmms.units.length],
+                  completed:[Object.values(S.specializationV59.tracks.ocldo.unitStates).filter(x=>x==='completed').length,Object.values(S.specializationV59.tracks.uvmms.unitStates).filter(x=>x==='completed').length],
+                  integration:S.specializationV59.integrationProject.status,
+                  backup:Boolean(snapshot),
+                  sentinel:snapshot.includes('v59-live-artifact'),
+                  manifest:Boolean(localStorage.getItem(manifest)),
+                  old:[S.amsFrontierV55?.note||'',S.uvmmsProgramV57?.note||'',S.growthHubV58?.actionNotes?.['topic-uvmms-architecture']||''],
+                  terminology:[document.body.innerText.includes('Digitally Controlled On-Chip LDO'),document.documentElement.innerHTML.includes('Analog Output-Capacitorless LDO Background'),document.documentElement.innerHTML.includes('不等同于新的Digital OCLDO Verification Track')],
+                  overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
+                }
+              },{backup:BACKUP,manifest:MANIFEST});
+              await page.screenshot({path:`/tmp/v59-live/${name}.png`,fullPage:false});
+              const c=item.check;
+              item.passed=item.httpStatus===200&&item.errors.length===0&&c.title.includes('V5.9')&&String(c.version).startsWith('5.9')&&c.marker?.complete===true&&c.daily.join('/')==='3/4/4/5'&&c.cards===2&&c.units.join('/')==='10/9'&&c.completed.join('/')==='0/0'&&c.integration==='locked'&&c.backup&&c.sentinel&&c.manifest&&c.old.join('|')==='artifact frontier|artifact adoption|artifact growth'&&c.terminology.every(Boolean)&&c.overflow<=1;
+            }catch(error){item.errors.push(error?.stack||String(error));item.passed=false}
+            result.runs.push(item);
+            await browser.close();
+          }
+
+          await run(chromium,'Career_OS_V5.9_desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
+          await run(webkit,'Career_OS_V5.9_iPhone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
+          result.passed=result.runs.every(x=>x.passed);
+          fs.writeFileSync('/tmp/v59-live/result.json',JSON.stringify(result,null,2));
+          console.log(JSON.stringify(result,null,2));
+          if(!result.passed)process.exit(1);
+          EOF
+          node /tmp/v59-live-check.mjs
+
+      - name: Upload live result and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: career-os-v59-live-artifacts
+          path: /tmp/v59-live
