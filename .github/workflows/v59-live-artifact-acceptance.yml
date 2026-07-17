@@ -1,8 +1,9 @@
-name: Career OS V5.9.3 Live Artifact Acceptance
+name: Career OS V5.9.4 Growth Integration Acceptance
 
 on:
   pull_request:
     paths:
+      - 'career-roadmap/**'
       - '.github/workflows/v59-live-artifact-acceptance.yml'
   workflow_dispatch:
 
@@ -10,26 +11,35 @@ permissions:
   contents: read
 
 jobs:
-  live-artifacts:
+  growth-integration:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Build single-file Career OS
+        run: python3 career-roadmap/build_single_file.py
+
       - name: Install browser runtimes
         run: |
           npm install --no-save --silent playwright@1.54.1
           npx playwright install --with-deps chromium webkit
 
-      - name: Test real V5.9.3 site and capture screenshots
+      - name: Start local site
         run: |
-          mkdir -p /tmp/v59-live
-          cat > v59-live-check.mjs <<'EOF'
+          python3 -m http.server 8080 > /tmp/career-os-server.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:8080/career-roadmap/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/career-os-server.log
+          exit 1
+
+      - name: Validate CRG and Weekly Review in Chromium and WebKit
+        run: |
+          mkdir -p /tmp/v594-acceptance
+          cat > v594-check.mjs <<'EOF'
           import { chromium, webkit, devices } from 'playwright';
           import fs from 'node:fs';
 
-          const SITE='https://zhantong27.github.io/ML/';
-          const KEY='zhantong-career-os-v5';
-          const BACKUP='zhantong-career-os-v5-pre-v59-backup';
-          const MANIFEST='zhantong-career-os-v5-pre-v59-manifest';
+          const SITE='http://127.0.0.1:8080/career-roadmap/';
           const result={site:SITE,passed:false,runs:[]};
 
           async function run(browserType,name,options){
@@ -40,120 +50,76 @@ jobs:
             page.on('pageerror',e=>item.errors.push(`pageerror: ${e.message}`));
             page.on('console',m=>{if(m.type()==='error')item.errors.push(`console: ${m.text()}`)});
             try{
-              let response;
-              for(let attempt=0;attempt<12;attempt++){
-                response=await page.goto(`${SITE}?v593_artifact=${Date.now()}-${attempt}`,{waitUntil:'load',timeout:45000});
-                await page.waitForTimeout(2400);
-                if(response?.status()===200&&await page.evaluate(()=>window.CAREER_OS_V59?.complete===true))break;
-                await page.waitForTimeout(5000);
-              }
+              const response=await page.goto(`${SITE}?v594=${Date.now()}`,{waitUntil:'load',timeout:45000});
               item.httpStatus=response?.status()||0;
               await page.waitForFunction(()=>window.CAREER_OS_V59?.complete===true,null,{timeout:30000});
-              await page.waitForTimeout(2800);
-              await page.evaluate(({key,backup,manifest})=>{
-                const fixture=JSON.parse(JSON.stringify(S));
-                fixture.liveArtifactSentinel='v593-live-artifact';
-                fixture.selectedDate='2026-07-16';
-                fixture.calendarMonth='2026-07';
-                fixture.dailyLogs=[
-                  {date:'2026-07-13',work:[]},
-                  {date:'2026-07-14',workItems:[]},
-                  {date:'2026-07-15',work:[]},
-                  {date:'2026-07-16',work:[]},
-                ];
-                fixture.amsFrontierV55={note:'artifact frontier'};
-                fixture.uvmmsProgramV57={note:'artifact adoption'};
-                fixture.growthHubV58=fixture.growthHubV58||{};
-                fixture.growthHubV58.actionNotes={'topic-uvmms-architecture':'artifact growth'};
-                delete fixture.specializationV59;
-                delete fixture.specializationUpdateV59;
-                delete fixture.specializationTracks;
-                delete fixture.crgDossier;
-                Object.keys(S).forEach(k=>delete S[k]);
-                Object.assign(S,fixture);
-                localStorage.removeItem(backup);
-                localStorage.removeItem(manifest);
-                localStorage.setItem(key,JSON.stringify(fixture));
-              },{key:KEY,backup:BACKUP,manifest:MANIFEST});
-              await page.waitForTimeout(350);
-              item.errors=[];
-              await page.reload({waitUntil:'load',timeout:45000});
-              await page.waitForFunction(()=>window.CAREER_OS_V59?.complete===true,null,{timeout:30000});
-              await page.waitForFunction(()=>window.CAREER_OS_V592_WEEKLY_REVIEW?.marker==='CAREER_OS_V592_WEEKLY_REVIEW',null,{timeout:30000});
-              await page.waitForFunction(()=>window.CRG_TRACK_V593?.marker==='CAREER_OS_V593_CRG_TRACK'&&document.querySelector('#crg-track-v593'),null,{timeout:30000});
+              await page.waitForFunction(()=>window.CAREER_OS_V594?.complete===true,null,{timeout:30000});
               await page.click('[data-view="growth"]');
-              await page.waitForTimeout(300);
               await page.click('[data-v58-nav="topics"]');
-              await page.waitForTimeout(900);
-              await page.locator('#v59-track-topics').scrollIntoViewIfNeeded();
-              await page.waitForTimeout(250);
-              item.check=await page.evaluate(({backup,manifest})=>{
-                const work=x=>Array.isArray(x?.work)&&x.work.length?x.work:Array.isArray(x?.workItems)&&x.workItems.length?x.workItems:Array.isArray(x?.dailyRecord?.workItems)?x.dailyRecord.workItems:[];
-                const byDate=d=>S.dailyLogs.find(x=>(x.date||x.dailyRecord?.date)===d);
-                const snapshot=localStorage.getItem(backup)||'';
-                const crg=document.querySelector('#crg-track-v593');
-                const weekly=document.querySelector('#weekly-review-v592');
+              await page.waitForSelector('#crg-track-card-v594',{state:'visible',timeout:15000});
+              await page.click('#toggleCrgTrackV594');
+              await page.waitForSelector('#crg-track-detail-v594',{state:'visible',timeout:15000});
+              await page.locator('#crg-track-card-v594').scrollIntoViewIfNeeded();
+              await page.screenshot({path:`/tmp/v594-acceptance/${name}-tracks.png`,fullPage:false});
+              await page.locator('#crg-track-detail-v594').scrollIntoViewIfNeeded();
+              await page.screenshot({path:`/tmp/v594-acceptance/${name}-crg-detail.png`,fullPage:false});
+
+              const crg=await page.evaluate(()=>{
+                const card=document.querySelector('#crg-track-card-v594');
+                const detail=document.querySelector('#crg-track-detail-v594');
                 return{
-                  title:document.title,
-                  version:S.version,
-                  marker:window.CAREER_OS_V59,
-                  daily:['2026-07-13','2026-07-14','2026-07-15','2026-07-16'].map(d=>work(byDate(d)).length),
-                  cards:document.querySelectorAll('.v59-track-card').length,
-                  units:[SPECIALIZATION_V59.tracks.ocldo.units.length,SPECIALIZATION_V59.tracks.uvmms.units.length],
-                  completed:[Object.values(S.specializationV59.tracks.ocldo.unitStates).filter(x=>x==='completed').length,Object.values(S.specializationV59.tracks.uvmms.unitStates).filter(x=>x==='completed').length],
-                  integration:S.specializationV59.integrationProject.status,
-                  backup:Boolean(snapshot),
-                  sentinel:snapshot.includes('v593-live-artifact'),
-                  manifest:Boolean(localStorage.getItem(manifest)),
-                  old:[S.amsFrontierV55?.note||'',S.uvmmsProgramV57?.note||'',S.growthHubV58?.actionNotes?.['topic-uvmms-architecture']||''],
-                  terminology:[document.body.innerText.includes('Digitally Controlled On-Chip LDO'),document.documentElement.innerHTML.includes('Analog Output-Capacitorless LDO Background'),document.documentElement.innerHTML.includes('不等同于新的Digital OCLDO Verification Track')],
-                  crg:{
-                    marker:window.CRG_TRACK_V593?.marker||'',
-                    packs:window.CRG_TRACK_V593?.packs?.length||0,
-                    domains:window.CRG_TRACK_V593?.knowledgeDomains?.length||0,
-                    verificationLayers:window.CRG_TRACK_V593?.verificationLayers?.length||0,
-                    automationDirections:window.CRG_TRACK_V593?.automationDirections?.length||0,
-                    cards:crg?.querySelectorAll('.crg-card').length||0,
-                    state:S.specializationTracks?.crg?.status||'',
-                    visible:Boolean(crg&&crg.offsetParent!==null),
-                    title:Boolean(crg?.innerText.includes('CRG Architecture & Verification')),
-                    boundary:Boolean(crg?.innerText.includes('不跟踪公司自动化项目实施进度')),
-                    overflow:crg?crg.scrollWidth-crg.clientWidth:999
-                  },
-                  weekly:{
-                    marker:window.CAREER_OS_V592_WEEKLY_REVIEW?.marker||'',
-                    visible:Boolean(weekly&&weekly.offsetParent!==null),
-                    diagnoses:window.CAREER_OS_V592_WEEKLY_REVIEW?.diagnoses?.length||0,
-                    interventions:window.CAREER_OS_V592_WEEKLY_REVIEW?.interventions?.length||0
-                  },
-                  overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
+                  marker:window.CRG_TRACK_V593?.marker||'',
+                  integration:window.CAREER_OS_V594||null,
+                  packs:window.CRG_TRACK_V593?.packs?.length||0,
+                  domains:window.CRG_TRACK_V593?.knowledgeDomains?.length||0,
+                  verificationLayers:window.CRG_TRACK_V593?.verificationLayers?.length||0,
+                  automationDirections:window.CRG_TRACK_V593?.automationDirections?.length||0,
+                  state:S.specializationTracks?.crg?.status||'',
+                  cardVisible:Boolean(card&&card.offsetParent!==null),
+                  detailVisible:Boolean(detail&&detail.offsetParent!==null),
+                  packCards:detail?.querySelectorAll('.crg-pack-v594').length||0,
+                  domainCards:detail?.querySelectorAll('.crg-domain-grid-v594>article').length||0,
+                  boundary:Boolean(detail?.innerText.includes('功能CRG与物理Clock Tree边界')),
+                  personalBoundary:Boolean(card?.innerText.includes('不自动推进Track')),
+                  overflow:Math.max(card?.scrollWidth-card?.clientWidth||0,detail?.scrollWidth-detail?.clientWidth||0)
                 }
-              },{backup:BACKUP,manifest:MANIFEST});
-              await page.screenshot({path:`/tmp/v59-live/${name}-growth.png`,fullPage:false});
-              await page.locator('#crg-track-v593').scrollIntoViewIfNeeded();
-              await page.waitForTimeout(250);
-              await page.screenshot({path:`/tmp/v59-live/${name}-crg.png`,fullPage:false});
-              const c=item.check;
-              item.passed=item.httpStatus===200&&item.errors.length===0&&c.title.includes('V5.9')&&String(c.version).startsWith('5.9')&&c.marker?.complete===true&&c.daily.join('/')==='3/4/4/5'&&c.cards===2&&c.units.join('/')==='10/9'&&c.completed.join('/')==='0/0'&&c.integration==='locked'&&c.backup&&c.sentinel&&c.manifest&&c.old.join('|')==='artifact frontier|artifact adoption|artifact growth'&&c.terminology.every(Boolean)&&c.crg.marker==='CAREER_OS_V593_CRG_TRACK'&&c.crg.packs===3&&c.crg.domains===7&&c.crg.verificationLayers===8&&c.crg.automationDirections===6&&c.crg.cards===9&&c.crg.state==='not_started'&&c.crg.visible&&c.crg.title&&c.crg.boundary&&c.crg.overflow<=1&&c.weekly.marker==='CAREER_OS_V592_WEEKLY_REVIEW'&&c.weekly.visible&&c.weekly.diagnoses===6&&c.weekly.interventions===3&&c.overflow<=1;
+              });
+
+              await page.click('[data-v58-nav="archive"]');
+              await page.waitForSelector('#weekly-review-v594',{state:'visible',timeout:15000});
+              await page.locator('#weekly-review-v594').scrollIntoViewIfNeeded();
+              await page.screenshot({path:`/tmp/v594-acceptance/${name}-weekly.png`,fullPage:false});
+              const weekly=await page.evaluate(()=>{
+                const node=document.querySelector('#weekly-review-v594');
+                return{
+                  marker:window.CAREER_OS_V592_WEEKLY_REVIEW?.marker||'',
+                  visible:Boolean(node&&node.offsetParent!==null),
+                  diagnosisRows:node?.querySelectorAll('.weekly-diagnoses-v594>article').length||0,
+                  interventions:window.CAREER_OS_V592_WEEKLY_REVIEW?.interventions?.length||0,
+                  theme:Boolean(node?.innerText.includes('确认机制、接口合同与签核边界')),
+                  overflow:node?node.scrollWidth-node.clientWidth:999
+                }
+              });
+              const pageOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
+              item.check={crg,weekly,pageOverflow};
+              item.passed=item.httpStatus===200&&item.errors.length===0&&crg.marker==='CAREER_OS_V593_CRG_TRACK'&&crg.integration?.marker==='CAREER_OS_V594_GROWTH_INTEGRATION'&&crg.integration?.complete===true&&crg.packs===3&&crg.domains===7&&crg.verificationLayers===8&&crg.automationDirections===6&&crg.state==='not_started'&&crg.cardVisible&&crg.detailVisible&&crg.packCards===3&&crg.domainCards===7&&crg.boundary&&crg.personalBoundary&&crg.overflow<=1&&weekly.marker==='CAREER_OS_V592_WEEKLY_REVIEW'&&weekly.visible&&weekly.diagnosisRows===6&&weekly.interventions===3&&weekly.theme&&weekly.overflow<=1&&pageOverflow<=1;
             }catch(error){item.errors.push(error?.stack||String(error));item.passed=false}
             result.runs.push(item);
             await browser.close();
           }
 
-          await run(chromium,'Career_OS_V5.9.3_desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
-          await run(webkit,'Career_OS_V5.9.3_iPhone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
+          await run(chromium,'Career_OS_V5.9.4_desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
+          await run(webkit,'Career_OS_V5.9.4_iPhone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
           result.passed=result.runs.every(x=>x.passed);
-          fs.writeFileSync('/tmp/v59-live/result.json',JSON.stringify(result,null,2));
+          fs.writeFileSync('/tmp/v594-acceptance/result.json',JSON.stringify(result,null,2));
           console.log(JSON.stringify(result,null,2));
           if(!result.passed)process.exit(1);
           EOF
-          node v59-live-check.mjs
+          node v594-check.mjs
 
-      - name: Upload live result and screenshots
+      - name: Upload diagnostics and screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: career-os-v593-live-artifacts
-          path: /tmp/v59-live
-
-# Post-fix live validation trigger.
+          name: career-os-v594-growth-integration
+          path: /tmp/v594-acceptance
