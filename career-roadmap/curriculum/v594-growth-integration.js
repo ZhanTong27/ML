@@ -15,22 +15,30 @@
  function packCard(p,i,t){return `<article class="crg-pack-v594 ${p.id===t.currentPack?'active':''}" data-crg-pack-v594="${escV594(p.id)}"><div class="eyebrow">PART ${i+1}</div><h3>${escV594(p.title)}</h3><p>${escV594(p.purpose)}</p><h4>学习内容</h4><ul>${p.topics.map(x=>`<li>${escV594(x)}</li>`).join('')}</ul><h4>最终输出</h4><ul>${p.outputs.map(x=>`<li>${escV594(x)}</li>`).join('')}</ul><button class="secondary small-btn" data-crg-select-pack-v594="${escV594(p.id)}">设为当前Pack</button></article>`}
  function crgDetail(C,t){return `<section class="card crg-detail-v594" id="crg-track-detail-v594"><div class="section-title split-title"><div><div class="eyebrow">TRACK OVERVIEW</div><h2>${escV594(C.title)}</h2><p>三个主题彼此独立，最终连接为个人CRG Knowledge & Verification Dossier。</p></div><button class="secondary small-btn" id="closeCrgTrackV594">收起路线</button></div><article class="crg-boundary-v594"><b>功能CRG与物理Clock Tree边界</b><p>功能CRG位于RTL与SoC控制层，关注Source、Mux、Divider、Gate、Request、Reset与Power交互；物理Clock Tree属于CTS与时序实现层，关注Buffer Tree、Skew、Latency、Jitter、OCV与Routing。两类问题不得混写。</p></article><div class="crg-pack-grid-v594">${C.packs.map((p,i)=>packCard(p,i,t)).join('')}</div><div class="section-title"><div class="eyebrow">CRG KNOWLEDGE MAP</div><h2>七个架构知识域</h2></div><div class="crg-domain-grid-v594">${C.knowledgeDomains.map(d=>`<article><h3>${escV594(d.id.toUpperCase())} · ${escV594(d.title)}</h3><ul>${d.items.map(x=>`<li>${escV594(x)}</li>`).join('')}</ul></article>`).join('')}</div><div class="crg-method-grid-v594"><article><div class="eyebrow">VERIFICATION SYSTEM</div><h3>八层验证知识</h3><ol>${C.verificationLayers.map(x=>`<li>${escV594(x)}</li>`).join('')}</ol></article><article><div class="eyebrow">AUTOMATION</div><h3>六类公开方向</h3><ol>${C.automationDirections.map(x=>`<li>${escV594(x)}</li>`).join('')}</ol></article><article><div class="eyebrow">LEARNING ORDER</div><h3>五阶段学习顺序</h3>${C.learningOrder.map(x=>`<p><b>阶段 ${x.stage} · ${escV594(x.title)}</b><br>${escV594(x.path)}</p>`).join('')}</article></div><details class="card crg-completion-v594"><summary><b>Track完成条件与证据边界</b></summary><ul>${C.completionRules.map(x=>`<li>${escV594(x)}</li>`).join('')}</ul><p class="muted">${C.boundaries.map(escV594).join(' ')}</p></details></section>`}
  function bindCRG(){
-  document.getElementById('toggleCrgTrackV594')?.addEventListener('click',()=>{const t=crgState();t.uiOpen=!t.uiOpen;save?.();mountAll()});
-  document.getElementById('closeCrgTrackV594')?.addEventListener('click',()=>{const t=crgState();t.uiOpen=false;save?.();mountAll()});
-  document.querySelectorAll('[data-crg-select-pack-v594]').forEach(b=>b.onclick=()=>{const t=crgState();t.currentPack=b.dataset.crgSelectPackV594;if(t.status==='not_started')t.status='in_progress';save?.();mountAll();document.getElementById('crg-track-detail-v594')?.scrollIntoView({block:'start'})})
+  const toggle=document.getElementById('toggleCrgTrackV594');if(toggle)toggle.onclick=()=>{const t=crgState();t.uiOpen=!t.uiOpen;if(typeof save==='function')save();mountAll()};
+  const close=document.getElementById('closeCrgTrackV594');if(close)close.onclick=()=>{const t=crgState();t.uiOpen=false;if(typeof save==='function')save();mountAll()};
+  document.querySelectorAll('[data-crg-select-pack-v594]').forEach(b=>b.onclick=()=>{const t=crgState();t.currentPack=b.dataset.crgSelectPackV594;if(t.status==='not_started')t.status='in_progress';if(typeof save==='function')save();mountAll();document.getElementById('crg-track-detail-v594')?.scrollIntoView({block:'start'})})
  }
  function mountCRG(){
   const C=window.CRG_TRACK_V593,t=crgState(),host=document.querySelector('#v59-track-topics .v59-track-grid');
   if(!C||!t||!host)return false;
-  document.getElementById('crg-track-card-v594')?.remove();document.getElementById('crg-track-detail-v594')?.remove();
-  host.insertAdjacentHTML('beforeend',crgCard(C,t));
-  if(t.uiOpen)host.insertAdjacentHTML('afterend',crgDetail(C,t));
+  const signature=`${t.status}|${t.currentPack}|${t.uiOpen}`;
+  let card=document.getElementById('crg-track-card-v594');
+  if(!card){host.insertAdjacentHTML('beforeend',crgCard(C,t));card=document.getElementById('crg-track-card-v594')}
+  else if(card.dataset.signature!==signature){card.outerHTML=crgCard(C,t);card=document.getElementById('crg-track-card-v594')}
+  if(card)card.dataset.signature=signature;
+  let detail=document.getElementById('crg-track-detail-v594');
+  if(t.uiOpen){
+   if(!detail){host.insertAdjacentHTML('afterend',crgDetail(C,t));detail=document.getElementById('crg-track-detail-v594')}
+   else if(detail.dataset.signature!==signature){detail.outerHTML=crgDetail(C,t);detail=document.getElementById('crg-track-detail-v594')}
+   if(detail)detail.dataset.signature=signature
+  }else detail?.remove();
   bindCRG();return true
  }
  function diagnosisRows(R){return R.diagnoses.map(d=>`<article><div><b>${escV594(d.id)} · ${escV594(d.topic)}</b><p>${escV594(d.hypothesis)}</p></div><div class="weekly-meta-v594"><span>${escV594(d.decision)}</span><span>Confidence ${Number(d.confidence).toFixed(2)}</span><span>${escV594(d.status)}</span></div></article>`).join('')}
  function mountWeekly(){
   const R=window.CAREER_OS_V592_WEEKLY_REVIEW,host=document.getElementById('growth-archive-v58');if(!R||!host)return false;
-  document.getElementById('weekly-review-v594')?.remove();
+  if(document.getElementById('weekly-review-v594'))return true;
   const firstDetails=host.querySelector(':scope > details');
   const node=document.createElement('section');node.id='weekly-review-v594';node.innerHTML=`<div class="section-title"><div class="eyebrow">WEEKLY REVIEW · 2026 W29</div><h2>2026-07-13 至 2026-07-17</h2><p>外部Agent审查结果已写回；事实、诊断与项目依赖继续分开。</p></div><article class="card weekly-exec-v594"><div class="eyebrow">EXECUTIVE REVIEW</div><h3>${escV594(R.theme)}</h3><p>${escV594(R.summary)}</p></article><details class="card weekly-details-v594" open><summary><b>D1–D6 Diagnosis Calibration</b><span>6项</span></summary><div class="weekly-diagnoses-v594">${diagnosisRows(R)}</div></details><div class="weekly-grid-v594"><article class="card"><div class="eyebrow">NEW OBSERVATION</div><h3>${escV594(R.observation.topic)}</h3><p>${escV594(R.observation.hypothesis)}</p><span class="tag learn">Confidence ${R.observation.confidence}</span></article><article class="card"><div class="eyebrow">NEXT WEEK · 9.5 HOURS</div>${R.interventions.map(x=>`<p><b>${x.p}. ${escV594(x.title)} · ${x.hours}h</b><br>${escV594(x.deliverable)}</p>`).join('')}</article><article class="card"><div class="eyebrow">TRACK & ROADMAP</div><h3>${escV594(R.tracks.priority)}</h3><p>${escV594(R.roadmap)}</p></article></div>`;
   firstDetails?host.insertBefore(node,firstDetails):host.appendChild(node);return true
@@ -42,7 +50,7 @@
   if(window.V59UI?.mount&&!window.V59UI.mount.__v594){const old=window.V59UI.mount;const wrapped=function(){const r=old.apply(this,arguments);setTimeout(mountAll,30);return r};wrapped.__v594=true;window.V59UI.mount=wrapped}
   if(typeof renderAll==='function'&&!renderAll.__v594){const old=renderAll;const wrapped=function(){const r=old.apply(this,arguments);setTimeout(mountAll,100);return r};wrapped.__v594=true;renderAll=wrapped}
  }
- function install(){wrap();mountAll();[250,900,2200].forEach(x=>setTimeout(mountAll,x))}
+ function install(){wrap();mountAll()}
  window.mountCareerOSV594=mountAll;
  window.addEventListener('load',()=>setTimeout(install,4700),{once:true});window.addEventListener('pageshow',()=>setTimeout(install,250));window.addEventListener('focus',()=>setTimeout(mountAll,100));
 })();
