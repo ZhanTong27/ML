@@ -3990,5 +3990,45 @@ window.addEventListener('load',()=>setTimeout(install,3600),{once:true});window.
  window.addEventListener('load',()=>setTimeout(loadCRG,3900),{once:true});window.addEventListener('pageshow',()=>setTimeout(loadCRG,120));
 })();
 </script>
+<script data-source="curriculum/v593-crg-track.js">
+(function(){
+const CRG={
+ marker:'CAREER_OS_V593_CRG_TRACK',version:'5.9.3',id:'crg',title:'CRG Architecture & Verification',cn:'CRG架构、验证与自动化专项',positioning:'研究CRG架构、完整验证体系与公开先进自动化方法，形成个人CRG Knowledge & Verification Dossier；不跟踪公司项目实施进度。',status:'not_started',independent:true,parallelWith:['ocldo','uvmms'],coreQuestions:['CRG本身是什么，现代CRG如何设计？','CRG应该怎样验证？','先进公开团队如何验证CRG，以及如何做验证自动化？'],boundaries:['区分功能CRG与物理Clock Tree/CTS。','只使用公开、合成或脱敏材料。','公开论文只能证明相关团队展示过某方法，不能推断整个公司全面采用。','工作接触只能形成Prior Knowledge，不能自动推进Unit。'],
+ packs:[
+  {id:'crg-pack-1',title:'CRG Architecture Knowledge Pack',purpose:'真正理解验证对象及功能CRG与物理CTS边界。',topics:['CRG系统位置','Clock Source','PLL与Oscillator基础','Mux、Divider与Gate','Glitch-free切换','Clock Group','Reset分类','Reset同步','Reset Tree','Clock、Reset与Power','DFT','Safety与Monitor','功能CRG与物理CTS边界','公开先进CRG案例'],outputs:['CRG知识地图','术语表','架构图','核心时序图','公开案例对照','口述问题集']},
+  {id:'crg-pack-2',title:'CRG Verification Knowledge Pack',purpose:'建立从结构连接到Sign-off的完整验证体系。',topics:['Verification Feature Tree','Structural / Connectivity','Register','Clock Function','Dynamic Switch','Glitch','Reset','Reset Sweep','CDC','RDC','Low-power','DFT','Fault','Formal','Coverage','Sign-off','Debug方法','Checker分类'],outputs:['CRG验证知识地图','验证维度矩阵','Checker Catalogue','Coverage Catalogue','Fault Catalogue','Formal Property分类','Sign-off Evidence Map']},
+  {id:'crg-pack-3',title:'CRG Frontier & Industry Pack',purpose:'研究公开先进架构、验证与自动化方法。',topics:['OpenTitan Clock Manager','OpenTitan Reset Manager','Samsung ACRMG','Samsung Clock Monitor','NXP Reset Sweep','Chip-wide Clock Gating Formal','自动Formal Property','CDC/RDC 1.0','Metadata-driven Verification','Clock Reference Model','Dynamic Clock Monitor','AI在CRG验证中的潜在用途'],caseTemplate:['公司或项目','公开来源','解决的问题','核心方法','自动化对象','需要的输入','产生的输出','验证收益','新增成本','适用范围','不能证明什么','对个人学习的价值'],outputs:['行业案例卡','先进CRG架构趋势','先进验证方法地图','验证自动化方法地图','个人CRG方法地图']}
+ ],
+ knowledgeDomains:[
+  {id:'crg-1',title:'Clock Source',items:['Crystal Oscillator','RC Oscillator','PLL / FLL','External Clock','Test Clock','Safe Clock','Always-on Clock','Clock Valid','PLL Lock','Source Startup','Source Failure']},
+  {id:'crg-2',title:'Clock Path',items:['Source Mux','Root Gate','Integer / Fractional / Fixed Divider','Local Mux','Local Gate','Automatic / Software Clock Gating','Clock Request / Acknowledge','Parent-child Clock','Derived Clock','Clock Group']},
+  {id:'crg-3',title:'Glitch-free Clock Control',items:['安全相位关闭旧路径','无源窗口','安全开启新路径','窄脉冲与长脉冲','Missing Pulse','异步Source切换','Clock Switch完成定义']},
+  {id:'crg-4',title:'Reset Architecture',items:['POR','Cold / Warm / Software / Watchdog / Debug Reset','Peripheral / Security / Low-power Reset','Reset Cause','Mask','Lock','Stretch','Cascaded / Selective Reset']},
+  {id:'crg-5',title:'Reset同步与Reset Domain',items:['Asynchronous Assert','Synchronous Deassert','Reset Synchronizer','Reset Domain','Reconvergence','Release Clock','Pulse Width','Parent / Leaf Reset','一致性检查']},
+  {id:'crg-6',title:'Clock、Reset、Power',items:['Power Manager握手','Clock Enable / Disable Request','Reset与Power State','Retention','Wake-up Clock','Always-on Domain','Low-power Entry / Exit','软硬件优先级']},
+  {id:'crg-7',title:'Safety、Reliability与DFT',items:['Frequency Monitor','Timeout','Missing / Too-fast / Too-slow Detection','PLL Lock Monitor','Safe Clock / Failover','Reset Consistency / Cause','Crash Information','Register Lock / Shadow','Scan / MBIST Clock','DFT Override','Security Escalation']}
+ ],
+ verificationLayers:[
+  '结构与连接验证','寄存器与控制面验证','Clock功能验证','动态切换与Glitch验证','Reset验证与Reset Sweep','CDC / RDC验证','Formal与Assertion验证','Coverage与Sign-off'
+ ],
+ automationDirections:['Metadata-driven Verification','自动Reference Model','自动Clock Monitor','自动Property Generation','自动Reset Sweep与Phase Space探索','层次化CDC/RDC Collateral复用'],
+ learningOrder:[
+  {stage:1,title:'架构基础',path:'CRG系统架构 → Clock Path → Reset Path → Power交互'},
+  {stage:2,title:'关键边界',path:'Glitch-free Switching → Reset Synchronization → CDC/RDC'},
+  {stage:3,title:'验证体系',path:'CRG功能验证 → 动态边界 → Assertion/Formal → Coverage'},
+  {stage:4,title:'公开案例',path:'OpenTitan → Samsung Clock自动化 → NXP Reset Sweep → CDC/RDC标准'},
+  {stage:5,title:'个人方法地图',path:'总结先进架构 → 先进验证 → 先进自动化 → CRG Dossier'}
+ ],
+ completionRules:['完成三个Knowledge Pack的核心输出。','至少完成一个公开CRG架构案例的完整案例卡。','至少设计一套Clock/Reset验证维度矩阵。','至少产出一组Checker、Coverage与Formal Property分类。','能够口述功能CRG与物理CTS边界。','由用户明确确认完成；工作任务不自动完成本Track。']
+};
+window.CRG_TRACK_V593=CRG;
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function seed(){if(typeof S!=='object')return;S.specializationTracks=S.specializationTracks&&typeof S.specializationTracks==='object'?S.specializationTracks:{};if(!S.specializationTracks.crg)S.specializationTracks.crg={id:'crg',title:CRG.title,status:'not_started',currentPack:'crg-pack-1',completedPacks:[],priorKnowledge:[],notes:['独立个人学习Track，不跟踪公司自动化项目进度。'],scoreChange:false};S.crgDossier=CRG;try{save()}catch(e){}}
+function inject(){if(document.getElementById('crg-track-v593'))return;const anchor=document.getElementById('specialization-tracks-v59')||document.getElementById('weekly-review-v592')||document.getElementById('review-layer-v4');if(!anchor)return;anchor.insertAdjacentHTML('beforebegin','<section class="content-section" id="crg-track-v593"><div class="section-title"><div class="eyebrow">PARALLEL SPECIALIZATION TRACK</div><h2>CRG Architecture & Verification</h2><p>CRG架构、验证与公开自动化方法 · 个人Knowledge & Verification Dossier</p></div><div id="crgTrackV593"></div></section>');if(!document.getElementById('crg-v593-style')){const s=document.createElement('style');s.id='crg-v593-style';s.textContent='.crg-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.crg-card{padding:16px;border:1px solid var(--line2);border-radius:14px;background:var(--card)}.crg-card h3{margin:5px 0 9px}.crg-list{padding-left:19px}.crg-wide{grid-column:1/-1}.crg-stage{padding:10px 0;border-top:1px solid var(--line2)}@media(max-width:900px){.crg-grid{grid-template-columns:1fr}.crg-wide{grid-column:auto}}';document.head.appendChild(s)}}
+function render(){const b=document.getElementById('crgTrackV593');if(!b)return;b.innerHTML=`<div class="crg-grid"><article class="crg-card crg-wide"><div class="eyebrow">POSITIONING</div><h3>与 OCLDO Verification、UVM-MS 平行</h3><p>${esc(CRG.positioning)}</p><p class="muted">${CRG.boundaries.map(esc).join(' · ')}</p></article>${CRG.packs.map((p,i)=>`<article class="crg-card"><div class="eyebrow">PART ${i+1}</div><h3>${esc(p.title)}</h3><p>${esc(p.purpose)}</p><b>学习内容</b><ul class="crg-list">${p.topics.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><b>最终输出</b><ul class="crg-list">${p.outputs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article>`).join('')}<article class="crg-card crg-wide"><div class="eyebrow">KNOWLEDGE MAP</div><div class="crg-grid">${CRG.knowledgeDomains.map(d=>`<div><h3>${esc(d.id.toUpperCase())} · ${esc(d.title)}</h3><ul class="crg-list">${d.items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}</div></article><article class="crg-card"><div class="eyebrow">VERIFICATION SYSTEM</div><h3>八层验证知识</h3><ol class="crg-list">${CRG.verificationLayers.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></article><article class="crg-card"><div class="eyebrow">AUTOMATION</div><h3>六类公开方向</h3><ol class="crg-list">${CRG.automationDirections.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></article><article class="crg-card"><div class="eyebrow">STATUS</div><h3>Not Started</h3><p>当前工作中的CRG接触只记录为Prior Knowledge，不自动推进Track。</p><p><b>当前Pack：</b>CRG Architecture Knowledge Pack</p></article><article class="crg-card crg-wide"><div class="eyebrow">LEARNING ORDER</div>${CRG.learningOrder.map(x=>`<div class="crg-stage"><b>阶段 ${x.stage} · ${esc(x.title)}</b><p>${esc(x.path)}</p></div>`).join('')}</article></div>`}
+function install(){seed();inject();render()}
+window.addEventListener('load',()=>setTimeout(install,4300),{once:true});window.addEventListener('pageshow',()=>setTimeout(install,150));
+})();
+</script>
 </body>
 </html>
