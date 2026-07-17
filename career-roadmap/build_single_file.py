@@ -32,6 +32,9 @@ EXTRA_SOURCES = [
     'curriculum/daily-20260716-record.js',
     'curriculum/daily-20260716-analysis.js',
     'curriculum/daily-20260716.js',
+    'curriculum/daily-20260717-record.js',
+    'curriculum/daily-20260717-analysis.js',
+    'curriculum/daily-20260717.js',
     'curriculum/v40-career-model.js',
     'curriculum/v40-reviews.js',
     'curriculum/v41-explorer.js',
@@ -91,6 +94,7 @@ EXTRA_SOURCES = [
     'curriculum/v59-ui-hotfix.js',
     'curriculum/v59-ui-install.js',
     'curriculum/v59-finalize.js',
+    'curriculum/v591-daily-0717-finalize.js',
 ]
 
 REQUIRED_MARKERS = [
@@ -100,6 +104,7 @@ REQUIRED_MARKERS = [
     '2026-07-14-k8m4',
     '2026-07-15-c4t8',
     '2026-07-16-ms7q',
+    '2026-07-17-n4s8',
     'DIAGNOSIS LIFECYCLE',
     'career-profile-v50-single-source',
     'PERSONAL CAPITAL',
@@ -129,6 +134,7 @@ REQUIRED_MARKERS = [
     'CAREER_OS_V57',
     'CAREER_OS_V58',
     'CAREER_OS_V59',
+    'CAREER_OS_V591_DAILY',
     'Zhantong · Career OS V5.9',
 ]
 
