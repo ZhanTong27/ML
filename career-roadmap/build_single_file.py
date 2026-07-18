@@ -97,6 +97,8 @@ EXTRA_SOURCES = [
     'curriculum/v591-daily-0717-finalize.js',
     'curriculum/v593-crg-track.js',
     'curriculum/v594-growth-integration.js',
+    'curriculum/v595-crg-learning-data.js',
+    'curriculum/v595-weekly-crg-learning-ui.js',
 ]
 
 REQUIRED_MARKERS = [
@@ -140,6 +142,9 @@ REQUIRED_MARKERS = [
     'CAREER_OS_V592_WEEKLY_REVIEW',
     'CAREER_OS_V593_CRG_TRACK',
     'CAREER_OS_V594_GROWTH_INTEGRATION',
+    'CAREER_OS_V595_CRG_LEARNING_LIBRARY',
+    'CAREER_OS_V595_WEEKLY_CRG_LEARNING',
+    'CRG LEARNING LIBRARY · V5.9.5',
     'CRG Architecture & Verification',
     'Zhantong · Career OS V5.9',
 ]
