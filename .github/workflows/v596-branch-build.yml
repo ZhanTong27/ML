@@ -1,0 +1,41 @@
+name: Career OS V5.9.6 Branch Build
+
+on:
+  push:
+    branches:
+      - 'agent/weekly-career-model-review-w29'
+    paths:
+      - 'career-roadmap/**'
+      - '.github/workflows/v596-branch-build.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: career-os-v596-branch-build
+  cancel-in-progress: false
+
+jobs:
+  build-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/weekly-career-model-review-w29
+          fetch-depth: 0
+
+      - name: Build single-file Career OS
+        run: python3 career-roadmap/build_single_file.py
+
+      - name: Commit generated index when changed
+        run: |
+          if git diff --quiet -- career-roadmap/index.html; then
+            echo "Generated index is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add career-roadmap/index.html
+          git commit -m "Bundle formal W29 Career Model review"
+          git push origin HEAD:agent/weekly-career-model-review-w29
