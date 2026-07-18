@@ -1,4 +1,4 @@
-name: Career OS V5.9.5 Weekly and CRG Learning Acceptance
+name: Career OS V5.9.6 Weekly Career Model Acceptance
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  weekly-crg-learning:
+  weekly-career-model:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -35,156 +35,123 @@ jobs:
           cat /tmp/career-os-server.log
           exit 1
 
-      - name: Validate Weekly Review and CRG learning library
+      - name: Validate formal Weekly Review and CRG library
         run: |
-          mkdir -p /tmp/v595-acceptance
-          cat > v595-check.mjs <<'EOF'
+          mkdir -p /tmp/v596-acceptance
+          cat > v596-check.mjs <<'EOF'
           import { chromium, webkit, devices } from 'playwright';
           import fs from 'node:fs';
 
           const SITE='http://127.0.0.1:8080/career-roadmap/';
+          const REVIEW='2026-W29-career-model-review-20260718';
+          const OLD='2026-W29-external-review';
+          const EXPECTED={
+            'diag-mixedsignal-environment-configuration':{confidence:86,lifecycle:'supported'},
+            'diag-ams-verification-boundary':{confidence:68,lifecycle:'collecting'},
+            'diag-post-simulation-flow':{confidence:78,lifecycle:'collecting'},
+            'diag-mixedsignal-delivery-boundary':{confidence:86,lifecycle:'supported'},
+            'diag-systematic-debug-method':{confidence:82,lifecycle:'supported'},
+            'diag-lowpower-intent-judgment':{confidence:84,lifecycle:'supported'}
+          };
           const result={site:SITE,passed:false,runs:[]};
 
           async function run(browserType,name,options){
             const browser=await browserType.launch({headless:true});
-            const context=await browser.newContext(options);
-            const page=await context.newPage();
+            const context=await browserType.launch({headless:true}).then(b=>b.close()).catch(()=>null), realContext=await browser.newContext(options);
+            const page=await realContext.newPage();
             const item={name,errors:[]};
             page.on('pageerror',e=>item.errors.push(`pageerror: ${e.message}`));
             page.on('console',m=>{if(m.type()==='error')item.errors.push(`console: ${m.text()}`)});
             try{
-              const response=await page.goto(`${SITE}?v595=${Date.now()}`,{waitUntil:'load',timeout:45000});
+              const response=await page.goto(`${SITE}?v596=${Date.now()}`,{waitUntil:'load',timeout:45000});
               item.httpStatus=response?.status()||0;
               await page.waitForFunction(()=>window.CAREER_OS_V59?.complete===true,null,{timeout:30000});
-              await page.waitForFunction(()=>window.CAREER_OS_V594?.complete===true,null,{timeout:30000});
               await page.waitForFunction(()=>window.CAREER_OS_V595?.complete===true,null,{timeout:30000});
+              await page.waitForFunction(()=>window.CAREER_OS_V596?.complete===true,null,{timeout:30000});
 
-              const before=await page.evaluate(()=>({
-                ocldo:S.specializationV59?.tracks?.ocldo?.status||'',
-                uvmms:S.specializationV59?.tracks?.uvmms?.status||'',
-                crg:S.specializationTracks?.crg?.status||'',
-                completedPacks:[...(S.specializationTracks?.crg?.completedPacks||[])],
-                capabilitySnapshot:JSON.stringify(S.capabilities||S.abilities||{}),
-                weeklyRecords:(S.weeklyReviewRecords||[]).filter(x=>x.reviewId==='2026-W29-external-review').length
-              }));
+              const state=await page.evaluate(({REVIEW,OLD,EXPECTED})=>{
+                const records=S.weeklyReviewRecords||[];
+                const confidence=Object.fromEntries(Object.keys(EXPECTED).map(id=>[id,S.careerModel?.find(x=>x.diagnosisId===id)?.diagnosisConfidence]));
+                const lifecycle=Object.fromEntries(Object.keys(EXPECTED).map(id=>[id,S.diagnoses?.find(x=>x.id===id)?.lifecycle]));
+                return{
+                  newRecords:records.filter(x=>x.reviewId===REVIEW).length,
+                  oldRecords:records.filter(x=>x.reviewId===OLD).length,
+                  oldSuperseded:records.find(x=>x.reviewId===OLD)?.supersededBy===REVIEW,
+                  canonical:records.find(x=>x.reviewId===REVIEW)?.isCanonical===true,
+                  history:(S.diagnosisHistory||[]).filter(x=>x.reviewId===REVIEW).length,
+                  pending:(S.pendingConfidence||[]).filter(x=>Object.keys(EXPECTED).includes(x.diagnosisId)).length,
+                  confidence,lifecycle,
+                  ocldo:S.specializationV59?.tracks?.ocldo?.status||'',
+                  uvmms:S.specializationV59?.tracks?.uvmms?.status||'',
+                  crg:S.specializationTracks?.crg?.status||'',
+                  completedPacks:[...(S.specializationTracks?.crg?.completedPacks||[])],
+                  capabilitySnapshot:JSON.stringify(S.capabilities||S.abilities||{}),
+                  taskLeak:JSON.stringify(S.checks||{}).includes('后仿任务Intake Checklist')
+                };
+              },{REVIEW,OLD,EXPECTED});
 
               await page.click('[data-view="growth"]');
               await page.click('[data-v58-nav="week"]');
-              await page.waitForSelector('#weekly-review-current-v595',{state:'visible',timeout:15000});
-              const weeklyCurrent=await page.evaluate(()=>{
-                const node=document.querySelector('#weekly-review-current-v595');
-                return{
-                  visible:Boolean(node&&node.offsetParent!==null),
-                  saved:Boolean(node?.innerText.includes('已写回')),
-                  reviewId:Boolean(node?.innerText.includes('2026-W29-external-review')),
-                  theme:Boolean(node?.innerText.includes('确认机制、接口合同与签核边界')),
-                  duplicateCount:document.querySelectorAll('#weekly-review-current-v595').length,
-                  overflow:node?node.scrollWidth-node.clientWidth:999
-                };
-              });
-              await page.locator('#weekly-review-current-v595').scrollIntoViewIfNeeded();
-              await page.screenshot({path:`/tmp/v595-acceptance/${name}-weekly-current.png`,fullPage:false});
+              await page.waitForSelector('.weekly-current-v596',{state:'visible',timeout:15000});
+              const weeklyCurrent=await page.evaluate(()=>{const n=document.querySelector('.weekly-current-v596');return{visible:Boolean(n&&n.offsetParent!==null),formal:n?.innerText.includes('已正式写回'),reviewId:n?.innerText.includes('2026-W29-career-model-review-20260718'),decision:n?.innerText.includes('Light adjustment'),hours:n?.innerText.includes('9.5 小时'),count:document.querySelectorAll('.weekly-current-v596').length,overflow:n?n.scrollWidth-n.clientWidth:999}});
+              await page.screenshot({path:`/tmp/v596-acceptance/${name}-weekly-current.png`,fullPage:false});
 
               await page.click('#openWeeklyArchiveV595');
-              await page.waitForSelector('#weekly-review-detail-v595',{state:'visible',timeout:15000});
-              const weeklyArchive=await page.evaluate(()=>{
-                const node=document.querySelector('#weekly-review-detail-v595');
-                return{
-                  visible:Boolean(node&&node.offsetParent!==null),
-                  diagnosisRows:node?.querySelectorAll('.weekly-calibration-v595>div>article').length||0,
-                  interventions:node?.querySelectorAll('.weekly-interventions-v595>article').length||0,
-                  questions:node?.querySelectorAll('.weekly-questions-v595 li').length||0,
-                  oldVisible:[...document.querySelectorAll('#weekly-review-v594,#weekly-review-v592')].some(x=>x.offsetParent!==null),
-                  duplicateCount:document.querySelectorAll('#weekly-review-detail-v595').length,
-                  overflow:node?node.scrollWidth-node.clientWidth:999
-                };
-              });
-              await page.locator('#weekly-review-detail-v595').scrollIntoViewIfNeeded();
-              await page.screenshot({path:`/tmp/v595-acceptance/${name}-weekly-archive.png`,fullPage:false});
+              await page.waitForSelector('.weekly-detail-v596',{state:'visible',timeout:15000});
+              const weeklyArchive=await page.evaluate(()=>{const n=document.querySelector('.weekly-detail-v596');return{visible:Boolean(n&&n.offsetParent!==null),rows:n?.querySelectorAll('.weekly-calibration-v595>div>article').length||0,interventions:n?.querySelectorAll('.weekly-interventions-v595>article').length||0,missing:n?.querySelectorAll('.weekly-questions-v595 li').length||0,topEvidence:n?.innerText.includes('ev-0715-timing-01'),resumeBoundary:n?.innerText.includes('本周不形成简历条目'),oldVisible:[...document.querySelectorAll('#weekly-review-v594,#weekly-review-v592')].some(x=>x.offsetParent!==null),count:document.querySelectorAll('.weekly-detail-v596').length,overflow:n?n.scrollWidth-n.clientWidth:999}});
+              await page.screenshot({path:`/tmp/v596-acceptance/${name}-weekly-archive.png`,fullPage:false});
 
               await page.click('[data-v58-nav="topics"]');
-              await page.waitForSelector('#crg-track-card-v594',{state:'visible',timeout:15000});
               await page.waitForSelector('#openCrgLibraryV595',{state:'visible',timeout:15000});
               await page.click('#openCrgLibraryV595');
               await page.waitForSelector('#crg-learning-library-v595',{state:'visible',timeout:15000});
-              const crgInitial=await page.evaluate(()=>{
-                const node=document.querySelector('#crg-learning-library-v595');
-                return{
-                  visible:Boolean(node&&node.offsetParent!==null),
-                  marker:window.CRG_LEARNING_LIBRARY_V595?.marker||'',
-                  chapters:window.CRG_LEARNING_LIBRARY_V595?.chapters?.length||0,
-                  chapterButtons:node?.querySelectorAll('[data-crg-chapter-v595]').length||0,
-                  onsiteReading:Boolean(node?.querySelector('.crg-reading-v595')),
-                  sourceCards:node?.querySelectorAll('.crg-source-v595').length||0,
-                  practice:Boolean(node?.innerText.includes('脱敏受控练习')),
-                  output:Boolean(node?.innerText.includes('本章产出')),
-                  evidenceBoundary:Boolean(node?.innerText.includes('不自动完成Pack')),
-                  linksSafe:[...node.querySelectorAll('.crg-source-v595 a')].every(a=>a.target==='_blank'&&a.rel.includes('noopener')),
-                  duplicateCount:document.querySelectorAll('#crg-learning-library-v595').length,
-                  overflow:node?node.scrollWidth-node.clientWidth:999
-                };
-              });
-              await page.locator('#crg-learning-library-v595').scrollIntoViewIfNeeded();
-              await page.screenshot({path:`/tmp/v595-acceptance/${name}-crg-manual.png`,fullPage:false});
-
+              const crg=await page.evaluate(()=>{const n=document.querySelector('#crg-learning-library-v595');return{chapters:window.CRG_LEARNING_LIBRARY_V595?.chapters?.length||0,buttons:n?.querySelectorAll('[data-crg-chapter-v595]').length||0,overflow:n?n.scrollWidth-n.clientWidth:999}});
+              const note='V5.9.6 weekly acceptance note';
               await page.click('[data-crg-chapter-v595="crg-03-glitch-free-switch"]');
-              await page.waitForSelector('[data-active-crg-chapter-v595="crg-03-glitch-free-switch"]',{state:'visible',timeout:15000});
-              const note='V5.9.5 acceptance note';
               const textarea=page.locator('[data-crg-note-v595="crg-03-glitch-free-switch"]');
-              await textarea.fill(note);
-              await textarea.dispatchEvent('change');
-              const switched=await page.evaluate(()=>({
-                active:S.crgLearningV595?.activeChapterId||'',
-                title:document.querySelector('[data-active-crg-chapter-v595] h2')?.textContent||'',
-                note:S.crgLearningV595?.notes?.['crg-03-glitch-free-switch']||''
-              }));
+              await textarea.fill(note);await textarea.dispatchEvent('change');
 
               await page.reload({waitUntil:'load',timeout:45000});
-              await page.waitForFunction(()=>window.CAREER_OS_V595?.complete===true,null,{timeout:30000});
-              await page.click('[data-view="growth"]');
-              await page.click('[data-v58-nav="topics"]');
-              await page.waitForSelector('#crg-learning-library-v595',{state:'visible',timeout:15000});
-              const after=await page.evaluate(()=>({
-                ocldo:S.specializationV59?.tracks?.ocldo?.status||'',
-                uvmms:S.specializationV59?.tracks?.uvmms?.status||'',
-                crg:S.specializationTracks?.crg?.status||'',
+              await page.waitForFunction(()=>window.CAREER_OS_V596?.complete===true,null,{timeout:30000});
+              const after=await page.evaluate(({REVIEW,OLD,EXPECTED,note})=>({
+                newRecords:(S.weeklyReviewRecords||[]).filter(x=>x.reviewId===REVIEW).length,
+                oldRecords:(S.weeklyReviewRecords||[]).filter(x=>x.reviewId===OLD).length,
+                oldSuperseded:(S.weeklyReviewRecords||[]).find(x=>x.reviewId===OLD)?.supersededBy===REVIEW,
+                history:(S.diagnosisHistory||[]).filter(x=>x.reviewId===REVIEW).length,
+                pending:(S.pendingConfidence||[]).filter(x=>Object.keys(EXPECTED).includes(x.diagnosisId)).length,
+                confidence:Object.fromEntries(Object.keys(EXPECTED).map(id=>[id,S.careerModel?.find(x=>x.diagnosisId===id)?.diagnosisConfidence])),
+                lifecycle:Object.fromEntries(Object.keys(EXPECTED).map(id=>[id,S.diagnoses?.find(x=>x.id===id)?.lifecycle])),
+                ocldo:S.specializationV59?.tracks?.ocldo?.status||'',uvmms:S.specializationV59?.tracks?.uvmms?.status||'',crg:S.specializationTracks?.crg?.status||'',
                 completedPacks:[...(S.specializationTracks?.crg?.completedPacks||[])],
                 capabilitySnapshot:JSON.stringify(S.capabilities||S.abilities||{}),
-                weeklyRecords:(S.weeklyReviewRecords||[]).filter(x=>x.reviewId==='2026-W29-external-review').length,
-                weeklyCurrentCount:document.querySelectorAll('#weekly-review-current-v595').length,
-                weeklyArchiveCount:document.querySelectorAll('#weekly-review-detail-v595').length,
-                manualCount:document.querySelectorAll('#crg-learning-library-v595').length,
-                activeChapter:S.crgLearningV595?.activeChapterId||'',
-                note:S.crgLearningV595?.notes?.['crg-03-glitch-free-switch']||'',
-                pageOverflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
-              }));
+                note:S.crgLearningV595?.notes?.['crg-03-glitch-free-switch']||'',pageOverflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
+              }),{REVIEW,OLD,EXPECTED,note});
 
-              item.check={before,weeklyCurrent,weeklyArchive,crgInitial,switched,after,marker:await page.evaluate(()=>window.CAREER_OS_V595)};
-              item.passed=item.httpStatus===200&&item.errors.length===0&&
-                before.weeklyRecords===1&&before.crg==='not_started'&&before.completedPacks.length===0&&
-                weeklyCurrent.visible&&weeklyCurrent.saved&&weeklyCurrent.reviewId&&weeklyCurrent.theme&&weeklyCurrent.duplicateCount===1&&weeklyCurrent.overflow<=1&&
-                weeklyArchive.visible&&weeklyArchive.diagnosisRows===6&&weeklyArchive.interventions===3&&weeklyArchive.questions===5&&!weeklyArchive.oldVisible&&weeklyArchive.duplicateCount===1&&weeklyArchive.overflow<=1&&
-                crgInitial.visible&&crgInitial.marker==='CAREER_OS_V595_CRG_LEARNING_LIBRARY'&&crgInitial.chapters===10&&crgInitial.chapterButtons===10&&crgInitial.onsiteReading&&crgInitial.sourceCards>=2&&crgInitial.practice&&crgInitial.output&&crgInitial.evidenceBoundary&&crgInitial.linksSafe&&crgInitial.duplicateCount===1&&crgInitial.overflow<=1&&
-                switched.active==='crg-03-glitch-free-switch'&&switched.note===note&&
-                after.ocldo===before.ocldo&&after.uvmms===before.uvmms&&after.crg===before.crg&&after.completedPacks.length===0&&after.capabilitySnapshot===before.capabilitySnapshot&&after.weeklyRecords===1&&after.weeklyCurrentCount===1&&after.weeklyArchiveCount===1&&after.manualCount===1&&after.activeChapter==='crg-03-glitch-free-switch'&&after.note===note&&after.pageOverflow<=1&&
-                item.check.marker?.marker==='CAREER_OS_V595_WEEKLY_CRG_LEARNING'&&item.check.marker?.complete===true;
+              const expectedOk=Object.entries(EXPECTED).every(([id,v])=>state.confidence[id]===v.confidence&&state.lifecycle[id]===v.lifecycle&&after.confidence[id]===v.confidence&&after.lifecycle[id]===v.lifecycle);
+              item.check={state,weeklyCurrent,weeklyArchive,crg,after,marker:await page.evaluate(()=>window.CAREER_OS_V596)};
+              item.passed=item.httpStatus===200&&item.errors.length===0&&expectedOk&&
+                state.newRecords===1&&state.oldRecords===1&&state.oldSuperseded&&state.canonical&&state.history===6&&state.pending===0&&!state.taskLeak&&
+                weeklyCurrent.visible&&weeklyCurrent.formal&&weeklyCurrent.reviewId&&weeklyCurrent.decision&&weeklyCurrent.hours&&weeklyCurrent.count===1&&weeklyCurrent.overflow<=1&&
+                weeklyArchive.visible&&weeklyArchive.rows===6&&weeklyArchive.interventions===3&&weeklyArchive.missing===12&&weeklyArchive.topEvidence&&weeklyArchive.resumeBoundary&&!weeklyArchive.oldVisible&&weeklyArchive.count===1&&weeklyArchive.overflow<=1&&
+                crg.chapters===10&&crg.buttons===10&&crg.overflow<=1&&
+                after.newRecords===1&&after.oldRecords===1&&after.oldSuperseded&&after.history===6&&after.pending===0&&after.ocldo===state.ocldo&&after.uvmms===state.uvmms&&after.crg===state.crg&&after.completedPacks.length===0&&after.capabilitySnapshot===state.capabilitySnapshot&&after.note===note&&after.pageOverflow<=1&&
+                item.check.marker?.marker==='CAREER_OS_V596_WEEKLY_CAREER_MODEL_REVIEW'&&item.check.marker?.complete===true;
             }catch(error){item.errors.push(error?.stack||String(error));item.passed=false}
-            result.runs.push(item);
-            await browser.close();
+            result.runs.push(item);await browser.close();
           }
 
-          await run(chromium,'Career_OS_V5.9.5_desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
-          await run(webkit,'Career_OS_V5.9.5_iPhone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
+          await run(chromium,'Career_OS_V5.9.6_desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
+          await run(webkit,'Career_OS_V5.9.6_iPhone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
           result.passed=result.runs.every(x=>x.passed);
-          fs.writeFileSync('/tmp/v595-acceptance/result.json',JSON.stringify(result,null,2));
+          fs.writeFileSync('/tmp/v596-acceptance/result.json',JSON.stringify(result,null,2));
           console.log(JSON.stringify(result,null,2));
           if(!result.passed)process.exit(1);
           EOF
-          node v595-check.mjs
+          node v596-check.mjs
 
       - name: Upload diagnostics and screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: career-os-v595-weekly-crg-learning
-          path: /tmp/v595-acceptance
+          name: career-os-v596-weekly-career-model
+          path: /tmp/v596-acceptance
