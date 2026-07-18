@@ -101,6 +101,7 @@ EXTRA_SOURCES = [
     'curriculum/v595-crg-learning-data.js',
     'curriculum/v595-weekly-crg-learning-ui.js',
     'curriculum/v595-layout.js',
+    'curriculum/v596-weekly-career-model-review.js',
 ]
 
 REQUIRED_MARKERS = [
@@ -150,6 +151,8 @@ REQUIRED_MARKERS = [
     'CAREER_OS_V595_LAYOUT',
     'CRG LEARNING LIBRARY · V5.9.5',
     'CRG Architecture & Verification',
+    'CAREER_OS_V596_WEEKLY_CAREER_MODEL_REVIEW',
+    '2026-W29-career-model-review-20260718',
     'Zhantong · Career OS V5.9',
 ]
 
