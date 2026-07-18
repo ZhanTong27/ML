@@ -1,0 +1,93 @@
+name: Weekly Review Range Compatibility Hotfix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/weekly-range-compatibility-hotfix.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch weekly range compatibility
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('career-roadmap/app.js')
+          text = path.read_text(encoding='utf-8')
+
+          old_latest = "function latestWeekly(){return [...S.weeklyReviews].sort((a,b)=>(b.createdAt||b.range||'').localeCompare(a.createdAt||a.range||''))[0]}"
+          new_latest = """function weeklyRangeText(range){
+            if(typeof range==='string')return range;
+            if(range&&typeof range==='object'){
+              const start=String(range.start||''),end=String(range.end||'');
+              return start&&end?`${start}—${end}`:(start||end||'')
+            }
+            return ''
+          }
+          function weeklyRangeIncludes(range,date){
+            if(typeof range==='string')return range.includes(date);
+            if(range&&typeof range==='object'){
+              const start=String(range.start||''),end=String(range.end||'');
+              return Boolean(date&&(date===start||date===end||(start&&end&&date>=start&&date<=end)))
+            }
+            return false
+          }
+          function latestWeekly(){return [...S.weeklyReviews].sort((a,b)=>(b.createdAt||weeklyRangeText(b.range)).localeCompare(a.createdAt||weeklyRangeText(a.range)))[0]}"""
+
+          replacements = [
+            (old_latest, new_latest),
+            ("const start=weekStart(),weeklyDone=!!S.weeklyReviews.find(x=>(x.range||'').includes(start));",
+             "const start=weekStart(),weeklyDone=!!S.weeklyReviews.find(x=>weeklyRangeIncludes(x.range,start));"),
+            ("const items=[...S.weeklyReviews].sort((a,b)=>(b.createdAt||b.range||'').localeCompare(a.createdAt||a.range||''));",
+             "const items=[...S.weeklyReviews].sort((a,b)=>(b.createdAt||weeklyRangeText(b.range)).localeCompare(a.createdAt||weeklyRangeText(a.range)));"),
+            ("${esc(x.range||'周度复盘')}", "${esc(weeklyRangeText(x.range)||'周度复盘')}")
+          ]
+
+          for old, new in replacements:
+            if old not in text:
+              raise SystemExit(f'Expected source fragment not found: {old}')
+            text = text.replace(old, new, 1)
+
+          if "(x.range||'').includes(start)" in text:
+            raise SystemExit('Unsafe weekly range includes call remains')
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Rebuild single-file site
+        run: python3 career-roadmap/build_single_file.py
+
+      - name: Validate generated JavaScript
+        run: |
+          node --check career-roadmap/app.js
+          grep -q "function weeklyRangeIncludes" career-roadmap/app.js
+          grep -q "function weeklyRangeIncludes" career-roadmap/index.html
+          if grep -q "(x.range||'').includes(start)" career-roadmap/app.js career-roadmap/index.html; then
+            echo "Unsafe range handling remains"
+            exit 1
+          fi
+
+      - name: Commit repaired site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add career-roadmap/app.js career-roadmap/index.html
+          if git diff --cached --quiet; then
+            echo "No changes required"
+            exit 0
+          fi
+          git commit -m "Fix weekly review range compatibility"
+          git push
