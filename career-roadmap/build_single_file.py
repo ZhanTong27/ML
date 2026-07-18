@@ -71,6 +71,7 @@ EXTRA_SOURCES = [
     'curriculum/v54-finalize.js',
     'curriculum/v55-ams-frontier-data.js',
     'curriculum/v55-source-corrections.js',
+    'curriculum/v55-ams-state-compat.js',
     'curriculum/v55-ams-frontier-ui.js',
     'curriculum/v55-frontier-integration-fix.js',
     'curriculum/v55-finalize.js',
@@ -97,6 +98,9 @@ EXTRA_SOURCES = [
     'curriculum/v591-daily-0717-finalize.js',
     'curriculum/v593-crg-track.js',
     'curriculum/v594-growth-integration.js',
+    'curriculum/v595-crg-learning-data.js',
+    'curriculum/v595-weekly-crg-learning-ui.js',
+    'curriculum/v595-layout.js',
 ]
 
 REQUIRED_MARKERS = [
@@ -130,6 +134,7 @@ REQUIRED_MARKERS = [
     'UVM-MS Personal Learning Track',
     'Analog Output-Capacitorless LDO Background',
     'zhantong-career-os-v5-pre-v59-backup',
+    'CAREER_OS_V55_AMS_STATE_COMPAT',
     'CAREER_OS_V551',
     'CAREER_OS_V552',
     'CAREER_OS_V56',
@@ -140,6 +145,10 @@ REQUIRED_MARKERS = [
     'CAREER_OS_V592_WEEKLY_REVIEW',
     'CAREER_OS_V593_CRG_TRACK',
     'CAREER_OS_V594_GROWTH_INTEGRATION',
+    'CAREER_OS_V595_CRG_LEARNING_LIBRARY',
+    'CAREER_OS_V595_WEEKLY_CRG_LEARNING',
+    'CAREER_OS_V595_LAYOUT',
+    'CRG LEARNING LIBRARY · V5.9.5',
     'CRG Architecture & Verification',
     'Zhantong · Career OS V5.9',
 ]
