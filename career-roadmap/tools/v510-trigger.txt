@@ -1,0 +1,1 @@
+Build the V5.10 Verification Engineering Mastery draft and commit the generated single-file Career OS artifact.
