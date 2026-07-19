@@ -24,6 +24,7 @@ jobs:
           if grep -q CAREER_OS_V597_WEEKLY_RANGE_CONTRACT career-roadmap/build_single_file.py; then
             echo "V5.9.7 already applied"
           else
+            sed -i 's/{".js", ".html", ".py"}/{".js", ".html"}/' career-roadmap/tools/v597_upgrade.py
             python3 career-roadmap/tools/v597_upgrade.py
           fi
       - run: python3 career-roadmap/build_single_file.py
