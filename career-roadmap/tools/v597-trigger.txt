@@ -2,3 +2,4 @@ Trigger the Career OS V5.9.7 weekly range contract migration and rebuild.
 Retry after excluding the upgrade tool from its own static scan.
 Capture the final failure traceback for targeted repair.
 Persist the diagnostic output in the PR branch.
+Retry after excluding generated index.html from the pre-build scan.
