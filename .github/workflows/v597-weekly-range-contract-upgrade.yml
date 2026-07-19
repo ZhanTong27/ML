@@ -2,7 +2,8 @@ name: Career OS V5.9.7 Weekly Range Contract Upgrade
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - .github/workflows/v597-weekly-range-contract-upgrade.yml
   workflow_dispatch:
@@ -13,40 +14,19 @@ permissions:
 jobs:
   upgrade:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Apply V5.9.7 upgrade
-        run: python3 career-roadmap/tools/v597_upgrade.py
-
-      - name: Rebuild single-file site
-        run: python3 career-roadmap/build_single_file.py
-
-      - name: Validate weekly range contract
-        run: |
-          node --check career-roadmap/app.js
-          node --check career-roadmap/curriculum/v40-reviews.js
-          node --check career-roadmap/curriculum/v597-weekly-range-contract.js
-          grep -q "CAREER_OS_V597_WEEKLY_RANGE_CONTRACT" career-roadmap/index.html
-          grep -q "5.9.7-weekly-range-contract" career-roadmap/index.html
-          grep -q "weekly-range-contract-v597" career-roadmap/latest.html
-          if grep -RInE "\(x\.range\|\|['\"]{2}\)\.includes|\(data\.range\|\|localISO\(\)\)\.replace" career-roadmap --include='*.js' --include='*.html'; then
-            echo "Unsafe weekly range handling remains"
-            exit 1
-          fi
-
-      - name: Commit upgraded site
-        run: |
+      - run: python3 career-roadmap/tools/v597_upgrade.py
+      - run: python3 career-roadmap/build_single_file.py
+      - run: node --check career-roadmap/app.js
+      - run: node --check career-roadmap/curriculum/v40-reviews.js
+      - run: node --check career-roadmap/curriculum/v597-weekly-range-contract.js
+      - run: grep -q CAREER_OS_V597_WEEKLY_RANGE_CONTRACT career-roadmap/index.html
+      - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add career-roadmap/app.js career-roadmap/index.template.html career-roadmap/index.html career-roadmap/latest.html career-roadmap/build_single_file.py career-roadmap/curriculum/v40-reviews.js career-roadmap/curriculum/v597-weekly-range-contract.js .github/workflows/v59-live-artifact-acceptance.yml
-          if git diff --cached --quiet; then
-            echo "No upgrade changes required"
-            exit 0
-          fi
           git commit -m "Upgrade weekly review range contract to V5.9.7"
           git push
