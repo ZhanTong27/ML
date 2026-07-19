@@ -1,1 +1,2 @@
 Trigger the Career OS V5.9.7 weekly range contract migration and rebuild.
+Retry after excluding the upgrade tool from its own static scan.
