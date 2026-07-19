@@ -4477,5 +4477,296 @@ window.addEventListener('load',()=>setTimeout(install,4300),{once:true});window.
 })();
 
 </script>
+<script data-source="curriculum/v510-verification-mastery-data.js">
+(function(){
+const M=(id,type,title,url,source,authority,whyRead,readSections,keyQuestions,limits,lastVerified='2026-07-19')=>({id,type,title,url,source,authority,whyRead,readSections,keyQuestions,limits,lastVerified,status:'verified'});
+const I=(role,relationship,receive,provide,questions,boundary)=>({role,relationship,receive,provide,questions,boundary});
+const C=(id,index,title,cn,purpose,lecture,verificationRelation,interactions,readingIds,knowledgeFiles,guidedQuestions,seniorLens=[],toolWalkthrough=[])=>({id,index,title,cn,purpose,lecture,verificationRelation,interactions,readingIds,knowledgeFiles,guidedQuestions,seniorLens,toolWalkthrough,assessment:{status:'locked',note:'先完成讲义、阅读导览、知识文件和示例学习，再进入Assessment。'}});
+
+const sources={
+ bash:M('src-bash','官方手册','GNU Bash Reference Manual','https://www.gnu.org/software/bash/manual/','GNU Project','core','建立Shell语法、pipeline、重定向、条件、循环、函数和job control的正式语义。',['Shell Syntax','Pipelines','Redirections','Shell Scripts','Job Control'],['命令由Shell如何解析和展开？','exit status怎样沿pipeline传播？','quoting错误为什么会破坏脚本？'],'手册是语义基准，不代表公司集群环境或默认Shell配置。'),
+ git:M('src-git','官方文档','Git Reference and Tutorial','https://git-scm.com/docs','Git Project','core','掌握版本、diff、branch、restore、log和bisect等验证工程高频能力。',['gittutorial','giteveryday','git-diff','git-log','git-bisect'],['怎样保存可复现变更？','怎样比较两个配置版本？','怎样定位first bad commit？'],'Git工作流因团队而异，课程只讲通用模型和安全操作。'),
+ vcs:M('src-vcs','厂商官方','VCS Functional Verification Solution','https://www.synopsys.com/verification/simulation/vcs.html','Synopsys','core','理解VCS的编译、运行、覆盖率、X传播、性能和Verdi集成能力类别。',['Performance and Capacity','Advanced Simulation Technologies','Planning Coverage and Execution'],['哪些功能属于compile time，哪些属于runtime？','Debug Build和Performance Build为什么要分开？','如何确认高级功能真正生效？'],'产品页不能替代授权用户手册；具体选项必须按本地版本-help和内部封装核对。'),
+ verdi:M('src-verdi','厂商官方','Verdi Automated Debug System','https://www.synopsys.com/verification/debug/verdi.html','Synopsys','core','理解波形、源代码、原理图、UVM、Assertion、Temporal Flow、AMS和Verification Management能力。',['Core Debug','Testbench Debug','AI-Based Advanced Debug','Verification Management'],['如何从现象追到first divergence？','何时使用波形比较而非逐信号观察？','事务、日志和RTL怎样对齐？'],'功能可用性取决于许可证和版本；课程不假设所有高级App均可用。'),
+ verdiVms:M('src-verdi-vms','厂商官方','Verdi Verification Management System','https://www.synopsys.com/verification/debug/verdi-vms.html','Synopsys','reference','理解compile、regression execution、data collection、reporting、coverage aggregation的统一管理思路。',['About Verdi VMS','Key Benefits'],['回归数据应该怎样结构化？','Coverage、结果和计划怎样连接？'],'用于理解体系，不要求个人环境具备VMS。'),
+ xa:M('src-xa','厂商官方','PrimeSim XA FastSPICE','https://www.synopsys.com/implementation-and-signoff/ams-simulation/primesim-xa.html','Synopsys','core','理解XA作为FastSPICE引擎在SRAM、Custom Digital和Mixed-Signal验证中的定位，以及性能与精度取舍。',['Product Overview','PrimeWave Integration'],['XA解决什么问题？','它与VCS数字仿真怎样分工？','性能、收敛和精度如何权衡？'],'公开产品页不提供公司内部deck、模型库和命令封装细节。'),
+ opentitan:M('src-opentitan-dv','开源方法学','OpenTitan Verification Methodology','https://opentitan.org/earlgrey_1.0.0/book/doc/contributing/dv/methodology/index.html','OpenTitan','core','学习公开项目如何连接testplan、regression、coverage、pre-verified submodules和closure。',['Testplan','Regression','Coverage','Coverage Closure'],['Coverage回答的真正问题是什么？','pre-verified模块如何处理？','未覆盖项怎样关闭或waive？'],'这是一个公开项目的方法，不代表所有公司统一流程。'),
+ uvmms:M('src-uvmms','官方标准','UVM Mixed-Signal 1.0','https://www.accellera.org/downloads/standards/uvm-ms','Accellera','reference','理解UVM-MS如何扩展数字UVM并连接class-based与structural AMS环境。',['Overview','Current Release','Standard Files'],['标准解决了哪些结构复用问题？','哪些模型、精度和工具问题仍需工程师处理？'],'UVM-MS不自动生成模型、不自动加速网表，也不保证工具完整支持。'),
+ vams:M('src-vams','官方标准','Verilog-AMS 2023','https://www.accellera.org/downloads/standards/v-ams','Accellera','reference','学习analog/mixed-signal行为语言、discipline、nature和接口语义的正式来源。',['Language Overview','Disciplines','Connect Modules','Analog Behavior'],['logic、real和electrical怎样交互？','connect rule包含哪些假设？'],'语言语义正确不等于模型具有足够准确性。'),
+ ucis:M('src-ucis','官方标准','Unified Coverage Interoperability Standard','https://accellera.org/downloads/standards/ucis','Accellera','reference','理解覆盖率数据互操作和数据库化管理的标准背景。',['Standard Overview'],['覆盖率数据为什么需要统一Schema？','工具数据库与验证计划怎样连接？'],'不要求直接实现UCIS接口。'),
+ samsungClock:M('src-samsung-clock','公开行业案例','Robust Verification of Clock Tree Network using Clock Monitor Integrated by ACRMG','https://dvcon-proceedings.org/wp-content/uploads/1069.pdf','Samsung Semiconductor · DVCon','frontier','研究公开团队如何用Clock Monitor和自动Reference Model Generator处理复杂Clock Tree动态验证。',['Abstract','Methodology','Clock Monitor','Automation and Results'],['哪些输入适合Metadata或结构自动生成？','动态Clock行为怎样形成统一Monitor？','新增自动化的维护成本是什么？'],'只能证明该公开团队展示过此方法，不能推断Samsung所有项目均采用。'),
+ nxpReset:M('src-nxp-reset','公开行业案例','Reset Sweep Verification for Elimination of Reset Domain Crossing Blind Spots','https://dvcon-proceedings.org/wp-content/uploads/1084-Reset-Sweep-Verification-for-Elimination-of-Reset-Domain-Crossing-Blind-Spots-in-Design.pdf','NXP Semiconductors · DVCon 2025','frontier','研究传统RDC检查之外，如何通过随机流量和Reset相位Sweep暴露动态盲区。',['Problem Statement','Verification Methodology','Results'],['为什么固定Reset时刻不足？','动态Sweep与静态RDC怎样互补？','怎样把一次Silicon bug转化为方法？'],'案例适用条件依赖具体Reset架构，不能直接复制参数和规模。'),
+ pssAte:M('src-pss-ate','公开行业案例','Accelerating Device Sign-off through a Unified Environment for DV, Silicon Validation and ATE with PSS','https://dvcon-proceedings.org/wp-content/uploads/1085.pdf','Advantest · Qualcomm · Cadence · DVCon 2025','frontier','研究测试意图如何跨Design Verification、Silicon Validation和ATE复用。',['Problem','Unified Environment','PSS Reuse','Results'],['哪些Stimulus可复用？','哪些Checker和适配层必须变化？','跨阶段复用怎样管理平台差异？'],'不能由单一案例推断PSS适合所有项目或能消除平台专用开发。'),
+ aiRegression:M('src-ai-regression','公开行业案例','A Novel AI-ML Regression Flow for SoC Verification','https://dvcon-proceedings.org/wp-content/uploads/1132.pdf','DVCon 2025','frontier','分析AI/ML用于Regression分类与周转优化时需要的数据、标签和工程边界。',['Problem','Flow','Data','Results'],['自动Triage依赖什么Schema？','误分类怎样被控制？','AI如何保留人工确认？'],'收益来自具体数据和流程，不能直接外推到不同团队。'),
+ triageRf:M('src-triage-rf','公开行业案例','Automating Regression Triage in Design Verification Using AI-Based Random Forest Models','https://dvcon-proceedings.org/document/automating-regression-triage-in-design-verification-using-ai-based-random-forest-models/','DVCon 2025','frontier','学习Failure Signature、特征工程、分类和人工复核之间的关系。',['Paper Overview','Method','Evaluation'],['日志需要怎样结构化？','错误Signature如何避免过拟合？','如何评价false triage？'],'作为高级案例，不作为初学者Regression基础流程的替代。')
+};
+
+const crossStage=[
+ C('vem-a1',1,'Product、Architecture与Verifiability','产品需求、架构与可验证性','理解验证为何应在RTL之前参与，并建立Requirement→Risk→Observable的早期接口。',
+ ['产品目标、架构约束与验证目标的区别','功能、性能、功耗、可靠性和可测性需求','可控性、可观察性与完成条件','不可验证需求和模糊需求识别','Architecture Review中的验证问题'],
+ ['验证负责把抽象需求转为可观察风险，而不是替架构师做产品取舍。','验证可以提前暴露缺少状态、错误码、超时和恢复定义的问题。','某些性能和硅后目标只能建立代理证据，不能在RTL阶段独立签核。'],
+ [I('系统架构师','确认系统目标、模块边界和异常策略','Feature、性能、功耗和安全目标','风险分解、可验证性问题和观察需求',['完成条件是什么？','失败怎样被发现？','哪些目标只有硅后可确认？'],'产品取舍和最终架构由架构Owner决定。'),I('Firmware/Software','确认软件可见行为和配置顺序','寄存器、Interrupt、Boot和恢复需求','硬件可观察性、非法顺序和超时风险',['软件如何知道操作完成？','错误状态怎样清除？'],'验证不替软件团队定义产品软件策略。')],
+ ['src-opentitan-dv'],['Architecture-to-Verification Map','Verifiability Review Checklist','Requirement Clarification Question Bank','System Risk Decomposition Guide'],
+ ['一个Feature的完成证据是什么？','若无法直接观察内部状态，怎样建立间接证据？','哪些需求应在设计前补充而不是在Testbench中猜测？'],
+ ['资深验证工程师先审查Requirement是否可判定，再讨论Case数量。']),
+ C('vem-a2',2,'Microarchitecture、RTL与Design Review','微架构、RTL与设计Review','从状态、优先级、并发、异常和恢复角度理解设计，并建立DV参与Design Review的方法。',
+ ['Microarchitecture如何映射到状态机、数据通路和控制协议','Spec、Microarchitecture和RTL差异','Reset默认状态、非法输入和同时事件','中途打断、超时和恢复','设计内部Assertion与外部Checker边界'],
+ ['验证关注设计是否清晰、可控、可观察和可判定。','验证可以提出状态和优先级风险，但不替设计Owner决定实现。','Design Review的目标是提前减少环境猜测和后期返工。'],
+ [I('RTL设计工程师','确认实现语义和边界','状态图、时序、优先级、异常说明','风险场景、可观察性需求和Review意见',['同时事件谁优先？','Reset或Power事件如何打断流程？','非法输入如何恢复？'],'实现选择和设计修改由设计Owner负责。')],
+ ['src-opentitan-dv'],['Design Review from DV Perspective','State and Priority Review Template','Observability and Controllability Checklist','Spec–RTL Difference Log'],
+ ['模式名称为什么不足以写Checker？','怎样区分设计行为和验证假设？','哪些内部状态值得增加可观察接口？'],
+ ['资深工程师会把每个状态转换写成前置条件、触发、输出、打断和恢复。']),
+ C('vem-a3',3,'IP、Subsystem与SoC集成','IP、子系统与SoC验证层级','理解不同验证层级新增的证据、依赖和风险，而不是把更高层级当作重复运行。',
+ ['IP UT、Subsystem和SoC验证的控制力与观察性','Integration Contract和Interface Ownership','地址、Interrupt、DMA、Clock、Reset、Power和Firmware依赖','Error Propagation和End-to-end路径','版本兼容、IP复用和Change Impact'],
+ ['验证需要判断风险最适合在哪一层主责。','更高层级验证新增的是集成、软件和系统状态证据。','已签核IP仍可能因配置、连接、版本或系统协议在SoC层失败。'],
+ [I('SoC集成团队','确认连接、地址、Clock/Reset/Power和版本','集成清单、顶层接口和系统约束','接口合同检查、End-to-end场景和集成风险',['哪个团队拥有接口？','版本组合是否受支持？'],'顶层连接和发布版本由集成Owner决定。'),I('系统验证/Firmware','确认真实系统场景','软件流程和系统依赖','可复用刺激、检查点和失败归因',['IP级通过为系统场景提供了什么保证？'],'系统性能和软件策略需共同签核。')],
+ ['src-opentitan-dv'],['IP–Subsystem–SoC Responsibility Matrix','Integration Contract Template','End-to-End Path Map','Change Impact Analysis Guide','Integration Failure Taxonomy'],
+ ['什么风险应留在IP层，什么风险必须上移？','多个层级都通过是否构成独立证据？','Pre-verified模块如何减少重复又保留系统检查？'],
+ ['资深工程师按风险分层，而不是按组织边界机械拆Case。']),
+ C('vem-a4',4,'Synthesis、STA与Timing Constraints','综合、STA与约束素养','理解逻辑综合和静态时序如何改变验证对象，并建立DV与STA协作语言。',
+ ['综合对RTL结构的转换','Clock、generated clock、false path和multicycle path','STA的路径、corner和约束模型','STA与动态仿真的能力边界','Timing Exception和SDF后仿的关系'],
+ ['验证无需成为STA工程师，但必须理解时钟、模式和例外如何影响动态场景。','STA clean不证明功能序列正确；仿真通过也不证明所有路径时序收敛。','Timing Exception可能隐藏真实功能路径，也可能是合法架构意图。'],
+ [I('综合/STA工程师','确认时钟、约束、例外和后仿输入','Netlist、SDF、时序报告和约束说明','功能模式、Testbench假设和动态失败证据',['哪些Clock和Mode有效？','例外适用于什么条件？'],'时序Sign-off由STA和实现Owner负责。')],
+ ['src-vcs'],['DV–STA Interaction Guide','Timing Constraint Literacy Note','STA vs Simulation Capability Matrix','Timing Exception Review Questions'],
+ ['为什么STA和GLS不能互相替代？','错误约束会怎样制造假安全或假失败？','验证如何确认后仿使用正确corner？'],
+ ['资深工程师把“Timing问题”继续拆成约束、结构、库、SDF、环境和真实功能相位。']),
+ C('vem-a5',5,'DFT、Scan与Test Mode','DFT、Scan与可测试性','理解DFT如何改变设计和Clock/Reset/Memory行为，以及功能验证与结构测试的责任边界。',
+ ['Scan insertion、MBIST、LBIST和test mode','Controllability与Observability','DFT override、scan clock和reset','功能模式与测试模式','DFT逻辑对GLS和硅后测试的影响'],
+ ['验证可能负责测试模式基本功能、override和Clock/Reset行为。','ATPG pattern生成和制造测试覆盖率不是普通功能DV的主责。','DFT引入的Mux、控制和复位路径可能需要动态检查。'],
+ [I('DFT工程师','确认测试模式、override和Pattern边界','DFT spec、mode配置和测试接口','功能冲突场景、GLS环境反馈和可观察性问题',['哪些DFT逻辑需要功能仿真？','哪些结论由ATPG或结构工具主责？'],'制造测试覆盖和Pattern签核由DFT/测试团队负责。')],
+ ['src-pss-ate'],['DV–DFT Responsibility Map','Test Mode Verification Guide','DFT Interaction Checklist','Scan/MBIST Terminology Note'],
+ ['为什么test mode不能直接沿用功能模式假设？','DFT override如何影响Clock和Reset？','哪些失败可能来自测试程序而不是DUT？']),
+ C('vem-a6',6,'Place & Route、Extraction与Post-Simulation','后端实现、提取与后仿','理解Gate、SDF、寄生和Extracted Netlist带来的新风险，并形成后仿Intake素养。',
+ ['P&R和寄生提取的目的','Gate Netlist、SDF、SPEF/DSPF和Extracted Netlist','Digital GLS、Analog Post-layout和AMS Post-layout','初始化、X、PVT、Library和版本匹配','高价值后仿场景和结果边界'],
+ ['验证负责确认仿真输入、测试意图、检查和结果，而不是独立签核物理实现。','后仿应针对实现阶段新增风险，不应无差别复制全部RTL Regression。','配置正确性必须通过日志、annotation、binding和参考场景证明。'],
+ [I('后端/P&R','确认实现版本、寄生和网表阶段','Post-route Netlist、SDF、寄生和实现说明','高价值场景、动态失败和版本问题',['网表属于哪个阶段？','SDF和Library是否匹配？'],'物理收敛由实现团队签核。'),I('模拟设计/模型负责人','确认Extracted模型和PVT','Verilog-A、Extracted Netlist、模型说明','接口场景、Measurement和差异报告',['模型有效范围是什么？','哪些指标由模拟Sign-off主责？'],'模拟内部性能签核不能由数字DV替代。')],
+ ['src-vcs','src-xa','src-vams'],['Post-Simulation Intake Checklist','Backend Deliverable Map','Netlist–SDF–Library Compatibility Matrix','Post-layout Verification Responsibility Map','Cross-stage Model Matrix'],
+ ['后仿主要防什么风险？','怎样证明SDF和模型真正加载？','模型差异和DUT差异如何区分？']),
+ C('vem-a7',7,'Firmware与HW/SW Co-verification','固件、软件与软硬件协同验证','理解软件如何驱动硬件状态，并建立寄存器、Boot、Interrupt、Error和Power的协同验证方法。',
+ ['寄存器配置、Boot和初始化顺序','Polling、Interrupt、Timeout和状态清除','软件场景与寄存器级定向Test的差异','Simulation、Virtual Platform、Emulation和FPGA','HW/SW Failure Attribution'],
+ ['验证需要把软件可见行为转成硬件检查和系统场景。','真实软件可能暴露顺序、并发和恢复问题。','软件失败可能来自硬件、文档、驱动、模型或平台。'],
+ [I('Firmware/Driver','确认配置、状态和恢复语义','软件流程、寄存器序列和错误处理','硬件行为说明、仿真场景和失败证据',['软件如何判断硬件完成？','状态位是否读清或写清？'],'软件实现和产品策略由软件团队负责。')],
+ ['src-verdi'],['Hardware–Software Interaction Map','Firmware-visible Behavior Checklist','Software Scenario Verification Guide','HW/SW Failure Attribution Tree'],
+ ['寄存器Case通过为什么仍可能软件失败？','Interrupt与Polling需要哪些不同检查？','Boot和Power状态怎样影响验证环境？']),
+ C('vem-a8',8,'Closure、Sign-off与Tape-out','验证闭环、签核与流片决策','理解Test、Coverage、Bug、Waiver、Regression和剩余风险如何形成可审计交付结论。',
+ ['Testplan和Requirement Closure','Code/Functional/Assertion Coverage','Regression稳定性和Failure分类','Bug、Waiver、Known Issue和Remaining Risk','Go、Conditional Go和No-go','五分钟验证状态沟通'],
+ ['验证提供证据和建议，但最终风险接受权可能属于项目或设计Owner。','全Case Pass不等于环境、Checker和Coverage可信。','Sign-off必须说明已证明、未证明和依赖假设。'],
+ [I('Verification Lead/Project Manager','同步完成度、风险和决策','项目门槛、Deadline和资源约束','证据矩阵、剩余风险和建议',['当前最大未证明风险是什么？','还有更晚的检测机会吗？'],'项目取舍和风险接受由相应Owner决定。')],
+ ['src-opentitan-dv','src-verdi-vms','src-ucis'],['Verification Closure Dossier','Sign-off Evidence Matrix','Remaining Risk Register','Go/Conditional Go/No-go Guide','Five-minute Verification Status Template'],
+ ['为什么Coverage数字不能单独Sign-off？','Waiver需要哪些字段？','哪些证据共享同一环境假设？'],
+ ['资深工程师汇报“证据、盲区和建议”，不是只汇报Case数量。']),
+ C('vem-a9',9,'Silicon Bring-up、IPTEST与ATE','硅后Bring-up、IPTEST与ATE交互','理解Pre-silicon验证如何与Silicon Validation、ATE和Failure Analysis形成反馈闭环。',
+ ['Silicon Bring-up、IPTEST和ATE的目标差异','Pattern、Vector、Expected Result和Test Program','Pre-silicon Test Intent复用','Silicon Correlation和Failure Backtrace','Telemetry、可观察性和下一代验证改进'],
+ ['验证可以提供测试意图、参考行为和复现环境。','ATE失败不自动等于RTL Bug；Pre-silicon通过也不保证测试平台配置正确。','硅后结果可以校准模型、Checker、Coverage和风险优先级。'],
+ [I('Silicon Validation/Lab','复现硅后行为和对比仿真','Lab条件、日志、测量和失败样本','可复现Test、预期行为和候选原因',['实验条件能否在仿真中映射？','首次偏差出现在哪里？'],'硅后测量和平台控制由Lab团队负责。'),I('ATE/Product Test','交接测试意图和期望','Pattern、Test Program、量产条件和Fail Bin','参考向量、接口监控和Failure Backtrace',['失败是DUT、时序、模式还是程序？'],'量产测试程序和制造签核由测试团队负责。')],
+ ['src-pss-ate'],['Verification–DFT–ATE Responsibility Map','IPTEST and ATE Terminology Guide','Verification-to-ATE Handoff Guide','Silicon Failure Backtrace Tree','Silicon Correlation Evidence Map'],
+ ['哪些Stimulus可跨DV和ATE复用？','为什么Checker通常需要平台适配？','硅后发现应怎样回流到下一代VPlan？'])
+];
+
+const toolchain=[
+ C('vem-b1',1,'Linux与Shell for Verification','Linux、Shell与命令行工程能力','围绕验证任务系统学习文件、进程、日志、远程任务和可靠脚本。',
+ ['文件系统、权限、链接和环境变量','stdin/stdout/stderr、pipe、redirection和exit status','find/grep/sed/awk/sort/uniq/xargs/diff/tee','ps/top/free/lsof/jobs/nohup/ssh/rsync/tmux','Bash quoting、array、condition、loop、function、trap和并发'],
+ ['Linux能力用于理解和控制验证工作流，而不是独立的运维课程。','重点是查源文件、处理日志、监控资源、保存远程任务和批量分析结果。'],[],['src-bash'],['Linux for Verification Engineers','Command Scenario Cookbook','Log Processing Recipes','Shell Script Reliability Guide','Linux Troubleshooting Decision Tree'],
+ ['怎样找到实际生效的filelist和宏？','怎样提取首个有效Error而不是日志最后一行？','怎样安全保存长时间远程任务？'],
+ ['资深工程师用Shell组合小工具，形成可重复命令链并检查exit status。'],
+ ['用find+grep追踪定义来源','用awk/sort/uniq聚类日志Signature','用du/df/lsof判断波形和磁盘问题','用tmux/nohup保存回归任务','用trap清理临时文件']),
+ C('vem-b2',2,'VCS Build、Run与Performance','VCS编译、运行、调试和性能','建立Compile—Elaboration—Run模型，并掌握不同Build类型和可复现运行方法。',
+ ['Filelist、Library、Macro、Parameter、Top和UVM版本','Compile option、Runtime plusarg、Seed、Timeout和Verbosity','Debug/Smoke/Coverage/GLS/AMS/Performance Build','Xprop、Assertion、Coverage、Save/Restore和SDF','Partition Compile、多核和Runtime Profile','日志、返回码、许可证和Crash分类'],
+ ['课程讲能力类别和诊断方法；具体命令以本机-help、授权文档和公司Wrapper为准。','任何高级功能都需要通过日志或报告确认真正生效。'],[],['src-vcs'],['VCS Build Taxonomy','VCS Compile–Run Option Map','VCS Log Reading Guide','Reproducible Simulation Manifest','Debug vs Performance Configuration Matrix','VCS Failure Catalogue'],
+ ['为什么所有Debug和Coverage功能不应永久打开？','怎样保存完整重现命令？','怎样区分Compile错误、Elaboration错误和Runtime错误？'],
+ ['资深工程师维护少量标准Build Profile，而不是每个Case临时拼命令。'],
+ ['构建最小Smoke命令','构建Full Debug配置','记录Seed/Plusarg/Version Manifest','确认SDF或Xprop生效','比较单核和多核Profile']),
+ C('vem-b3',3,'Verdi Navigation与高效Debug','Verdi波形、源代码、原理图与UVM调试','把Verdi从波形查看器升级为因果追踪和差分Debug平台。',
+ ['Source、Hierarchy、Waveform、Schematic和FSM导航','Driver/Load、Fanin/Fanout、Backward Trace和Temporal Flow','Marker、Measurement、Signal Group、Session和Bookmark','Waveform Compare和Two-run Difference','Assertion、X Source和Power-aware Debug','UVM Component、Phase、Objection、Sequence、Transaction、Factory和Config DB'],
+ ['工具技巧服务于假设驱动Debug，不替代根因模型。','波形、事务、日志和源码应按同一时间线对齐。'],[],['src-verdi'],['Verdi Navigation Guide','Hierarchical Debug Workflow','UVM Debug Guide','X and Assertion Debug Guide','Waveform Comparison Cookbook','Verdi Productivity Shortcut Cards'],
+ ['怎样从最后报错回到first divergence？','何时用Waveform Compare？','怎样避免一次性拉取过多信号？'],
+ ['资深工程师先定义候选原因和关键分叉点，再选择Verdi视图。'],
+ ['建立Top→Subsystem→Block Signal Group','保存可复用Session','比较Passing与Failing run','对齐UVM Transaction与RTL波形','追踪X和Assertion失败']),
+ C('vem-b4',4,'PrimeSim XA与AMS工具使用','PrimeSim XA、SPICE Deck与AMS联合仿真','理解XA输入Deck、模型、PVT、Transient、收敛和VCS联合仿真的工程使用。',
+ ['SPICE与FastSPICE定位','Netlist、Model Include、Parameter、Source和Load','Transient、Initial Condition、PVT和Measurement','Convergence、Warning、Performance和Accuracy','PrimeWave结果与层级查看','VCS数字侧与XA模拟侧的日志、Binding和Connect Rule'],
+ ['工具使用重点是确认实际模型、corner和仿真假设。','不收敛和数值问题不能直接归因于DUT。','公司模型库、Deck和封装不进入公开课程。'],[],['src-xa','src-vams'],['PrimeSim XA Concept Guide','SPICE Deck Reading Guide','Transient Simulation Guide','Convergence Troubleshooting Tree','PVT and Model Setup Checklist','VCS–XA Interaction Map'],
+ ['如何证明模型和corner真正加载？','Warning和Convergence失败怎样分类？','XA结果与数字Checker时间线怎样对齐？'],
+ ['资深工程师先缩小电路、输入和时间窗口，再调整求解设置。'],
+ ['阅读最小SPICE Deck','确认模型include与PVT','比较两次Transient结果','定位Convergence阶段','建立VCS/XA双日志对照表']),
+ C('vem-b5',5,'Regression Engineering','回归架构、执行与Failure Triage','把Regression理解为持续反馈系统，而不是批量跑Case。',
+ ['Smoke、Sanity、Nightly、Weekly和Sign-off层级','Test List、Seed、Parallelism、CPU/Memory/License和Timeout','Result Collection、First Error和Reproduction Manifest','Failure Signature、Clustering、Retry和Flaky','Runtime Trend、Dashboard、Retention和Baseline','Compile once/run many与配置缓存'],
+ ['回归的目标是快速提供可信反馈。','失败必须先按环境、DUT、Test、Model、Flaky和Unknown分类。','Rerun不能替代根因分析。'],[],['src-verdi-vms','src-opentitan-dv'],['Regression Architecture Guide','Regression Layer Specification','Failure Taxonomy','Reproduction Manifest','Triage Decision Tree','Flaky Test Management Guide','Regression Dashboard Schema'],
+ ['什么Fail应该立即人工处理？','怎样识别同一Signature？','什么时候Retry合理，什么时候掩盖问题？'],
+ ['资深工程师先聚类和定位变更，再逐个打开波形。'],
+ ['设计五层Regression','提取首个有效Error','生成完整重现命令','聚类模拟失败日志','设计Flaky判定和保留策略']),
+ C('vem-b6',6,'Coverage Collection与Closure','覆盖率运行、合并、分析与关闭','理解Code、Functional、Assertion和Requirement Coverage如何进入可审计Closure。',
+ ['Compile Instrumentation和Runtime Collection','Per-test Database、Merge、Report和Trend','Line/Branch/Toggle/FSM/Assertion/Functional/Cross','Test Contribution和Coverage Plateau','Exclude、Waiver、Unreachable和Coverage Hole','Coverage与Checker质量、Requirement和Risk的关系'],
+ ['Coverage不是“没有Bug”的证明，而是未证明空间的度量。','收集范围应服务于风险，避免无价值的全量覆盖拖慢仿真。','Waiver必须有原因、Owner、范围和复审条件。'],[],['src-opentitan-dv','src-ucis','src-vcs'],['Coverage Collection Guide','Coverage Metric Interpretation','Coverage Merge and Report Workflow','Coverage Hole Taxonomy','Waiver Review Template','Coverage Closure Dossier'],
+ ['为什么高Coverage仍可能验证质量低？','怎样判断Hole来自激励、采样、不可达还是模型？','单Test Coverage增量有什么价值？'],
+ ['资深工程师追问每个Bin对应的Requirement和Failure Mode。'],
+ ['构建Coverage Build','合并多Test数据库','比较Test贡献','分类Coverage Hole','设计Waiver记录']),
+ C('vem-b7',7,'Automation、Python、Make与Git','验证自动化和可复现工程','培养阅读、修改和开发小型工具的能力，连接Build、Regression、Coverage和报告。',
+ ['Make target、dependency和incremental build','Python subprocess、JSON/CSV、regex、logging和unit test','Configuration file、Schema和Report generation','Concurrency、Retry、Timeout和Idempotency','Git branch、diff、restore、log和bisect','自动化ROI：时间、错误、反馈和复用'],
+ ['自动化先标准化输入、输出和Failure Schema。','脚本必须可重现、可测试并能处理异常输入。','代码行数不是价值指标。'],[],['src-git','src-bash'],['Verification Automation Guide','Make Dependency Map','Python Log Parser Blueprint','Configuration Schema Guide','Git for Verification Engineers','Automation Value Card'],
+ ['哪些流程适合自动化，哪些必须人工Review？','怎样避免脚本吞掉真实失败？','怎样用git bisect思维定位引入版本？'],
+ ['资深工程师自动化重复决策前先定义Schema和验收标准。'],
+ ['写模拟Regression日志解析器','生成CSV/Markdown摘要','为脚本添加单元测试','比较两个配置版本','设计自动化前后基线'])
+];
+
+const senior=[
+ C('vem-c1',1,'Senior Verification Mental Model','资深验证工程师基本思维框架','展示资深工程师如何从风险、假设、证据和剩余盲区组织问题。',
+ ['Junior Case Thinking与Senior Risk Thinking','Feature、Failure Mode、Impact和Detectability','Facts、Hypotheses、Unknowns和Alternatives','Evidence Strength、Independence和Transfer','Fix、Prevention和Method Asset'],
+ ['资深思维不是更快猜到答案，而是更快建立可证伪问题结构。'],[],['src-opentitan-dv'],['Senior Verification Question Bank','Junior vs Senior Reasoning Cards','Evidence Boundary Notes','Method Asset Decision Guide'],
+ ['这个Feature承担什么风险？','当前结论依赖什么假设？','修复后怎样证明不再发生？'],
+ ['先定义未证明风险，再决定Test、Tool和Priority。']),
+ C('vem-c2',2,'Feature→Risk→Verification Strategy','从Feature到风险驱动验证','学习把功能列表转化为Failure Mode、系统影响和验证证据。',
+ ['Requirement、Intended Behavior和Failure Mode','System Impact、Propagation和Recovery','Controllability、Observability和Detectability','Most Dangerous Undetected Failure','Risk-based Priority和Latest Detection Point'],
+ ['Test Case是风险策略的实现，不是起点。'],[],['src-opentitan-dv'],['Feature-to-Risk Guide','Failure Mode Catalogue','Verification Risk Card','Risk Prioritization Matrix'],
+ ['哪个失败最危险且最难观察？','这个风险最晚可以在哪个阶段发现？','哪种方法能提供主证据？'],
+ ['资深工程师优先保护高影响、低可检测和晚发现的风险。']),
+ C('vem-c3',3,'Facts、Hypotheses与Alternative Explanations','事实、假设与替代解释','建立可审计推理，避免把相关性、报错位置或修复后通过当作根因证明。',
+ ['Observed Fact、Interpretation、Unknown和Assumption','Supporting、Counter和Neutral Evidence','Alternative Explanation','Correlation、Causality和First Effective Evidence','Minimum Discriminating Experiment'],
+ ['Debug结论必须说明反对证据和替代解释。'],[],[],['Evidence Reasoning Handbook','Hypothesis Table','Alternative Explanation Prompt','Minimal Discriminating Experiment Template'],
+ ['什么证据能区分两个候选原因？','谁掌握更多实现信息？','修改后通过是否可能有其他解释？'],
+ ['资深工程师主动寻找能推翻自己判断的证据。']),
+ C('vem-c4',4,'First Divergence与Propagation Chain','首次异常与传播链','从最终Error反向定位First Divergence、Trigger和Latent State。',
+ ['Symptom、Propagation、Trigger和Latent State','Control Path、State Path和Data Path','Temporal Causality和Cross-cycle Trace','Environment-induced Symptom','Passing vs Failing Differential'],
+ ['First Divergence比最后报错更接近根因，但仍需验证候选原因。'],[],['src-verdi'],['First Divergence Guide','Propagation Chain Template','Control-State-Data Debug Map','Passing vs Failing Comparison Guide'],
+ ['异常首次出现在哪个抽象层？','哪个状态早已污染但尚未显现？','如何设计Passing/Failing差分？'],
+ ['资深工程师追踪“第一个不一致”，而不是只修最后一个Checker。']),
+ C('vem-c5',5,'Root Cause Taxonomy','根因模型与故障归类','统一审查Specification、DUT、Model、Environment、Checker、Configuration和Tool行为。',
+ ['Specification、DUT、Model、Environment和Checker五类主因','Configuration、Version、Test Intent和Numerical Behavior','症状—证据—最小实验','Root Cause、Contributing Factor和Escape Mechanism','Failure Classification Schema'],
+ ['分类帮助选择下一证据，不是提前决定责任归属。'],[],[],['Root Cause Taxonomy','Failure Classification Schema','Symptom-to-Cause Matrix','Root Cause Review Checklist'],
+ ['如果不是DUT，还有哪些原因？','哪个问题造成异常，哪个问题让异常未被更早发现？','怎样区分root cause与escape cause？'],
+ ['资深工程师同时审查“为什么发生”和“为什么没有更早抓到”。']),
+ C('vem-c6',6,'Checker & Measurement Engineering','Checker、测量与判定工程','展示资深工程师如何把Requirement转为Trigger、Window、Measurement、Tolerance、Decision和Failure Reason。',
+ ['Requirement→Risk→Observable→Measurement→Decision','Temporal Checker：Edge、Phase、Bounded Completion和Interrupt','Continuous Measurement：Threshold、Settling、Hold、Peak、Droop、Ripple和Slew','Tolerance Provenance和Uncertainty','Checker Architecture、Qualification和Failure Reason','Metric Scoreboard、Coverage和Correlation'],
+ ['Checker是验证模型，需要被验证。','Measurement和Decision应分离，容差必须有来源。','通过Fault Injection和Mutation证明Checker能够失败。'],[],['src-uvmms','src-vams'],['Requirement-to-Checker Guide','Timing Checker Pattern Library','Continuous Measurement Handbook','Tolerance Provenance Sheet','Checker Qualification Report','Metric Scoreboard Guide'],
+ ['为什么first entry不等于settling？','固定时间等待为什么脆弱？','怎样发现false positive和false negative？'],
+ ['资深工程师审查Checker的盲区、Vacuity和模型依赖。']),
+ C('vem-c7',7,'Coverage as Unproven Space','覆盖率作为未证明空间','学习资深工程师如何解释Coverage Hole，而不是追求无法说明的百分比。',
+ ['Requirement、Risk与Coverage追踪','Stimulus、Observation、Result和Failure Coverage','Unreachable、Unstimulated、Unsampled和Model Gap','Coverage Cross价值和爆炸','Waiver、Plateau和Closure Decision'],
+ ['Coverage必须与检测能力一起审查。'],[],['src-opentitan-dv','src-ucis'],['Coverage Reasoning Handbook','Coverage Hole Decision Tree','Risk-to-Coverage Matrix','Waiver Quality Checklist'],
+ ['这个Bin覆盖了刺激还是结果？','未命中是状态不可达还是Testbench没观察？','新增Test提供了什么新证据？'],
+ ['资深工程师把每个Hole转为行动：补Test、修Coverage、修DUT、补Model或Waive。']),
+ C('vem-c8',8,'Regression as Feedback System','回归作为工程反馈系统','展示资深工程师如何按Signature、版本、环境和可重现性组织大规模失败。',
+ ['Failure Signature和Clustering','First Bad Change和Version Correlation','Environment/DUT/Test/Model/Flaky分类','Retry Policy和Reproduction','Runtime、Throughput和Queue Priority','Automation、AI Triage和Human Review'],
+ ['自动Triage服务于排序和聚类，不替代最终根因判断。'],[],['src-ai-regression','src-triage-rf'],['Senior Regression Triage Guide','Failure Signature Schema','First-Bad-Change Workflow','AI Triage Review Checklist'],
+ ['哪些失败共享同一根因？','自动分类的false triage怎样发现？','什么信息必须保存在重现包？'],
+ ['资深工程师先减少问题数量，再增加每个问题的证据质量。']),
+ C('vem-c9',9,'Method Selection & Evidence Independence','方法选择与证据独立性','比较Simulation、Formal、CDC/RDC、STA、GLS、AMS、Emulation和Silicon的主责风险与盲区。',
+ ['Control、Observability、Speed、Realism和State Space','Primary Method与Supporting Method','Shared Assumption和Evidence Independence','Conflicting Results和Escalation','Model Fidelity和Latest Detection Point'],
+ ['方法数量多不等于证据独立。'],[],['src-opentitan-dv','src-nxp-reset'],['Verification Method Capability Matrix','Evidence Independence Guide','Method Selection Decision Tree','Cross-method Conflict Triage'],
+ ['两个方法是否使用同一Golden Model？','哪种方法主责，哪种只提供补充？','冲突结果先检查什么？'],
+ ['资深工程师按风险选择方法，并明确每种方法不能证明什么。']),
+ C('vem-c10',10,'Sign-off、Risk Communication与Technical Influence','签核、风险沟通与技术影响力','学习把复杂技术状态压缩为事实、风险、建议和需决策事项。',
+ ['Facts、Judgment、Recommendation和Decision Needed','Impact、Detectability、Latest Fix Point和Fallback','Go、Conditional Go和No-go','Owner、Deadline、Escalation和Risk Acceptance','方法资产、团队复用和量化价值'],
+ ['资深验证工程师不仅发现问题，还帮助团队做可执行决策。'],[],['src-verdi-vms'],['Senior Sign-off Guide','Risk Communication Template','Five-minute Technical Brief','Method Adoption Evidence Card'],
+ ['当前剩余风险影响什么？','如果不修，最晚在哪里发现？','需要谁接受风险或提供资源？'],
+ ['资深工程师用证据支持取舍，不用过程细节淹没决策者。'])
+];
+
+window.VERIFICATION_MASTERY_V510={
+ marker:'CAREER_OS_V510_VERIFICATION_MASTERY',version:'5.10.0',id:'verification-mastery',
+ title:'Verification Engineering Mastery',cn:'验证工程全流程、工具链与资深方法专项',
+ positioning:'与OCLDO Verification、UVM-MS和CRG Architecture & Verification并行的个人学习Track。系统讲授芯片跨阶段协作、验证工具链和资深验证推理，不跟踪公司项目实施进度。',
+ coreQuestions:['验证工程师在芯片完整交付链中与哪些角色、Artifact和证据交互？','怎样熟练使用Linux、VCS、Verdi、PrimeSim XA、Regression、Coverage和自动化工具？','资深验证工程师如何从风险、证据、替代解释和Sign-off组织问题？'],
+ teachingPrinciples:['Lecture-first：先由AI完整讲解，再进入阅读、示例和Assessment。','Guided Reading：每份资料说明为什么读、读哪些章节、带着什么问题读以及不能推断什么。','Knowledge Files：每章沉淀Guide、Map、Matrix、Checklist、FAQ或Case Card。','Tool Walkthrough：软件章节提供能力模型、操作路径、常见技巧和诊断方法；具体命令按本地版本核对。','Senior Commentary：每章展示Junior Approach、Senior Approach、Decision Point和Common Trap。','Industry Case：只使用公开来源，严格限制为该团队公开展示的方法。','Assessment-last：测试默认锁定，不干扰知识讲授。'],
+ workSeparationRules:['不跟踪内部项目进度、回归结果、网表到位或Bug关闭。','不使用内部代码、网表、波形、参数、路径、工具配置和Sign-off标准。','工作接触只记录为Prior Knowledge，不自动完成任何Chapter。','工作能力依据真实交付和外部反馈；课程能力依据公开学习、知识文件、合成示例和最终Assessment。','当前工作只能调整学习优先级，不能改变Track的完整知识结构。'],
+ statuses:{not_started:'未开始',learning:'讲义学习',reading:'导读阅读',knowledge_building:'知识文件整理',guided_example:'示例学习',assessment_ready:'可评估',assessment_pending:'评估中',needs_reinforcement:'需要强化',completed:'已完成',paused:'已暂停'},
+ packages:[
+  {id:'vem-a',index:1,title:'Cross-Stage Verification, Role & Collaboration',cn:'芯片全流程、验证职责与跨团队协作',purpose:'建立从产品需求、设计、实现、验证、后仿到硅后测试的完整证据链，并明确验证工程师在每个环节的关系、交互、输入、输出和责任边界。',chapters:crossStage},
+  {id:'vem-b',index:2,title:'Verification Toolchain & Engineering Productivity',cn:'验证工具链、Linux、仿真调试、回归与覆盖率',purpose:'系统培养Linux/Shell、VCS、Verdi、PrimeSim XA、Regression、Coverage、Python/Make/Git和可复现工程能力。',chapters:toolchain},
+  {id:'vem-c',index:3,title:'Senior Verification Reasoning & Industry Practice',cn:'资深验证思维、Checker工程与行业先进实践',purpose:'展示资深工程师如何从Risk、Evidence、First Divergence、Alternative Explanation、Method Boundary和Sign-off组织问题。',chapters:senior}
+ ],
+ sourceLibrary:Object.values(sources),
+ industryCases:[
+  {id:'case-opentitan',title:'OpenTitan公开DV方法学',sourceIds:['src-opentitan-dv'],themes:['Testplan与文档分工','Nightly Regression','Coverage Closure','Pre-verified Submodule'],cannotProve:'不能推断其他公司或项目采用相同流程。'},
+  {id:'case-samsung-clock',title:'Samsung公开Clock Monitor与ACRMG案例',sourceIds:['src-samsung-clock'],themes:['Clock Reference Model自动生成','统一Clock Monitor','跨SoC复用','结构Metadata'],cannotProve:'不能推断Samsung所有Clock项目均采用此工具。'},
+  {id:'case-nxp-reset',title:'NXP公开Reset Sweep案例',sourceIds:['src-nxp-reset'],themes:['RDC动态盲区','Reset Phase Sweep','Bus Traffic','Simulation与Static互补'],cannotProve:'方法参数和架构依赖具体项目。'},
+  {id:'case-pss-ate',title:'DV、Silicon Validation与ATE统一测试意图案例',sourceIds:['src-pss-ate'],themes:['PSS','跨平台Stimulus复用','Device Sign-off','平台Adapter'],cannotProve:'不能推断PSS能消除平台专用Checker和开发。'},
+  {id:'case-ai-regression',title:'公开AI/ML Regression Triage案例',sourceIds:['src-ai-regression','src-triage-rf'],themes:['Failure Signature','Regression分类','特征工程','人工复核'],cannotProve:'模型收益依赖数据质量，不能直接复制到个人或团队流程。'}
+ ],
+ assessmentPolicy:{defaultLocked:true,rule:'所有Lecture、Guided Reading、Knowledge Files和Guided Example完成后才解锁。',formats:['Knowledge Map口述','陌生案例分析','Tool Workflow解释','Industry Case Critique','Package Capstone Review']},
+ ui:{defaultPackage:'vem-a',defaultChapter:'vem-a1'}
+};
+window.CAREER_OS_V510_DATA_READY=true;
+})();
+
+</script>
+<script data-source="curriculum/v510-verification-mastery-state.js">
+(function(){
+ const KEY='zhantong-career-os-v5';
+ const BACKUP='zhantong-career-os-v5-pre-v510-verification-mastery';
+ function now(){return new Date().toISOString()}
+ function chapterState(ch){return{id:ch.id,status:'not_started',lecture:false,readingIds:[],knowledgeFiles:[],guidedExample:false,notes:'',assessment:{status:'locked',score:null,review:''},updatedAt:''}}
+ function install(){
+  if(typeof S!=='object'||!window.VERIFICATION_MASTERY_V510)return;
+  try{const raw=localStorage.getItem(KEY);if(raw&&!localStorage.getItem(BACKUP))localStorage.setItem(BACKUP,raw)}catch(e){console.error('V5.10 backup failed',e)}
+  const old=S.verificationMasteryV510||{},packages={};
+  VERIFICATION_MASTERY_V510.packages.forEach(p=>{
+   const prev=old.packages?.[p.id]||{},chapters={};
+   p.chapters.forEach(ch=>chapters[ch.id]={...chapterState(ch),...(prev.chapters?.[ch.id]||{}),id:ch.id});
+   packages[p.id]={id:p.id,status:prev.status||'not_started',currentChapterId:p.chapters.some(x=>x.id===prev.currentChapterId)?prev.currentChapterId:p.chapters[0].id,chapters,notes:prev.notes||'',updatedAt:prev.updatedAt||''};
+  });
+  S.verificationMasteryV510={
+   version:'5.10.0',trackId:'verification-mastery',status:old.status||'not_started',
+   activePackageId:VERIFICATION_MASTERY_V510.packages.some(x=>x.id===old.activePackageId)?old.activePackageId:VERIFICATION_MASTERY_V510.ui.defaultPackage,
+   packages,priorKnowledge:Array.isArray(old.priorKnowledge)?old.priorKnowledge:[],
+   readingNotes:old.readingNotes&&typeof old.readingNotes==='object'?old.readingNotes:{},
+   knowledgeFiles:old.knowledgeFiles&&typeof old.knowledgeFiles==='object'?old.knowledgeFiles:{},
+   industryCaseNotes:old.industryCaseNotes&&typeof old.industryCaseNotes==='object'?old.industryCaseNotes:{},
+   workSeparationAccepted:Boolean(old.workSeparationAccepted),updatedAt:old.updatedAt||now()
+  };
+  window.CAREER_OS_V510_STATE={version:'5.10.0',complete:true,backupKey:BACKUP,installedAt:now()};
+  try{if(typeof save==='function')save()}catch(e){console.error('V5.10 state save failed',e)}
+ }
+ window.ensureVerificationMasteryV510=install;
+ window.addEventListener('load',install,{once:true});
+ window.addEventListener('pageshow',install);
+})();
+
+</script>
+<script data-source="curriculum/v510-verification-mastery-ui.js">
+(function(){
+ const ID='verification-mastery-v510',VIEW_ID='growth-mastery-v58';
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const arr=x=>Array.isArray(x)?x:[];
+ function state(){return S.verificationMasteryV510}
+ function data(){return window.VERIFICATION_MASTERY_V510}
+ function activePackage(){const d=data(),s=state();return d.packages.find(x=>x.id===s?.activePackageId)||d.packages[0]}
+ function activeChapter(pkg){const ps=state()?.packages?.[pkg.id];return pkg.chapters.find(x=>x.id===ps?.currentChapterId)||pkg.chapters[0]}
+ function sourceMap(){return Object.fromEntries(data().sourceLibrary.map(x=>[x.id,x]))}
+ function injectStyles(){
+  if(document.getElementById('verification-mastery-style-v510'))return;
+  const st=document.createElement('style');st.id='verification-mastery-style-v510';st.textContent=`
+  .vem-hero{padding:20px;border:1px solid var(--line2);border-radius:18px;background:linear-gradient(135deg,var(--card),rgba(255,255,255,.025));margin-bottom:14px}.vem-rule{padding:11px 13px;border-left:3px solid var(--accent);background:rgba(255,255,255,.025);margin:7px 0}.vem-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.vem-tab{border:1px solid var(--line2);background:var(--card);color:var(--text);padding:9px 12px;border-radius:999px;cursor:pointer}.vem-tab.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}.vem-layout{display:grid;grid-template-columns:minmax(230px,.72fr) minmax(0,2fr);gap:14px}.vem-nav,.vem-detail,.vem-card{border:1px solid var(--line2);background:var(--card);border-radius:16px;padding:14px}.vem-chapter{display:block;width:100%;text-align:left;border:0;border-top:1px solid var(--line2);background:transparent;color:var(--text);padding:12px 6px;cursor:pointer}.vem-chapter:first-child{border-top:0}.vem-chapter.on{color:var(--accent)}.vem-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.vem-card h4{margin:4px 0 8px}.vem-list{padding-left:19px;margin:7px 0}.vem-source{padding:11px 0;border-top:1px solid var(--line2)}.vem-source:first-child{border-top:0}.vem-pill{display:inline-block;padding:3px 8px;border:1px solid var(--line2);border-radius:999px;font-size:11px;margin-right:5px}.vem-case{padding:12px;border:1px solid var(--line2);border-radius:13px;margin:9px 0}.vem-status{font-size:12px;color:var(--muted)}#${VIEW_ID}{min-width:0;max-width:100%}#${ID},#${ID} *{box-sizing:border-box;min-width:0}#${ID} a,#${ID} p,#${ID} li,#${ID} h2,#${ID} h3,#${ID} h4{overflow-wrap:anywhere;word-break:break-word}@media(max-width:920px){.vem-layout,.vem-grid{grid-template-columns:1fr}}
+  `;document.head.appendChild(st)
+ }
+ function ensureGrowthView(){
+  const nav=document.getElementById('growth-nav-v58'),root=document.getElementById('growth-hub-v58');if(!nav||!root)return false;
+  let button=nav.querySelector('[data-v58-nav="mastery"]');
+  if(!button){button=document.createElement('button');button.dataset.v58Nav='mastery';button.textContent='验证工程';nav.appendChild(button)}
+  button.onclick=()=>{S.growthHubV58.activeView='mastery';S.growthHubV58.openLegacy='';S.growthHubV58.updatedAt=localISO();save();showGrowthViewV58('mastery')};
+  let view=document.getElementById(VIEW_ID);
+  if(!view){view=document.createElement('div');view.id=VIEW_ID;view.className='growth-view-v58';root.appendChild(view)}
+  if(!document.getElementById(ID))view.innerHTML=`<section id="${ID}"><div class="section-title"><div class="eyebrow">PARALLEL LEARNING TRACK · V5.10.0</div><h2>Verification Engineering Mastery</h2><p>芯片全流程 · 验证工具链 · 资深验证思维与行业公开实践</p></div><div id="verificationMasteryBodyV510"></div></section>`;
+  const active=S.growthHubV58?.activeView==='mastery';view.hidden=!active;button.classList.toggle('active',active);
+  return true
+ }
+ function renderHero(){const d=data();return `<div class="vem-hero"><div class="eyebrow">POSITIONING</div><h3>${esc(d.cn)}</h3><p>${esc(d.positioning)}</p><div class="vem-grid"><div><b>三条核心问题</b><ul class="vem-list">${d.coreQuestions.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div><b>教学顺序</b><ol class="vem-list">${d.teachingPrinciples.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div></div><details><summary><b>工作与个人学习严格分离</b></summary>${d.workSeparationRules.map(x=>`<div class="vem-rule">${esc(x)}</div>`).join('')}</details></div>`}
+ function renderTabs(){const d=data(),s=state();return `<div class="vem-tabs">${d.packages.map(p=>`<button class="vem-tab ${p.id===s.activePackageId?'on':''}" onclick="openVerificationMasteryPackageV510('${p.id}')">${p.index}. ${esc(p.cn)}</button>`).join('')}</div>`}
+ function renderChapterNav(pkg,ch){const ps=state().packages[pkg.id];return `<aside class="vem-nav"><div class="eyebrow">PACKAGE ${pkg.index}</div><h3>${esc(pkg.title)}</h3><p>${esc(pkg.purpose)}</p><div class="vem-status">状态：${esc(data().statuses[ps.status]||ps.status)}</div>${pkg.chapters.map(x=>`<button class="vem-chapter ${x.id===ch.id?'on':''}" onclick="openVerificationMasteryChapterV510('${pkg.id}','${x.id}')"><span class="eyebrow">${String(x.index).padStart(2,'0')}</span><br>${esc(x.cn)}</button>`).join('')}</aside>`}
+ function listCard(title,items){return `<article class="vem-card"><div class="eyebrow">${esc(title)}</div><ul class="vem-list">${arr(items).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article>`}
+ function interactionCard(items){return `<article class="vem-card"><div class="eyebrow">VERIFICATION INTERACTION</div>${arr(items).length?items.map(x=>`<div class="vem-source"><h4>${esc(x.role)}</h4><p><b>关系：</b>${esc(x.relationship)}</p><p><b>你会接收：</b>${esc(x.receive)}</p><p><b>你会提供：</b>${esc(x.provide)}</p><p><b>应主动询问：</b>${arr(x.questions).map(esc).join(' · ')}</p><p class="muted"><b>边界：</b>${esc(x.boundary)}</p></div>`).join(''):'<p class="muted">本章以个人通用能力为主，不绑定特定工作角色。</p>'}</article>`}
+ function readingCard(ch){const map=sourceMap(),items=ch.readingIds.map(id=>map[id]).filter(Boolean);return `<article class="vem-card"><div class="eyebrow">GUIDED READING</div>${items.length?items.map(x=>`<div class="vem-source"><div><span class="vem-pill">${esc(x.authority)}</span><span class="vem-pill">${esc(x.type)}</span></div><h4><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.title)}</a></h4><p>${esc(x.whyRead)}</p><p><b>重点：</b>${arr(x.readSections).map(esc).join(' · ')}</p><p><b>带着问题：</b>${arr(x.keyQuestions).map(esc).join(' · ')}</p><p class="muted"><b>不能越界：</b>${esc(x.limits)}</p></div>`).join(''):'<p class="muted">本章材料将在正式讲义准备时补充。</p>'}</article>`}
+ function renderDetail(pkg,ch){const cs=state().packages[pkg.id].chapters[ch.id];return `<main class="vem-detail"><div class="eyebrow">PACKAGE ${pkg.index} · CHAPTER ${String(ch.index).padStart(2,'0')}</div><h2>${esc(ch.cn)}</h2><p>${esc(ch.purpose)}</p><div class="vem-status">当前学习状态：${esc(data().statuses[cs.status]||cs.status)} · Assessment ${esc(cs.assessment.status)}</div><div class="vem-grid">${listCard('LECTURE · 我会系统讲解',ch.lecture)}${listCard('WITH VERIFICATION · 与验证的关系',ch.verificationRelation)}${interactionCard(ch.interactions)}${listCard('GUIDED QUESTIONS · 带着问题学习',ch.guidedQuestions)}${listCard('SENIOR LENS · 资深工程师视角',ch.seniorLens)}${listCard('TOOL WALKTHROUGH · 软件与操作路径',ch.toolWalkthrough)}${listCard('KNOWLEDGE FILES · 网站沉淀文件',ch.knowledgeFiles)}${readingCard(ch)}</div><details style="margin-top:12px"><summary><b>Assessment Policy</b></summary><p>${esc(ch.assessment.note)}</p><p class="muted">Assessment默认锁定。正式版本中只有讲义、阅读、知识文件和示例学习完成后才可进入。</p></details></main>`}
+ function renderCases(){return `<div class="vem-card" style="margin-top:14px"><div class="eyebrow">INDUSTRY PRACTICE LIBRARY</div><h3>公开行业案例库</h3><p class="muted">只总结公开团队展示的方法；不推断公司全部项目采用相同体系。</p>${data().industryCases.map(x=>`<div class="vem-case"><h4>${esc(x.title)}</h4><p><b>研究主题：</b>${x.themes.map(esc).join(' · ')}</p><p class="muted"><b>不能证明：</b>${esc(x.cannotProve)}</p></div>`).join('')}</div>`}
+ function render(){const body=document.getElementById('verificationMasteryBodyV510');if(!body||!data()||!state())return;const pkg=activePackage(),ch=activeChapter(pkg);body.innerHTML=renderHero()+renderTabs()+`<div class="vem-layout">${renderChapterNav(pkg,ch)}${renderDetail(pkg,ch)}</div>`+(pkg.id==='vem-c'?renderCases():'')}
+ window.openVerificationMasteryPackageV510=function(id){const d=data(),s=state();if(!d.packages.some(x=>x.id===id))return;s.activePackageId=id;s.updatedAt=new Date().toISOString();try{save()}catch(e){}render()};
+ window.openVerificationMasteryChapterV510=function(pkgId,chId){const d=data(),s=state(),p=d.packages.find(x=>x.id===pkgId);if(!p||!p.chapters.some(x=>x.id===chId))return;s.activePackageId=pkgId;s.packages[pkgId].currentChapterId=chId;s.updatedAt=new Date().toISOString();try{save()}catch(e){}render()};
+ function mount(){if(!data()||typeof S!=='object')return;if(typeof ensureVerificationMasteryV510==='function')ensureVerificationMasteryV510();injectStyles();if(!ensureGrowthView())return;render();window.CAREER_OS_V510_UI={version:'5.10.0',complete:true,view:'mastery'}}
+ function wrapGrowthMount(){if(typeof window.mountGrowthHubV58!=='function'||window.mountGrowthHubV58.__v510Wrapped)return;const previous=window.mountGrowthHubV58;const wrapped=function(){const result=previous.apply(this,arguments);setTimeout(mount,0);return result};wrapped.__v510Wrapped=true;window.mountGrowthHubV58=wrapped}
+ function install(){wrapGrowthMount();mount()}
+ window.renderVerificationMasteryV510=render;window.mountVerificationMasteryV510=mount;
+ window.addEventListener('load',()=>setTimeout(install,4700),{once:true});window.addEventListener('pageshow',()=>setTimeout(install,250));
+})();
+
+</script>
 </body>
 </html>

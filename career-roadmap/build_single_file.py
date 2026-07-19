@@ -103,6 +103,9 @@ EXTRA_SOURCES = [
     'curriculum/v595-layout.js',
     'curriculum/v596-weekly-career-model-review.js',
     'curriculum/v597-weekly-range-contract.js',
+    'curriculum/v510-verification-mastery-data.js',
+    'curriculum/v510-verification-mastery-state.js',
+    'curriculum/v510-verification-mastery-ui.js',
 ]
 
 REQUIRED_MARKERS = [
@@ -156,6 +159,8 @@ REQUIRED_MARKERS = [
     'CAREER_OS_V596_WEEKLY_CAREER_MODEL_REVIEW',
     '2026-W29-career-model-review-20260718',
     'Zhantong · Career OS V5.9',
+    'CAREER_OS_V510_VERIFICATION_MASTERY',
+    'Verification Engineering Mastery',
 ]
 
 
