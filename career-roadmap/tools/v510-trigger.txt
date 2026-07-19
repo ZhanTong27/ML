@@ -1,4 +1,4 @@
 Build the V5.10 Verification Engineering Mastery draft and commit the generated single-file Career OS artifact.
 Re-run all pull-request checks after the generated index.html is present.
-Run the dedicated desktop Chromium and iPhone WebKit acceptance for the new Track.
+Run the corrected desktop Chromium and iPhone WebKit acceptance for the new Track.
 Upload the dedicated acceptance report and screenshots as an artifact.
