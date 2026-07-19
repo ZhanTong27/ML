@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/home/runner/work/ML/ML/career-roadmap/tools/v597_upgrade.py", line 224, in <module>
-    main()
-  File "/home/runner/work/ML/ML/career-roadmap/tools/v597_upgrade.py", line 219, in main
-    scan()
-  File "/home/runner/work/ML/ML/career-roadmap/tools/v597_upgrade.py", line 208, in scan
-    raise RuntimeError(f"Unsafe weekly range patterns remain: {hits}")
-RuntimeError: Unsafe weekly range patterns remain: [('/home/runner/work/ML/ML/career-roadmap/index.html', '(data.range||localISO()).replace')]
