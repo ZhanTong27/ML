@@ -1,11 +1,11 @@
 name: Career OS V5.9.7 Weekly Range Contract Upgrade
 
 on:
-  push:
+  pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/v597-weekly-range-contract-upgrade.yml
+      - career-roadmap/tools/v597-trigger.txt
   workflow_dispatch:
 
 permissions:
@@ -17,16 +17,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - run: python3 career-roadmap/tools/v597_upgrade.py
+      - name: Apply upgrade once
+        run: |
+          if grep -q CAREER_OS_V597_WEEKLY_RANGE_CONTRACT career-roadmap/build_single_file.py; then
+            echo "V5.9.7 already applied"
+          else
+            python3 career-roadmap/tools/v597_upgrade.py
+          fi
       - run: python3 career-roadmap/build_single_file.py
       - run: node --check career-roadmap/app.js
       - run: node --check career-roadmap/curriculum/v40-reviews.js
       - run: node --check career-roadmap/curriculum/v597-weekly-range-contract.js
       - run: grep -q CAREER_OS_V597_WEEKLY_RANGE_CONTRACT career-roadmap/index.html
-      - run: |
+      - name: Commit upgrade to PR branch
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add career-roadmap/app.js career-roadmap/index.template.html career-roadmap/index.html career-roadmap/latest.html career-roadmap/build_single_file.py career-roadmap/curriculum/v40-reviews.js career-roadmap/curriculum/v597-weekly-range-contract.js .github/workflows/v59-live-artifact-acceptance.yml
-          git commit -m "Upgrade weekly review range contract to V5.9.7"
-          git push
+          if git diff --cached --quiet; then
+            echo "No upgrade changes required"
+          else
+            git commit -m "Upgrade weekly review range contract to V5.9.7"
+            git push origin HEAD:${{ github.head_ref }}
+          fi
