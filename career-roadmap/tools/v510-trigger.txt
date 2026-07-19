@@ -1,4 +1,0 @@
-Build the V5.10 Verification Engineering Mastery draft and commit the generated single-file Career OS artifact.
-Validate the dedicated Growth → 验证工程 navigation.
-Run desktop Chromium and iPhone WebKit acceptance for the new Track.
-Upload the dedicated acceptance report and screenshots as an artifact.
