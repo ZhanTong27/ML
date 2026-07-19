@@ -37,6 +37,8 @@ jobs:
           if [ "$status" -ne 0 ]; then
             git restore career-roadmap/app.js career-roadmap/index.template.html career-roadmap/build_single_file.py career-roadmap/curriculum/v40-reviews.js .github/workflows/v59-live-artifact-acceptance.yml 2>/dev/null || true
             rm -f career-roadmap/curriculum/v597-weekly-range-contract.js
+          else
+            git restore .github/workflows/v59-live-artifact-acceptance.yml 2>/dev/null || true
           fi
           exit 0
       - name: Build and validate when upgrade succeeded
@@ -60,7 +62,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           status=$(cat career-roadmap/tools/v597-status.txt)
           if [ "$status" -eq 0 ]; then
-            git add career-roadmap/app.js career-roadmap/index.template.html career-roadmap/index.html career-roadmap/latest.html career-roadmap/build_single_file.py career-roadmap/curriculum/v40-reviews.js career-roadmap/curriculum/v597-weekly-range-contract.js .github/workflows/v59-live-artifact-acceptance.yml career-roadmap/tools/v597-last-error.log career-roadmap/tools/v597-status.txt
+            git add career-roadmap/app.js career-roadmap/index.template.html career-roadmap/index.html career-roadmap/latest.html career-roadmap/build_single_file.py career-roadmap/curriculum/v40-reviews.js career-roadmap/curriculum/v597-weekly-range-contract.js
             message="Upgrade weekly review range contract to V5.9.7"
           else
             git add career-roadmap/tools/v597-last-error.log career-roadmap/tools/v597-status.txt
