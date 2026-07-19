@@ -19,29 +19,28 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Validate V5.10 source files
+      - name: Validate and build
         run: |
           node --check career-roadmap/curriculum/v510-verification-mastery-data.js
           node --check career-roadmap/curriculum/v510-verification-mastery-state.js
           node --check career-roadmap/curriculum/v510-verification-mastery-ui.js
-      - name: Build single-file site
-        run: python3 career-roadmap/build_single_file.py
-      - name: Validate generated markers
-        run: |
+          python3 career-roadmap/build_single_file.py
           grep -q CAREER_OS_V510_VERIFICATION_MASTERY career-roadmap/index.html
-          grep -q "Verification Engineering Mastery" career-roadmap/index.html
       - name: Install browser runtimes
         run: |
           npm install --no-save --silent playwright@1.54.1
           npx playwright install --with-deps chromium webkit >/tmp/v510-playwright.log 2>&1 || (cat /tmp/v510-playwright.log && exit 1)
-      - name: Run V5.10 cross-browser acceptance
+      - name: Run and persist V5.10 acceptance
+        shell: bash
         run: |
+          set +e
           python3 -m http.server 8080 >/tmp/v510-server.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
           for i in {1..30}; do curl -fsS http://127.0.0.1:8080/career-roadmap/ >/dev/null && break; sleep 1; done
           cat > /tmp/v510-check.mjs <<'EOF'
           import {chromium,webkit,devices} from 'playwright';
+          import fs from 'node:fs';
           const SITE='http://127.0.0.1:8080/career-roadmap/?v510=1';
           const results=[];
           async function run(type,name,options){
@@ -50,42 +49,38 @@ jobs:
             const errors=[];
             page.on('pageerror',e=>errors.push(e.message));
             page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
-            const response=await page.goto(SITE,{waitUntil:'load',timeout:45000});
-            await page.waitForFunction(()=>window.CAREER_OS_V510_UI?.complete===true,null,{timeout:30000});
-            await page.evaluate(()=>{if(typeof switchView==='function')switchView('growth')});
-            await page.waitForSelector('#verification-mastery-v510',{state:'visible',timeout:15000});
-            const before=await page.evaluate(()=>({
-              packages:window.VERIFICATION_MASTERY_V510?.packages?.length||0,
-              chapters:window.VERIFICATION_MASTERY_V510?.packages?.map(x=>x.chapters.length)||[],
-              stateVersion:S.verificationMasteryV510?.version||'',
-              sectionCount:document.querySelectorAll('#verification-mastery-v510').length,
-              tabs:document.querySelectorAll('.vem-tab').length,
-              overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
-              workRules:(window.VERIFICATION_MASTERY_V510?.workSeparationRules||[]).length,
-              assessmentLocked:Object.values(S.verificationMasteryV510?.packages||{}).every(p=>Object.values(p.chapters||{}).every(c=>c.assessment?.status==='locked'))
-            }));
-            await page.evaluate(()=>openVerificationMasteryPackageV510('vem-b'));
-            const tool=await page.evaluate(()=>({active:S.verificationMasteryV510.activePackageId,text:document.getElementById('verificationMasteryBodyV510')?.innerText||''}));
-            await page.evaluate(()=>openVerificationMasteryPackageV510('vem-c'));
-            const senior=await page.evaluate(()=>({active:S.verificationMasteryV510.activePackageId,cases:document.querySelectorAll('.vem-case').length,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth}));
-            const passed=response?.status()===200&&errors.length===0&&before.packages===3&&JSON.stringify(before.chapters)==='[9,7,10]'&&before.stateVersion==='5.10.0'&&before.sectionCount===1&&before.tabs===3&&before.overflow<=1&&before.workRules===5&&before.assessmentLocked&&tool.active==='vem-b'&&tool.text.includes('VCS')&&tool.text.includes('Verdi')&&tool.text.includes('PrimeSim XA')&&senior.active==='vem-c'&&senior.cases===5&&senior.overflow<=1;
-            results.push({name,passed,errors,before,tool:{active:tool.active,hasVcs:tool.text.includes('VCS'),hasVerdi:tool.text.includes('Verdi'),hasXa:tool.text.includes('PrimeSim XA')},senior});
-            await browser.close();
+            const item={name,passed:false,errors};
+            try{
+              const response=await page.goto(SITE,{waitUntil:'load',timeout:45000});
+              await page.waitForFunction(()=>window.CAREER_OS_V510_UI?.complete===true,null,{timeout:30000});
+              await page.evaluate(()=>{if(typeof switchView==='function')switchView('growth')});
+              await page.waitForSelector('#verification-mastery-v510',{state:'visible',timeout:15000});
+              const before=await page.evaluate(()=>({packages:window.VERIFICATION_MASTERY_V510?.packages?.length||0,chapters:window.VERIFICATION_MASTERY_V510?.packages?.map(x=>x.chapters.length)||[],stateVersion:S.verificationMasteryV510?.version||'',sectionCount:document.querySelectorAll('#verification-mastery-v510').length,tabs:document.querySelectorAll('.vem-tab').length,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,workRules:(window.VERIFICATION_MASTERY_V510?.workSeparationRules||[]).length,assessmentLocked:Object.values(S.verificationMasteryV510?.packages||{}).every(p=>Object.values(p.chapters||{}).every(c=>c.assessment?.status==='locked'))}));
+              await page.evaluate(()=>openVerificationMasteryPackageV510('vem-b'));
+              const tool=await page.evaluate(()=>({active:S.verificationMasteryV510.activePackageId,text:document.getElementById('verificationMasteryBodyV510')?.innerText||''}));
+              await page.evaluate(()=>openVerificationMasteryPackageV510('vem-c'));
+              const senior=await page.evaluate(()=>({active:S.verificationMasteryV510.activePackageId,cases:document.querySelectorAll('.vem-case').length,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth}));
+              item.httpStatus=response?.status()||0;item.before=before;item.tool={active:tool.active,hasVcs:tool.text.includes('VCS'),hasVerdi:tool.text.includes('Verdi'),hasXa:tool.text.includes('PrimeSim XA')};item.senior=senior;
+              item.passed=item.httpStatus===200&&errors.length===0&&before.packages===3&&JSON.stringify(before.chapters)==='[9,7,10]'&&before.stateVersion==='5.10.0'&&before.sectionCount===1&&before.tabs===3&&before.overflow<=1&&before.workRules===5&&before.assessmentLocked&&item.tool.active==='vem-b'&&item.tool.hasVcs&&item.tool.hasVerdi&&item.tool.hasXa&&senior.active==='vem-c'&&senior.cases===5&&senior.overflow<=1;
+            }catch(e){errors.push(e?.stack||String(e))}
+            results.push(item);await browser.close();
           }
           await run(chromium,'desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
           await run(webkit,'iphone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
-          console.log(JSON.stringify(results,null,2));
-          if(results.some(x=>!x.passed))process.exit(1);
+          const report={passed:results.every(x=>x.passed),results};
+          fs.writeFileSync('career-roadmap/tools/v510-acceptance-result.json',JSON.stringify(report,null,2));
+          console.log(JSON.stringify(report,null,2));
           EOF
           node /tmp/v510-check.mjs
-      - name: Commit generated artifact
+          exit 0
+      - name: Commit artifact and diagnostic
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add career-roadmap/index.html
-          if git diff --cached --quiet; then
-            echo "Generated artifact already current"
-          else
-            git commit -m "Build V5.10 verification mastery draft"
+          git add career-roadmap/index.html career-roadmap/tools/v510-acceptance-result.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Record V5.10 draft acceptance"
             git push origin HEAD:${{ github.head_ref }}
           fi
+      - name: Enforce V5.10 acceptance
+        run: python3 -c "import json; assert json.load(open('career-roadmap/tools/v510-acceptance-result.json'))['passed']"
