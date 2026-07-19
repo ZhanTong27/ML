@@ -8,7 +8,7 @@ on:
       - career-roadmap/tools/v510-trigger.txt
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-draft:
@@ -16,13 +16,15 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
       - name: Validate and build
         run: |
           node --check career-roadmap/curriculum/v510-verification-mastery-data.js
           node --check career-roadmap/curriculum/v510-verification-mastery-state.js
           node --check career-roadmap/curriculum/v510-verification-mastery-ui.js
           python3 career-roadmap/build_single_file.py
-          git diff --exit-code -- career-roadmap/index.html
           grep -q CAREER_OS_V510_VERIFICATION_MASTERY career-roadmap/index.html
       - name: Install browser runtimes
         run: |
@@ -44,10 +46,10 @@ jobs:
           async function run(type,name,options){
             const browser=await type.launch({headless:true});const page=await browser.newPage(options);const errors=[];
             page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});const item={name,passed:false,errors};
-            try{const response=await page.goto(SITE,{waitUntil:'load',timeout:45000});await page.waitForFunction(()=>window.CAREER_OS_V510_UI?.complete===true,null,{timeout:30000});await page.evaluate(()=>{if(typeof switchView==='function')switchView('growth')});await page.waitForSelector('#verification-mastery-v510',{state:'visible',timeout:15000});
-              const before=await page.evaluate(()=>({packages:window.VERIFICATION_MASTERY_V510?.packages?.length||0,chapters:window.VERIFICATION_MASTERY_V510?.packages?.map(x=>x.chapters.length)||[],stateVersion:S.verificationMasteryV510?.version||'',sectionCount:document.querySelectorAll('#verification-mastery-v510').length,tabs:document.querySelectorAll('.vem-tab').length,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,workRules:(window.VERIFICATION_MASTERY_V510?.workSeparationRules||[]).length,assessmentLocked:Object.values(S.verificationMasteryV510?.packages||{}).every(p=>Object.values(p.chapters||{}).every(c=>c.assessment?.status==='locked'))}));
+            try{const response=await page.goto(SITE,{waitUntil:'load',timeout:45000});await page.waitForFunction(()=>window.CAREER_OS_V510_UI?.complete===true,null,{timeout:30000});await page.evaluate(()=>{if(typeof switchView==='function')switchView('growth')});await page.click('#growth-nav-v58 [data-v58-nav="mastery"]');await page.waitForSelector('#verification-mastery-v510',{state:'visible',timeout:15000});
+              const before=await page.evaluate(()=>({packages:window.VERIFICATION_MASTERY_V510?.packages?.length||0,chapters:window.VERIFICATION_MASTERY_V510?.packages?.map(x=>x.chapters.length)||[],stateVersion:S.verificationMasteryV510?.version||'',sectionCount:document.querySelectorAll('#verification-mastery-v510').length,tabs:document.querySelectorAll('.vem-tab').length,masteryNav:document.querySelectorAll('#growth-nav-v58 [data-v58-nav="mastery"]').length,activeGrowth:S.growthHubV58?.activeView||'',overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,workRules:(window.VERIFICATION_MASTERY_V510?.workSeparationRules||[]).length,assessmentLocked:Object.values(S.verificationMasteryV510?.packages||{}).every(p=>Object.values(p.chapters||{}).every(c=>c.assessment?.status==='locked'))}));
               await page.evaluate(()=>openVerificationMasteryPackageV510('vem-b'));const tool=await page.evaluate(()=>({active:S.verificationMasteryV510.activePackageId,text:document.getElementById('verificationMasteryBodyV510')?.innerText||''}));await page.evaluate(()=>openVerificationMasteryPackageV510('vem-c'));const senior=await page.evaluate(()=>({active:S.verificationMasteryV510.activePackageId,cases:document.querySelectorAll('.vem-case').length,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth}));
-              item.httpStatus=response?.status()||0;item.before=before;item.tool={active:tool.active,hasVcs:tool.text.includes('VCS'),hasVerdi:tool.text.includes('Verdi'),hasXa:tool.text.includes('PrimeSim XA')};item.senior=senior;item.passed=item.httpStatus===200&&errors.length===0&&before.packages===3&&JSON.stringify(before.chapters)==='[9,7,10]'&&before.stateVersion==='5.10.0'&&before.sectionCount===1&&before.tabs===3&&before.overflow<=1&&before.workRules===5&&before.assessmentLocked&&item.tool.active==='vem-b'&&item.tool.hasVcs&&item.tool.hasVerdi&&item.tool.hasXa&&senior.active==='vem-c'&&senior.cases===5&&senior.overflow<=1;
+              item.httpStatus=response?.status()||0;item.before=before;item.tool={active:tool.active,hasVcs:tool.text.includes('VCS'),hasVerdi:tool.text.includes('Verdi'),hasXa:tool.text.includes('PrimeSim XA')};item.senior=senior;item.passed=item.httpStatus===200&&errors.length===0&&before.packages===3&&JSON.stringify(before.chapters)==='[9,7,10]'&&before.stateVersion==='5.10.0'&&before.sectionCount===1&&before.tabs===3&&before.masteryNav===1&&before.activeGrowth==='mastery'&&before.overflow<=1&&before.workRules===5&&before.assessmentLocked&&item.tool.active==='vem-b'&&item.tool.hasVcs&&item.tool.hasVerdi&&item.tool.hasXa&&senior.active==='vem-c'&&senior.cases===5&&senior.overflow<=1;
               await page.screenshot({path:`/tmp/v510-acceptance/${name}.png`,fullPage:false});
             }catch(e){errors.push(e?.stack||String(e))}results.push(item);await browser.close();
           }
@@ -63,3 +65,12 @@ jobs:
           path: /tmp/v510-acceptance
       - name: Enforce V5.10 acceptance
         run: python3 -c "import json; assert json.load(open('/tmp/v510-acceptance/result.json'))['passed']"
+      - name: Commit generated draft
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add career-roadmap/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Build V5.10 verification mastery navigation"
+            git push origin HEAD:${{ github.head_ref }}
+          fi
