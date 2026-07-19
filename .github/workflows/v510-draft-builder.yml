@@ -1,0 +1,43 @@
+name: Career OS V5.10 Draft Builder
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - career-roadmap/tools/v510-trigger.txt
+
+permissions:
+  contents: write
+
+jobs:
+  build-draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Validate V5.10 source files
+        run: |
+          node --check career-roadmap/curriculum/v510-verification-mastery-data.js
+          node --check career-roadmap/curriculum/v510-verification-mastery-state.js
+          node --check career-roadmap/curriculum/v510-verification-mastery-ui.js
+      - name: Build single-file site
+        run: python3 career-roadmap/build_single_file.py
+      - name: Validate generated markers
+        run: |
+          grep -q CAREER_OS_V510_VERIFICATION_MASTERY career-roadmap/index.html
+          grep -q "Verification Engineering Mastery" career-roadmap/index.html
+      - name: Commit generated artifact
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add career-roadmap/index.html
+          if git diff --cached --quiet; then
+            echo "Generated artifact already current"
+          else
+            git commit -m "Build V5.10 verification mastery draft"
+            git push origin HEAD:${{ github.head_ref }}
+          fi
