@@ -38,6 +38,7 @@ function normalizeState(s){
   out.abilities=arr(out.abilities).length?out.abilities:base.abilities;
   out.resume={...base.resume,...(out.resume||{})};
   ['dailyLogs','problemLogs','weeklyReviews','schedule','cycleArchives','customLearning'].forEach(k=>out[k]=arr(out[k]));
+  out.weeklyReviews=out.weeklyReviews.map(normalizeLegacyWeeklyRecord);
   out.checks=out.checks||{};out.settings={...base.settings,...(out.settings||{})};out.version=CAREER_OS_VERSION;
   return out
 }
@@ -82,29 +83,35 @@ function learningStats(){
   return{all:Math.round(done/all.length*100),self:self.length?Math.round(self.filter(t=>S.checks[t.id]).length/self.length*100):0,feedback:feedback.length?Math.round(feedback.filter(t=>S.checks[t.id]).length/feedback.length*100):0,week:weekTaskStats().pct}
 }
 function weeklyLogCount(){const start=weekStart(),end=addDays(start,6);return S.dailyLogs.filter(x=>x.date>=start&&x.date<=end).length}
-function weeklyRangeText(range){
-  if(typeof range==='string')return range;
+function weeklyRangeBounds(range,record={}){
+  let start=String(record?.rangeStart||record?.start||''),end=String(record?.rangeEnd||record?.end||'');
   if(range&&typeof range==='object'){
-    const start=String(range.start||''),end=String(range.end||'');
-    return start&&end?`${start}—${end}`:(start||end||'')
+    start=String(range.start||start||'');end=String(range.end||end||'')
+  }else if(typeof range==='string'){
+    const dates=range.match(/\d{4}-\d{2}-\d{2}/g)||[];
+    start=start||dates[0]||'';end=end||dates[1]||dates[0]||''
   }
-  return ''
+  const label=start&&end?`${start}—${end}`:(start||end||(typeof range==='string'?range:''));
+  return{start,end,label}
 }
-function weeklyRangeIncludes(range,date){
-  if(typeof range==='string')return range.includes(date);
-  if(range&&typeof range==='object'){
-    const start=String(range.start||''),end=String(range.end||'');
-    return Boolean(date&&(date===start||date===end||(start&&end&&date>=start&&date<=end)))
-  }
-  return false
+function weeklyRangeText(range,record={}){return weeklyRangeBounds(range,record).label}
+function weeklyRangeIncludes(range,date,record={}){
+  const b=weeklyRangeBounds(range,record);
+  if(!date)return false;
+  if(b.start&&b.end)return date>=b.start&&date<=b.end;
+  return b.label.includes(date)
 }
-function latestWeekly(){return [...S.weeklyReviews].sort((a,b)=>(b.createdAt||weeklyRangeText(b.range)).localeCompare(a.createdAt||weeklyRangeText(a.range)))[0]}
+function normalizeLegacyWeeklyRecord(record={}){
+  const b=weeklyRangeBounds(record.range,record);
+  return{...record,range:b.label,rangeStart:b.start,rangeEnd:b.end,rangeContract:'legacy-weekly-v2'}
+}
+function latestWeekly(){return [...S.weeklyReviews].sort((a,b)=>(b.createdAt||weeklyRangeText(b.range,b)).localeCompare(a.createdAt||weeklyRangeText(a.range,a)))[0]}
 
 function renderToday(){
   $('#todayDate').value=S.selectedDate;$('#todayTitle').textContent=dateLabel(S.selectedDate);
   const log=selectedDaily(),week=currentWeek(),stats=weekTaskStats();
   $('#todayRecordStatus').textContent=log?'已记录':'未记录';$('#todayRecordStatus').classList.toggle('done',!!log);
-  const start=weekStart(),weeklyDone=!!S.weeklyReviews.find(x=>weeklyRangeIncludes(x.range,start));
+  const start=weekStart(),weeklyDone=!!S.weeklyReviews.find(x=>weeklyRangeIncludes(x.range,start,x));
   $('#todayStatusRow').innerHTML=[
     ['今日记录',log?'已完成':'等待口述',log?'事实已经进入系统':'点击“记录今天”即可'],
     ['本周额外学习',`${stats.done} / ${stats.total} 项`,`${stats.pct}% 完成，只统计工作之外`],
@@ -199,8 +206,8 @@ function renderProblems(){
   $('#problemFeed').innerHTML=items.length?items.map(x=>`<article class="entry"><header><span>${esc(x.date||'未标日期')} · ${esc(x.independence||'独立程度待确认')}</span><div class="tag-row">${x.aiObservation?.importance==='important'?'<span class="tag good">重要经历</span>':''}${x.aiObservation?.repeat?'<span class="tag problem">重复问题</span>':''}</div></header><h3>${esc(x.title||'问题日志')}</h3><p><b>根因：</b>${esc(x.rootCause||x.raw||'待整理')}</p><p><b>理解变化：</b>${esc(x.understandingChange||'待补充')}</p><div class="tag-row">${arr(x.abilities).map(a=>`<span class="tag">${esc(typeof a==='string'?a:a.id)}</span>`).join('')}</div><details><summary>展开完整过程</summary><p><b>预期与实际：</b>${esc(x.expected||'')} / ${esc(x.actual||'')}</p><p><b>最初判断：</b>${esc(x.initialJudgment||'')}</p><ol>${arr(x.analysis).map(a=>`<li>${esc(a)}</li>`).join('')}</ol><p><b>解决方式：</b>${esc(x.solution||'')}</p><p><b>可迁移方法：</b>${arr(x.transferableMethod).map(esc).join('；')}</p></details></article>`).join(''):'<div class="empty">还没有问题日志。只有重要或值得复盘的问题才需要单独记录。</div>'
 }
 function renderWeekly(){
-  const items=[...S.weeklyReviews].sort((a,b)=>(b.createdAt||weeklyRangeText(b.range)).localeCompare(a.createdAt||weeklyRangeText(a.range)));
-  const html=items.length?items.map(x=>`<article class="entry"><header><span>${esc(weeklyRangeText(x.range)||'周度复盘')}</span><span>${esc(x.createdAt||'')}</span></header><h3>${esc(arr(x.workSummary)[0]||'本周总结')}</h3>${x.raw?`<p>${esc(x.raw)}</p>`:`<div class="grid2"><div><p><b>主要工作</b></p><ul>${arr(x.workSummary).map(a=>`<li>${esc(a)}</li>`).join('')}</ul><p><b>能力观察</b></p><ul>${arr(x.abilityChanges).map(a=>`<li>${esc(a.change||a)}</li>`).join('')}</ul></div><div><p><b>下周工作关注点</b></p><ul>${arr(x.nextWeekWorkFocus).map(a=>`<li>${esc(a)}</li>`).join('')}</ul><p><b>反馈问题</b></p><ul>${arr(x.reviewQuestions).map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div></div>`}</article>`).join(''):'<div class="empty">还没有周度复盘。周末由AI读取一整周记录后生成。</div>';
+  const items=[...S.weeklyReviews].sort((a,b)=>(b.createdAt||weeklyRangeText(b.range,b)).localeCompare(a.createdAt||weeklyRangeText(a.range,a)));
+  const html=items.length?items.map(x=>`<article class="entry"><header><span>${esc(weeklyRangeText(x.range,x)||'周度复盘')}</span><span>${esc(x.createdAt||'')}</span></header><h3>${esc(arr(x.workSummary)[0]||'本周总结')}</h3>${x.raw?`<p>${esc(x.raw)}</p>`:`<div class="grid2"><div><p><b>主要工作</b></p><ul>${arr(x.workSummary).map(a=>`<li>${esc(a)}</li>`).join('')}</ul><p><b>能力观察</b></p><ul>${arr(x.abilityChanges).map(a=>`<li>${esc(a.change||a)}</li>`).join('')}</ul></div><div><p><b>下周工作关注点</b></p><ul>${arr(x.nextWeekWorkFocus).map(a=>`<li>${esc(a)}</li>`).join('')}</ul><p><b>反馈问题</b></p><ul>${arr(x.reviewQuestions).map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div></div>`}</article>`).join(''):'<div class="empty">还没有周度复盘。周末由AI读取一整周记录后生成。</div>';
   $('#weeklyFeed').innerHTML=html;$('#historicalWeeklyFeed').innerHTML=html
 }
 function renderAbilities(){
@@ -281,7 +288,7 @@ function saveQuick(mode){
       const data=parseMaybeJSON($('#qText').value);
       if(mode==='daily'){data.id=data.id||uid('daily');data.date=data.date||$('#qDate').value||S.selectedDate;S.dailyLogs=S.dailyLogs.filter(x=>x.date!==data.date);S.dailyLogs.push(data);S.selectedDate=data.date}
       if(mode==='problem'){data.id=data.id||uid('problem');data.date=data.date||$('#qDate').value||S.selectedDate;S.problemLogs.unshift(data)}
-      if(mode==='weekly'){data.id=data.id||uid('weekly');data.range=data.range||$('#qRange').value;data.createdAt=localISO();S.weeklyReviews.unshift(data);applyWeeklyOutputs(data)}
+      if(mode==='weekly'){data.id=data.id||uid('weekly');data.range=data.range||$('#qRange').value;data.createdAt=localISO();const normalized=normalizeLegacyWeeklyRecord(data);S.weeklyReviews.unshift(normalized);applyWeeklyOutputs(normalized)}
       if(mode==='ability'){applyAbilityUpdate(data)}
       if(mode==='resume'){S.resume={...S.resume,...data};['education','experiences','projects','skills','awards','versions','candidates'].forEach(k=>S.resume[k]=arr(S.resume[k]))}
     }
@@ -290,10 +297,11 @@ function saveQuick(mode){
 }
 function applyWeeklyOutputs(data){
   arr(data.nextWeekLearning).forEach((t,i)=>{
-    const id=t.id||`custom-${(data.range||localISO()).replace(/\D/g,'')}-${i}`;
+    const period=weeklyRangeBounds(data.range,data);
+    const id=t.id||`custom-${(period.label||localISO()).replace(/\D/g,'')}-${i}`;
     if(!S.customLearning.some(x=>x.id===id))S.customLearning.push({...t,id,priority:t.priority||'regular',kind:t.kind||'学习',output:t.output||'学习记录',fallback:t.fallback||'完成最小版本'})
   });
-  arr(data.resumeCandidates).forEach(c=>{if(!S.resume.candidates.some(x=>x.title===c.title))S.resume.candidates.unshift({...c,status:'candidate',source:data.range})});
+  arr(data.resumeCandidates).forEach(c=>{if(!S.resume.candidates.some(x=>x.title===c.title))S.resume.candidates.unshift({...c,status:'candidate',source:weeklyRangeText(data.range,data)})});
   if(arr(data.abilityChanges).length)applyAbilityUpdate({abilities:data.abilityChanges.map(a=>({...a,signal:a.evidence||a.change}))})
 }
 function applyAbilityUpdate(data){

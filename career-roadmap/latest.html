@@ -15,7 +15,7 @@
   <main class="box">
     <div class="eyebrow">CAREER OS · LATEST</div>
     <h1>正在加载最新版</h1>
-    <p class="muted" id="status">正在修复旧周报兼容格式，并绕过浏览器缓存。</p>
+    <p class="muted" id="status">正在迁移周报范围数据并加载Career OS V5.9.7。</p>
     <pre class="error" id="error"></pre>
     <button id="retry" hidden>重新加载</button>
   </main>
@@ -44,11 +44,11 @@
             if(changed)localStorage.setItem(KEY,JSON.stringify(state));
           }
         }
-        const url=`./index.html?build=range-fix-c7cd2bd-${Date.now()}`;
+        const url=`./index.html?build=weekly-range-contract-v597-${Date.now()}`;
         const response=await fetch(url,{cache:'no-store',headers:{'Cache-Control':'no-cache'}});
         if(!response.ok)throw new Error(`最新版页面加载失败：HTTP ${response.status}`);
         const html=await response.text();
-        if(!html.includes('weeklyRangeIncludes'))throw new Error('服务器仍返回旧版页面，请稍后重新打开此入口。');
+        if(!html.includes('CAREER_OS_V597_WEEKLY_RANGE_CONTRACT'))throw new Error('服务器仍返回旧版页面，请稍后重新打开此入口。');
         document.open();
         document.write(html);
         document.close();
