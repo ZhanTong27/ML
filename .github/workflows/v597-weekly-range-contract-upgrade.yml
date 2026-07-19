@@ -29,6 +29,7 @@ jobs:
             status=0
           else
             sed -i 's/{".js", ".html", ".py"}/{".js", ".html"}/' career-roadmap/tools/v597_upgrade.py
+            sed -i 's/if path.suffix not in {".js", ".html"}:/if path.suffix not in {".js", ".html"} or path.name == "index.html":/' career-roadmap/tools/v597_upgrade.py
             python3 career-roadmap/tools/v597_upgrade.py > career-roadmap/tools/v597-last-error.log 2>&1
             status=$?
           fi
@@ -48,6 +49,9 @@ jobs:
             node --check career-roadmap/curriculum/v40-reviews.js
             node --check career-roadmap/curriculum/v597-weekly-range-contract.js
             grep -q CAREER_OS_V597_WEEKLY_RANGE_CONTRACT career-roadmap/index.html
+            if grep -RInE "\(x\.range\|\|['\"]{2}\)\.includes|\(data\.range\|\|localISO\(\)\)\.replace" career-roadmap --include='*.js' --include='*.html'; then
+              exit 1
+            fi
           fi
       - name: Commit result or diagnostic to PR branch
         shell: bash
