@@ -1,4 +1,3 @@
 Build and validate the V5.11 daily import date integrity repair.
-Apply the deterministic core app.js patch script.
+Apply the core app.js and V5.1 Daily closure save-path patches.
 Run desktop Chromium and iPhone WebKit migration, non-match and conflicting-date acceptance.
-Persist the final browser acceptance artifact.
