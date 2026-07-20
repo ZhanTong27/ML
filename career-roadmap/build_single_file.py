@@ -106,6 +106,7 @@ EXTRA_SOURCES = [
     'curriculum/v510-verification-mastery-data.js',
     'curriculum/v510-verification-mastery-state.js',
     'curriculum/v510-verification-mastery-ui.js',
+    'curriculum/v511-daily-date-integrity.js',
 ]
 
 REQUIRED_MARKERS = [
@@ -161,6 +162,7 @@ REQUIRED_MARKERS = [
     'Zhantong · Career OS V5.9',
     'CAREER_OS_V510_VERIFICATION_MASTERY',
     'Verification Engineering Mastery',
+    'CAREER_OS_V511_DAILY_DATE_INTEGRITY',
 ]
 
 
