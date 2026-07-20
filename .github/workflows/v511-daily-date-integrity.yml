@@ -1,0 +1,118 @@
+name: Career OS V5.11 Daily Date Integrity
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - career-roadmap/tools/v511-trigger.txt
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Register V5.11 source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path('career-roadmap/build_single_file.py')
+          text=path.read_text(encoding='utf-8')
+          source="    'curriculum/v511-daily-date-integrity.js',\n"
+          if source not in text:
+              anchor="    'curriculum/v510-verification-mastery-ui.js',\n"
+              if anchor not in text: raise SystemExit('V5.10 source anchor missing')
+              text=text.replace(anchor,anchor+source,1)
+          marker="    'CAREER_OS_V511_DAILY_DATE_INTEGRITY',\n"
+          if marker not in text:
+              anchor="    'Verification Engineering Mastery',\n"
+              if anchor not in text: raise SystemExit('V5.10 marker anchor missing')
+              text=text.replace(anchor,anchor+marker,1)
+          path.write_text(text,encoding='utf-8')
+          PY
+      - name: Build and validate syntax
+        run: |
+          node --check career-roadmap/curriculum/v511-daily-date-integrity.js
+          python3 career-roadmap/build_single_file.py
+          grep -q CAREER_OS_V511_DAILY_DATE_INTEGRITY career-roadmap/index.html
+      - name: Install browser runtimes
+        run: |
+          npm install --no-save --silent playwright@1.54.1
+          npx playwright install --with-deps chromium webkit >/tmp/v511-playwright.log 2>&1 || (cat /tmp/v511-playwright.log && exit 1)
+      - name: Run migration and import-date acceptance
+        run: |
+          python3 -m http.server 8080 >/tmp/v511-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          for i in {1..30}; do curl -fsS http://127.0.0.1:8080/career-roadmap/ >/dev/null && break; sleep 1; done
+          cat > v511-check.mjs <<'EOF'
+          import {chromium,webkit,devices} from 'playwright';
+          const SITE='http://127.0.0.1:8080/career-roadmap/?v511=1';
+          const results=[];
+          async function run(type,name,options){
+            const browser=await type.launch({headless:true});
+            const context=await browser.newContext(options);
+            await context.addInitScript(()=>{
+              localStorage.setItem('jett-career-os-v22',JSON.stringify({
+                selectedDate:'2026-07-18',calendarMonth:'2026-07',week:'w1',checks:{},settings:{lastView:'today'},
+                dailyLogs:[
+                  {id:'legitimate-0718',date:'2026-07-18',summary:'legitimate July 18 record'},
+                  {id:'misdated-0720',date:'2026-07-18',summary:'完成line coverage补齐；导师将部分人力转向时钟与复位UT自动生成方向；尚未进入生成器实现阶段。'}
+                ],problemLogs:[],weeklyReviews:[],schedule:[],cycleArchives:[],customLearning:[],abilities:[],resume:{}
+              }));
+            });
+            const page=await context.newPage();const errors=[];
+            page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+            const response=await page.goto(SITE,{waitUntil:'load',timeout:45000});
+            await page.waitForFunction(()=>window.CAREER_OS_V511?.complete===true,null,{timeout:30000});
+            const migrated=await page.evaluate(()=>({
+              legitimate:S.dailyLogs.some(x=>x.id==='legitimate-0718'&&x.date==='2026-07-18'),
+              moved:S.dailyLogs.some(x=>x.id==='misdated-0720'&&x.date==='2026-07-20'),
+              oldMisdated:S.dailyLogs.some(x=>x.id==='misdated-0720'&&x.date==='2026-07-18'),
+              selectedDate:S.selectedDate,
+              backup:!!localStorage.getItem('zhantong-career-os-v5-pre-v511-daily-date')
+            }));
+            await page.evaluate(()=>openQuick('daily'));
+            const defaultDate=await page.$eval('#qDate',el=>el.value);
+            const localToday=await page.evaluate(()=>localISO());
+            await page.evaluate(()=>{
+              document.getElementById('qDate').value='2026-07-21';
+              document.getElementById('qText').value=JSON.stringify({date:'2026-07-18',summary:'date conflict regression'});
+              saveQuick('daily');
+            });
+            const imported=await page.evaluate(()=>{
+              const item=S.dailyLogs.find(x=>x.date==='2026-07-21');
+              return{
+                saved:!!item,
+                payloadDate:item?.importMeta?.dateMismatch?.payloadDate||'',
+                resolution:item?.importMeta?.dateMismatch?.resolution||'',
+                selectedDate:S.selectedDate,
+                legitimateStillThere:S.dailyLogs.some(x=>x.id==='legitimate-0718'&&x.date==='2026-07-18')
+              }
+            });
+            const passed=response?.status()===200&&errors.length===0&&migrated.legitimate&&migrated.moved&&!migrated.oldMisdated&&migrated.selectedDate==='2026-07-20'&&migrated.backup&&defaultDate===localToday&&imported.saved&&imported.payloadDate==='2026-07-18'&&imported.resolution==='selected-date-wins'&&imported.selectedDate==='2026-07-21'&&imported.legitimateStillThere;
+            results.push({name,passed,errors,migrated,defaultDate,localToday,imported});
+            await browser.close();
+          }
+          await run(chromium,'desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
+          await run(webkit,'iphone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
+          console.log(JSON.stringify(results,null,2));
+          if(results.some(x=>!x.passed))process.exit(1);
+          EOF
+          node v511-check.mjs
+      - name: Commit generated repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add career-roadmap/build_single_file.py career-roadmap/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Build V5.11 daily date integrity repair"
+            git push origin HEAD:${{ github.head_ref }}
+          fi
