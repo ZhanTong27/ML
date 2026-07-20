@@ -24,6 +24,23 @@ def patch_build() -> None:
     path.write_text(text, encoding="utf-8")
 
 
+def daily_save_body() -> str:
+    return """function saveDailyWithClosureV51(){
+  try{
+    const data=parseMaybeJSON(document.querySelector('#qText').value);
+    if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('每日记录必须是JSON对象或完整文本');
+    const formDate=document.querySelector('#qDate')?.value||localISO();
+    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(formDate))throw new Error('请选择有效日期');
+    const payloadDate=/^\\d{4}-\\d{2}-\\d{2}$/.test(String(data.date||''))?String(data.date):'';
+    data.id=data.id||uid('daily');data.date=formDate;
+    if(payloadDate&&payloadDate!==formDate)data.importMeta={...(data.importMeta||{}),dateMismatch:{payloadDate,selectedDate:formDate,resolution:'selected-date-wins',resolvedAt:new Date().toISOString()}};
+    S.dailyLogs=S.dailyLogs.filter(x=>x.date!==formDate);S.dailyLogs.push(data);S.selectedDate=formDate;S.calendarMonth=formDate.slice(0,7);
+    importClosuresFromDailyV51(data,formDate);save();closeModals();renderAll();
+    toast(payloadDate&&payloadDate!==formDate?`已按日期栏保存到${formDate}，JSON日期${payloadDate}已忽略；重要问题已进入闭环队列`:'每日记录已保存，重要问题已进入闭环队列')
+  }catch(e){toast(e.message||'每日记录格式错误')}
+}"""
+
+
 def patch_app() -> None:
     path = ROOT / "app.js"
     text = path.read_text(encoding="utf-8")
@@ -66,9 +83,20 @@ def patch_app() -> None:
     path.write_text(text, encoding="utf-8")
 
 
+def patch_daily_closure() -> None:
+    path = ROOT / "curriculum/v51-daily-closure-loop.js"
+    text = path.read_text(encoding="utf-8")
+    if "已按日期栏保存到${formDate}" not in text:
+        start = text.index("function saveDailyWithClosureV51(){")
+        end = text.index("\nfunction importClosuresFromDailyV51", start)
+        text = text[:start] + daily_save_body() + text[end:]
+    path.write_text(text, encoding="utf-8")
+
+
 def main() -> None:
     patch_build()
     patch_app()
+    patch_daily_closure()
     print("V5.11 daily date integrity source patch applied")
 
 
