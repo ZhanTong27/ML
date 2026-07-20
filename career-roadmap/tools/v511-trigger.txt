@@ -1,3 +1,4 @@
 Build and validate the V5.11 daily import date integrity repair.
 Patch the core app.js Daily import date authority.
 Run desktop Chromium and iPhone WebKit migration, non-match and conflicting-date acceptance.
+Final retrigger after workflow definition refresh.
