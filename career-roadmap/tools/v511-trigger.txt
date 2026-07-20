@@ -1,2 +1,3 @@
 Build and validate the V5.11 daily import date integrity repair.
 Run realistic desktop Chromium and iPhone WebKit migration, non-match and date-authority acceptance.
+Persist the full acceptance report for diagnosis.
