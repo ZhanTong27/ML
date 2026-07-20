@@ -1,4 +1,5 @@
 import { chromium, webkit, devices } from 'playwright';
+import fs from 'node:fs';
 
 const SITE = 'http://127.0.0.1:8080/career-roadmap/?v511=1';
 const results = [];
@@ -127,5 +128,8 @@ async function run(type, name, options) {
 
 await run(chromium, 'desktop', { viewport: { width: 1440, height: 1000 }, locale: 'zh-CN' });
 await run(webkit, 'iphone', { ...devices['iPhone 15 Pro'], locale: 'zh-CN' });
-console.log(JSON.stringify(results, null, 2));
-if (results.some((item) => !item.passed)) process.exit(1);
+const report = { passed: results.every((item) => item.passed), results };
+fs.mkdirSync('/tmp/v511-final', { recursive: true });
+fs.writeFileSync('/tmp/v511-final/result.json', JSON.stringify(report, null, 2));
+console.log(JSON.stringify(report, null, 2));
+if (!report.passed) process.exit(1);
