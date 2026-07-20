@@ -28,12 +28,25 @@ jobs:
       - run: |
           npm install --no-save --silent playwright@1.54.1
           npx playwright install --with-deps chromium webkit
-      - run: |
-          python3 -m http.server 8080 >/tmp/v511-final-server.log 2>&1 &
+      - name: Run browser acceptance
+        shell: bash
+        run: |
+          set +e
+          mkdir -p /tmp/v511-final
+          python3 -m http.server 8080 >/tmp/v511-final/server.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
           for i in {1..30}; do curl -fsS http://127.0.0.1:8080/career-roadmap/ >/dev/null && break; sleep 1; done
-          node career-roadmap/tools/v511_check.mjs
+          node career-roadmap/tools/v511_check.mjs >/tmp/v511-final/node.log 2>&1
+          exit 0
+      - name: Upload browser acceptance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: career-os-v511-final
+          path: /tmp/v511-final
+      - name: Enforce browser acceptance
+        run: python3 -c "import json; assert json.load(open('/tmp/v511-final/result.json'))['passed']"
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
