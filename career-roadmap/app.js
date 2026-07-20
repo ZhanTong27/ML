@@ -277,22 +277,32 @@ function quickForm(mode){
   if(mode==='schedule')return `<div class="quick-form"><label>日期<input id="qDate" type="date" value="${S.selectedDate}"></label><label>类别<select id="qType"><option value="work">工作</option><option value="learn">额外学习</option><option value="life">锻炼 / 生活</option></select></label><label>标题<input id="qTitle" placeholder="例如：力量训练 / AI口试"></label><label>时间<input id="qTime" placeholder="例如：20:30—21:10"></label><div class="actions"><button class="primary" data-save>保存安排</button></div></div>`;
   const promptKey={daily:'daily',problem:'problem',weekly:'weekly',ability:'ability',resume:'resume'}[mode];
   const placeholders={daily:'粘贴每日记录JSON；无法提供JSON时也可以粘贴完整文本。',problem:'粘贴问题日志JSON。',weekly:'粘贴周复盘JSON。',ability:'粘贴能力更新JSON。',resume:'粘贴简历档案JSON。'};
-  const dateField=mode==='daily'||mode==='problem'?`<label>日期<input id="qDate" type="date" value="${S.selectedDate}"></label>`:mode==='weekly'?`<label>周次<input id="qRange" value="${weekStart()}—${addDays(weekStart(),6)}"></label>`:'';
+  const dateField=mode==='daily'?`<label>日期<input id="qDate" type="date" value="${localISO()}"></label><p class="muted" style="margin:-4px 0 3px">日期栏是最终保存日期；若JSON中的date不同，将以此处为准并记录冲突。</p>`:mode==='problem'?`<label>日期<input id="qDate" type="date" value="${S.selectedDate}"></label>`:mode==='weekly'?`<label>周次<input id="qRange" value="${weekStart()}—${addDays(weekStart(),6)}"></label>`:'';
   return `<div class="quick-form"><div class="prompt-box"><div class="prompt-head"><div><b>${PROMPTS[promptKey].title}</b><p class="muted" style="margin:3px 0">${PROMPTS[promptKey].description}</p></div><button class="secondary small-btn" data-copy="${promptKey}">复制Prompt</button></div></div>${dateField}<label>AI输出<textarea id="qText" placeholder="${placeholders[mode]}"></textarea></label><div class="actions"><button class="primary" data-save>保存并更新网站</button></div></div>`
 }
 function saveQuick(mode){
   try{
+    let successMessage='已保存并更新';
     if(mode==='schedule'){
       const title=$('#qTitle').value.trim();if(!title)throw new Error('请填写标题');S.schedule.push({id:uid('schedule'),date:$('#qDate').value||S.selectedDate,type:$('#qType').value,title,time:$('#qTime').value.trim()});
     }else{
       const data=parseMaybeJSON($('#qText').value);
-      if(mode==='daily'){data.id=data.id||uid('daily');data.date=data.date||$('#qDate').value||S.selectedDate;S.dailyLogs=S.dailyLogs.filter(x=>x.date!==data.date);S.dailyLogs.push(data);S.selectedDate=data.date}
+      if(mode==='daily'){
+        if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('每日记录必须是JSON对象或完整文本');
+        const formDate=$('#qDate').value||localISO();
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(formDate))throw new Error('请选择有效日期');
+        const payloadDate=/^\d{4}-\d{2}-\d{2}$/.test(String(data.date||''))?String(data.date):'';
+        data.id=data.id||uid('daily');data.date=formDate;
+        if(payloadDate&&payloadDate!==formDate)data.importMeta={...(data.importMeta||{}),dateMismatch:{payloadDate,selectedDate:formDate,resolution:'selected-date-wins',resolvedAt:new Date().toISOString()}};
+        S.dailyLogs=S.dailyLogs.filter(x=>x.date!==formDate);S.dailyLogs.push(data);S.selectedDate=formDate;S.calendarMonth=formDate.slice(0,7);
+        if(payloadDate&&payloadDate!==formDate)successMessage=`已按日期栏保存到${formDate}，JSON日期${payloadDate}已忽略`;
+      }
       if(mode==='problem'){data.id=data.id||uid('problem');data.date=data.date||$('#qDate').value||S.selectedDate;S.problemLogs.unshift(data)}
       if(mode==='weekly'){data.id=data.id||uid('weekly');data.range=data.range||$('#qRange').value;data.createdAt=localISO();const normalized=normalizeLegacyWeeklyRecord(data);S.weeklyReviews.unshift(normalized);applyWeeklyOutputs(normalized)}
       if(mode==='ability'){applyAbilityUpdate(data)}
       if(mode==='resume'){S.resume={...S.resume,...data};['education','experiences','projects','skills','awards','versions','candidates'].forEach(k=>S.resume[k]=arr(S.resume[k]))}
     }
-    save();closeModals();renderAll();toast('已保存并更新')
+    save();closeModals();renderAll();toast(successMessage)
   }catch(e){toast(e.message||'内容格式错误')}
 }
 function applyWeeklyOutputs(data){
