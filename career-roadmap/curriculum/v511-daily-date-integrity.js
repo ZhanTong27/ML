@@ -1,6 +1,6 @@
 (function(){
  const MARKER='CAREER_OS_V511_DAILY_DATE_INTEGRITY';
- const BACKUP='jett-career-os-v22-pre-v511-daily-date';
+ const BACKUP='zhantong-career-os-v5-pre-v511-daily-date';
  const WRONG_DATE='2026-07-18',RIGHT_DATE='2026-07-20';
  const SIGNATURES=['line coverage','时钟与复位UT自动生成','尚未进入生成器实现阶段'];
  const originalQuickForm=window.quickForm;
@@ -20,7 +20,7 @@
   return ta===tb
  }
  function backup(){
-  try{const raw=localStorage.getItem('jett-career-os-v22');if(raw&&!localStorage.getItem(BACKUP))localStorage.setItem(BACKUP,raw)}catch(e){}
+  try{if(!localStorage.getItem(BACKUP))localStorage.setItem(BACKUP,JSON.stringify(S))}catch(e){}
  }
  function migrateMisdatedRecord(){
   if(typeof S!=='object'||!Array.isArray(S.dailyLogs))return false;
@@ -47,7 +47,8 @@
   });
   if(changed&&S.selectedDate===WRONG_DATE)S.selectedDate=RIGHT_DATE;
   S.dailyDateIntegrityV511={version:'5.11.0',checkedAt:new Date().toISOString(),status:changed?'corrected':'conflict',from:WRONG_DATE,to:RIGHT_DATE,matched:candidates.length};
-  if(changed){try{save()}catch(e){};setTimeout(()=>{try{renderAll();toast('已将误存的7月20日记录从7月18日移回')}catch(e){}},0)}
+  try{save()}catch(e){}
+  if(changed)setTimeout(()=>{try{renderAll();toast('已将误存的7月20日记录从7月18日移回')}catch(e){}},0);
   return changed
  }
 
