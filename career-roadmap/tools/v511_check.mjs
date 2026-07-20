@@ -50,6 +50,7 @@ async function run(type, name, options) {
           id: 'misdated-0720',
           date: '2026-07-18',
           summary: '完成line coverage补齐；导师将部分人力转向时钟与复位UT自动生成方向；尚未进入生成器实现阶段。',
+          work: [{ id: 'w-misdated', title: 'line coverage and UT review', status: 'completed' }],
         },
       ]),
     );
@@ -60,6 +61,7 @@ async function run(type, name, options) {
       oldMisdated: S.dailyLogs.some((x) => x.id === 'misdated-0720' && x.date === '2026-07-18'),
       selectedDate: S.selectedDate,
       backup: !!localStorage.getItem('zhantong-career-os-v5-pre-v511-daily-date'),
+      finalSaveCapture: window.CAREER_OS_V511?.finalSaveCapture === true,
     }));
 
     await page.evaluate(() => openQuick('daily'));
@@ -70,9 +72,11 @@ async function run(type, name, options) {
       document.getElementById('qText').value = JSON.stringify({
         date: '2026-07-18',
         summary: 'date conflict regression',
+        work: [{ id: 'w-conflict', title: 'date authority regression', status: 'completed' }],
       });
-      saveQuick('daily');
     });
+    await page.click('#quickContent [data-save]');
+    await page.waitForTimeout(200);
     const imported = await page.evaluate(() => {
       const record = S.dailyLogs.find((x) => x.date === '2026-07-21');
       return {
@@ -81,6 +85,7 @@ async function run(type, name, options) {
         resolution: record?.importMeta?.dateMismatch?.resolution || '',
         selectedDate: S.selectedDate,
         unrelatedStillThere: S.dailyLogs.some((x) => x.id === 'unrelated-0719' && x.date === '2026-07-19'),
+        wrongDateNotCreated: !S.dailyLogs.some((x) => x.summary === 'date conflict regression' && x.date === '2026-07-18'),
       };
     });
     await migratedRun.context.close();
@@ -110,12 +115,14 @@ async function run(type, name, options) {
       !migrated.oldMisdated &&
       migrated.selectedDate === '2026-07-20' &&
       migrated.backup &&
+      migrated.finalSaveCapture &&
       defaultDate === localToday &&
       imported.saved &&
       imported.payloadDate === '2026-07-18' &&
       imported.resolution === 'selected-date-wins' &&
       imported.selectedDate === '2026-07-21' &&
       imported.unrelatedStillThere &&
+      imported.wrongDateNotCreated &&
       untouched.remains &&
       untouched.noUnexpectedJuly20;
     await untouchedRun.context.close();
