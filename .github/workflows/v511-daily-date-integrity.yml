@@ -47,13 +47,17 @@ jobs:
           npm install --no-save --silent playwright@1.54.1
           npx playwright install --with-deps chromium webkit >/tmp/v511-playwright.log 2>&1 || (cat /tmp/v511-playwright.log && exit 1)
       - name: Run migration and import-date acceptance
+        shell: bash
         run: |
-          python3 -m http.server 8080 >/tmp/v511-server.log 2>&1 &
+          set +e
+          mkdir -p /tmp/v511-acceptance
+          python3 -m http.server 8080 >/tmp/v511-acceptance/server.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
           for i in {1..30}; do curl -fsS http://127.0.0.1:8080/career-roadmap/ >/dev/null && break; sleep 1; done
           cat > v511-check.mjs <<'EOF'
           import {chromium,webkit,devices} from 'playwright';
+          import fs from 'node:fs';
           const SITE='http://127.0.0.1:8080/career-roadmap/?v511=1';
           const results=[];
           const baseState=(dailyLogs,selectedDate='2026-07-18')=>({selectedDate,calendarMonth:'2026-07',week:'w1',checks:{},settings:{lastView:'today'},dailyLogs,problemLogs:[],weeklyReviews:[],schedule:[],cycleArchives:[],customLearning:[],abilities:[],resume:{}});
@@ -67,49 +71,45 @@ jobs:
             return{context,page,errors,response}
           }
           async function run(type,name,options){
-            const browser=await type.launch({headless:true});
-            const migratedRun=await openSeeded(browser,options,baseState([
-              {id:'unrelated-0719',date:'2026-07-19',summary:'unrelated record must remain unchanged'},
-              {id:'misdated-0720',date:'2026-07-18',summary:'完成line coverage补齐；导师将部分人力转向时钟与复位UT自动生成方向；尚未进入生成器实现阶段。'}
-            ]));
-            const {page,errors,response}=migratedRun;
-            const migrated=await page.evaluate(()=>({
-              unrelated:S.dailyLogs.some(x=>x.id==='unrelated-0719'&&x.date==='2026-07-19'),
-              moved:S.dailyLogs.some(x=>x.id==='misdated-0720'&&x.date==='2026-07-20'),
-              oldMisdated:S.dailyLogs.some(x=>x.id==='misdated-0720'&&x.date==='2026-07-18'),
-              selectedDate:S.selectedDate,
-              backup:!!localStorage.getItem('zhantong-career-os-v5-pre-v511-daily-date')
-            }));
-            await page.evaluate(()=>openQuick('daily'));
-            const defaultDate=await page.$eval('#qDate',el=>el.value);
-            const localToday=await page.evaluate(()=>localISO());
-            await page.evaluate(()=>{
-              document.getElementById('qDate').value='2026-07-21';
-              document.getElementById('qText').value=JSON.stringify({date:'2026-07-18',summary:'date conflict regression'});
-              saveQuick('daily');
-            });
-            const imported=await page.evaluate(()=>{
-              const item=S.dailyLogs.find(x=>x.date==='2026-07-21');
-              return{saved:!!item,payloadDate:item?.importMeta?.dateMismatch?.payloadDate||'',resolution:item?.importMeta?.dateMismatch?.resolution||'',selectedDate:S.selectedDate,unrelatedStillThere:S.dailyLogs.some(x=>x.id==='unrelated-0719'&&x.date==='2026-07-19')}
-            });
-            await migratedRun.context.close();
-
-            const untouchedRun=await openSeeded(browser,options,baseState([{id:'legitimate-0718',date:'2026-07-18',summary:'legitimate July 18 record without migration signatures'}]));
-            const untouched=await untouchedRun.page.evaluate(()=>({
-              remains:S.dailyLogs.some(x=>x.id==='legitimate-0718'&&x.date==='2026-07-18'),
-              noUnexpectedJuly20:!S.dailyLogs.some(x=>x.id==='legitimate-0718'&&x.date==='2026-07-20')
-            }));
-            const allErrors=[...errors,...untouchedRun.errors];
-            const passed=response?.status()===200&&untouchedRun.response?.status()===200&&allErrors.length===0&&migrated.unrelated&&migrated.moved&&!migrated.oldMisdated&&migrated.selectedDate==='2026-07-20'&&migrated.backup&&defaultDate===localToday&&imported.saved&&imported.payloadDate==='2026-07-18'&&imported.resolution==='selected-date-wins'&&imported.selectedDate==='2026-07-21'&&imported.unrelatedStillThere&&untouched.remains&&untouched.noUnexpectedJuly20;
-            results.push({name,passed,errors:allErrors,migrated,defaultDate,localToday,imported,untouched});
-            await untouchedRun.context.close();await browser.close();
+            const item={name,passed:false,errors:[]};let browser;
+            try{
+              browser=await type.launch({headless:true});
+              const migratedRun=await openSeeded(browser,options,baseState([
+                {id:'unrelated-0719',date:'2026-07-19',summary:'unrelated record must remain unchanged'},
+                {id:'misdated-0720',date:'2026-07-18',summary:'完成line coverage补齐；导师将部分人力转向时钟与复位UT自动生成方向；尚未进入生成器实现阶段。'}
+              ]));
+              const {page,errors,response}=migratedRun;
+              const migrated=await page.evaluate(()=>({unrelated:S.dailyLogs.some(x=>x.id==='unrelated-0719'&&x.date==='2026-07-19'),moved:S.dailyLogs.some(x=>x.id==='misdated-0720'&&x.date==='2026-07-20'),oldMisdated:S.dailyLogs.some(x=>x.id==='misdated-0720'&&x.date==='2026-07-18'),selectedDate:S.selectedDate,backup:!!localStorage.getItem('zhantong-career-os-v5-pre-v511-daily-date')}));
+              await page.evaluate(()=>openQuick('daily'));
+              const defaultDate=await page.$eval('#qDate',el=>el.value);
+              const localToday=await page.evaluate(()=>localISO());
+              await page.evaluate(()=>{document.getElementById('qDate').value='2026-07-21';document.getElementById('qText').value=JSON.stringify({date:'2026-07-18',summary:'date conflict regression'});saveQuick('daily')});
+              const imported=await page.evaluate(()=>{const record=S.dailyLogs.find(x=>x.date==='2026-07-21');return{saved:!!record,payloadDate:record?.importMeta?.dateMismatch?.payloadDate||'',resolution:record?.importMeta?.dateMismatch?.resolution||'',selectedDate:S.selectedDate,unrelatedStillThere:S.dailyLogs.some(x=>x.id==='unrelated-0719'&&x.date==='2026-07-19')}});
+              await migratedRun.context.close();
+              const untouchedRun=await openSeeded(browser,options,baseState([{id:'legitimate-0718',date:'2026-07-18',summary:'legitimate July 18 record without migration signatures'}]));
+              const untouched=await untouchedRun.page.evaluate(()=>({remains:S.dailyLogs.some(x=>x.id==='legitimate-0718'&&x.date==='2026-07-18'),noUnexpectedJuly20:!S.dailyLogs.some(x=>x.id==='legitimate-0718'&&x.date==='2026-07-20')}));
+              item.errors=[...errors,...untouchedRun.errors];item.migrated=migrated;item.defaultDate=defaultDate;item.localToday=localToday;item.imported=imported;item.untouched=untouched;item.http=[response?.status()||0,untouchedRun.response?.status()||0];
+              item.passed=item.http.every(x=>x===200)&&item.errors.length===0&&migrated.unrelated&&migrated.moved&&!migrated.oldMisdated&&migrated.selectedDate==='2026-07-20'&&migrated.backup&&defaultDate===localToday&&imported.saved&&imported.payloadDate==='2026-07-18'&&imported.resolution==='selected-date-wins'&&imported.selectedDate==='2026-07-21'&&imported.unrelatedStillThere&&untouched.remains&&untouched.noUnexpectedJuly20;
+              await untouchedRun.context.close();
+            }catch(e){item.errors.push(e?.stack||String(e))}
+            if(browser)await browser.close();results.push(item)
           }
           await run(chromium,'desktop',{viewport:{width:1440,height:1000},locale:'zh-CN'});
           await run(webkit,'iphone',{...devices['iPhone 15 Pro'],locale:'zh-CN'});
-          console.log(JSON.stringify(results,null,2));
-          if(results.some(x=>!x.passed))process.exit(1);
+          const report={passed:results.every(x=>x.passed),results};
+          fs.writeFileSync('/tmp/v511-acceptance/result.json',JSON.stringify(report,null,2));
+          console.log(JSON.stringify(report,null,2));
           EOF
-          node v511-check.mjs
+          node v511-check.mjs >/tmp/v511-acceptance/node.log 2>&1
+          exit 0
+      - name: Upload V5.11 diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: career-os-v511-acceptance
+          path: /tmp/v511-acceptance
+      - name: Enforce V5.11 acceptance
+        run: python3 -c "import json; assert json.load(open('/tmp/v511-acceptance/result.json'))['passed']"
       - name: Commit generated repair
         run: |
           git config user.name "github-actions[bot]"
