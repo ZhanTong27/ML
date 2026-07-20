@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - career-roadmap/tools/v511-final-trigger.txt
+      - career-roadmap/tools/v511-trigger.txt
 
 permissions:
   contents: write
