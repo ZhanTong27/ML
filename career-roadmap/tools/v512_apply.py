@@ -10,7 +10,7 @@ def replace_once(text: str, old: str, new: str, label: str) -> str:
     return text.replace(old, new, 1)
 
 
-def main() -> None:
+def patch_builder() -> None:
     path = ROOT / "build_single_file.py"
     text = path.read_text(encoding="utf-8")
     source = "    'curriculum/v512-weekly-review-live.js',\n"
@@ -22,7 +22,24 @@ def main() -> None:
         anchor = "    'CAREER_OS_V511_DAILY_DATE_INTEGRITY',\n"
         text = replace_once(text, anchor, anchor + marker, "V5.11 marker anchor")
     path.write_text(text, encoding="utf-8")
-    print("V5.12 weekly live source registered")
+
+
+def patch_live_source() -> None:
+    path = ROOT / "curriculum/v512-weekly-review-live.js"
+    text = path.read_text(encoding="utf-8")
+    old = "copy.importedAt=copy.importedAt||new Date().toISOString();copy.isCanonical=copy.isCanonical!==false;"
+    new = "copy.importedAt=copy.importedAt||copy.createdAt||new Date().toISOString();copy.isCanonical=copy.isCanonical!==false;"
+    if old in text:
+        text = replace_once(text, old, new, "stable weekly importedAt")
+    elif new not in text:
+        raise RuntimeError("Missing source fragment: stable weekly importedAt")
+    path.write_text(text, encoding="utf-8")
+
+
+def main() -> None:
+    patch_builder()
+    patch_live_source()
+    print("V5.12 weekly live source registered and stabilized")
 
 
 if __name__ == "__main__":
