@@ -1,2 +1,2 @@
 Build and validate the live weekly review source-of-truth migration and rendering.
-Use stable imported timestamps and hard browser timeouts.
+Use stable imported timestamps, chronological Diagnosis application and post-save remounts.
