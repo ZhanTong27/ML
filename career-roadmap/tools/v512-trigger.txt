@@ -1,1 +1,2 @@
 Build and validate the live weekly review source-of-truth migration and rendering.
+Use hard browser timeouts for deterministic acceptance.
