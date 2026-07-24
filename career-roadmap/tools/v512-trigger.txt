@@ -1,2 +1,0 @@
-Build and validate the live weekly review source-of-truth migration and rendering.
-Validate visible archive content and complete mobile remount timing.
