@@ -107,6 +107,7 @@ EXTRA_SOURCES = [
     'curriculum/v510-verification-mastery-state.js',
     'curriculum/v510-verification-mastery-ui.js',
     'curriculum/v511-daily-date-integrity.js',
+    'curriculum/v512-weekly-review-live.js',
 ]
 
 REQUIRED_MARKERS = [
@@ -163,6 +164,7 @@ REQUIRED_MARKERS = [
     'CAREER_OS_V510_VERIFICATION_MASTERY',
     'Verification Engineering Mastery',
     'CAREER_OS_V511_DAILY_DATE_INTEGRITY',
+    'CAREER_OS_V512_WEEKLY_REVIEW_LIVE',
 ]
 
 

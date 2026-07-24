@@ -11,7 +11,7 @@
   else if(typeof range==='string'){const dates=range.match(/\d{4}-\d{2}-\d{2}/g)||[];start=start||dates[0]||'';end=end||dates[1]||dates[0]||''}
   return{start,end,label:start&&end?`${start}—${end}`:(start||end||(typeof range==='string'?range:''))}
  }
- function isFormal(record){return record?.schemaVersion==='career-os-v4-weekly-1'||Boolean(record?.reviewId&&Array.isArray(record?.diagnosisUpdates)&&record?.range)}
+ function isFormal(record){return Boolean(record?.reviewId&&Array.isArray(record?.diagnosisUpdates)&&record?.range&&(record.schemaVersion==='career-os-v4-weekly-1'||record.diagnosisUpdates.length>=0))}
  function normalize(record,fallbackRange=''){
   const copy={...(record||{})};const b=bounds(copy.range||fallbackRange,copy);
   if(!b.start||!b.end)throw new Error('Weekly Patch range必须包含开始和结束日期');
@@ -20,7 +20,7 @@
   copy.range={start:b.start,end:b.end};copy.rangeStart=b.start;copy.rangeEnd=b.end;copy.rangeLabel=b.label;copy.rangeContract='career-os-weekly-period-v2';
   copy.highlights=arr(copy.highlights);copy.topEvidenceIds=arr(copy.topEvidenceIds);copy.diagnosisUpdates=arr(copy.diagnosisUpdates);copy.resumeCandidates=arr(copy.resumeCandidates);copy.missingInformation=arr(copy.missingInformation);
   copy.courseDecision=copy.courseDecision||{};copy.courseDecision.addedTasks=arr(copy.courseDecision.addedTasks);copy.nextWeek=copy.nextWeek||{};
-  copy.importedAt=copy.importedAt||new Date().toISOString();copy.isCanonical=copy.isCanonical!==false;
+  copy.importedAt=copy.importedAt||copy.createdAt||new Date().toISOString();copy.isCanonical=copy.isCanonical!==false;
   return copy
  }
  function backup(){try{if(!localStorage.getItem(BACKUP))localStorage.setItem(BACKUP,JSON.stringify(S))}catch(e){}}
@@ -44,14 +44,15 @@
  }
  function ensureLegacyMirror(record){
   S.weeklyReviews=arr(S.weeklyReviews);const existing=S.weeklyReviews.find(x=>x.formalReviewId===record.reviewId||x.reviewId===record.reviewId);
-  const mirror={id:existing?.id||`weekly-formal-${record.reviewId}`,formalReviewId:record.reviewId,reviewId:record.reviewId,schemaVersion:record.schemaVersion,range:record.rangeLabel,rangeStart:record.range.start,rangeEnd:record.range.end,summary:record.summary||'',highlights:record.highlights,createdAt:record.importedAt,rangeContract:'legacy-weekly-v2'};
+  const mirror={id:existing?.id||`weekly-formal-${record.reviewId}`,formalReviewId:record.reviewId,reviewId:record.reviewId,schemaVersion:'career-os-weekly-mirror-1',range:record.rangeLabel,rangeStart:record.range.start,rangeEnd:record.range.end,summary:record.summary||'',highlights:record.highlights,createdAt:record.importedAt,rangeContract:'legacy-weekly-v2'};
   if(existing)Object.assign(existing,mirror);else S.weeklyReviews.unshift(mirror)
  }
  function migrate(){
   if(typeof S!=='object')return false;backup();let changed=false;
   S.weeklyReviewRecords=arr(S.weeklyReviewRecords).map(item=>{try{const normalized=normalize(item);if(JSON.stringify(normalized)!==JSON.stringify(item))changed=true;return normalized}catch(e){return item}});
-  arr(S.weeklyReviews).forEach(item=>{if(!isFormal(item))return;try{const normalized=normalize(item);const before=S.weeklyReviewRecords.length;upsertFormal(normalized);applyDiagnosisUpdates(normalized);ensureLegacyMirror(normalized);if(S.weeklyReviewRecords.length!==before||!item.promotedToFormalV512){item.promotedToFormalV512=true;item.formalReviewId=normalized.reviewId;changed=true}}catch(e){console.error('V5.12 weekly promotion failed',e)}});
-  S.weeklyReviewRecords.forEach(record=>{if(!isFormal(record))return;try{const normalized=normalize(record);applyDiagnosisUpdates(normalized);ensureLegacyMirror(normalized)}catch(e){}});
+  arr(S.weeklyReviews).forEach(item=>{if(!isFormal(item))return;try{const normalized=normalize(item);const before=S.weeklyReviewRecords.length;upsertFormal(normalized);if(S.weeklyReviewRecords.length!==before||!item.promotedToFormalV512){item.promotedToFormalV512=true;item.formalReviewId=normalized.reviewId;item.importedAt=normalized.importedAt;changed=true}}catch(e){console.error('V5.12 weekly promotion failed',e)}});
+  const chronological=arr(S.weeklyReviewRecords).filter(isFormal).map(item=>{try{return normalize(item)}catch(e){return null}}).filter(Boolean).sort((a,b)=>{const endCompare=String(a.range.end).localeCompare(String(b.range.end));return endCompare||String(a.importedAt||a.reviewId).localeCompare(String(b.importedAt||b.reviewId))});
+  chronological.forEach(record=>{applyDiagnosisUpdates(record);ensureLegacyMirror(record)});
   S.weeklyLiveV512={version:'5.12.0',formalCount:S.weeklyReviewRecords.length,updatedAt:new Date().toISOString()};
   if(changed)try{save()}catch(e){};return changed
  }
@@ -85,7 +86,7 @@
   }finally{busy=false}
  }
  function saveFormalFromQuick(record){
-  const fallback=document.querySelector('#qRange')?.value||'';const normalized=normalize(record,fallback);backup();upsertFormal(normalized);applyDiagnosisUpdates(normalized);ensureLegacyMirror(normalized);S.weeklyLiveV512={version:'5.12.0',lastImportedReviewId:normalized.reviewId,updatedAt:new Date().toISOString()};save();closeModals();renderAll();mount();toast(`周度Review已导入并展示：${normalized.rangeLabel}`)
+  const fallback=document.querySelector('#qRange')?.value||'';const normalized=normalize(record,fallback);backup();upsertFormal(normalized);applyDiagnosisUpdates(normalized);ensureLegacyMirror(normalized);S.weeklyLiveV512={version:'5.12.0',lastImportedReviewId:normalized.reviewId,updatedAt:new Date().toISOString()};save();closeModals();renderAll();[0,120,500,1400].forEach(delay=>setTimeout(mount,delay));toast(`周度Review已导入并展示：${normalized.rangeLabel}`)
  }
  function installCapture(){
   if(captureInstalled)return;captureInstalled=true;
