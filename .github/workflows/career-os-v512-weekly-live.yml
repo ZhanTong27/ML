@@ -53,7 +53,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add career-roadmap/build_single_file.py career-roadmap/index.html
+          git add career-roadmap/curriculum/v512-weekly-review-live.js career-roadmap/build_single_file.py career-roadmap/index.html
           if ! git diff --cached --quiet; then
             git commit -m "Build V5.12 live weekly review"
             git push origin HEAD:${{ github.head_ref }}
