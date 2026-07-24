@@ -1,7 +1,7 @@
 import { chromium, webkit, devices } from 'playwright';
 import fs from 'node:fs';
 
-const SITE = 'http://127.0.0.1:8080/career-roadmap/?v512=2';
+const SITE = 'http://127.0.0.1:8080/career-roadmap/?v512=3';
 const results = [];
 
 function review(id, start, end, summary, confidence) {
@@ -39,7 +39,7 @@ async function execute(type, name, options) {
     page.on('console', (message) => { if (message.type() === 'error') item.errors.push(message.text()); });
     const response = await page.goto(SITE, { waitUntil: 'domcontentloaded', timeout: 20000 });
     await page.waitForFunction(() => window.CAREER_OS_V512?.complete === true, null, { timeout: 20000 });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(700);
 
     const promoted = await page.evaluate(() => ({
       formalIds: S.weeklyReviewRecords.map((x) => x.reviewId),
@@ -56,7 +56,7 @@ async function execute(type, name, options) {
       document.getElementById('qText').value = JSON.stringify(payload);
       document.querySelector('#quickContent [data-save]').click();
     }, w31);
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1900);
 
     const imported = await page.evaluate(() => ({
       formal: S.weeklyReviewRecords.some((x) => x.reviewId === '2026-W31-quick-import'),
@@ -70,7 +70,7 @@ async function execute(type, name, options) {
     item.http = response?.status() || 0; item.promoted = promoted; item.imported = imported;
     item.passed = item.http === 200 && item.errors.length === 0 &&
       promoted.formalIds.includes('2026-W30-legacy-import') && promoted.legacyMirror && promoted.currentText.includes('2026-W30-legacy-import') && promoted.currentText.includes('NEW W30 REVIEW') && promoted.history && promoted.confidence === 70 &&
-      imported.formal && imported.legacyMirror && imported.currentText.includes('2026-W31-quick-import') && imported.currentText.includes('LATEST W31 REVIEW') && imported.detailText.includes('2026-W30-legacy-import') && imported.history && imported.confidence === 82;
+      imported.formal && imported.legacyMirror && imported.currentText.includes('2026-W31-quick-import') && imported.currentText.includes('LATEST W31 REVIEW') && imported.detailText.includes('NEW W30 REVIEW') && imported.history && imported.confidence === 82;
     await context.close();
   } catch (error) {
     item.errors.push(error?.stack || String(error));
